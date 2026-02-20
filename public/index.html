@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>✨ Vibe Check — Know Before You Build</title>
+  <style>
+    :root {
+      --bg: #07070f;
+      --card-bg: #0d0d1a;
+      --card-border: #1a1a30;
+      --purple: #8b5cf6;
+      --pink: #ec4899;
+      --blue: #3b82f6;
+      --cyan: #06b6d4;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --subtle: #1e1e3a;
+      --radius: 14px;
+      --grad: linear-gradient(135deg, var(--purple), var(--pink));
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80vw;
+      height: 60vh;
+      background: radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-text {
+      font-size: 20px;
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo-badge {
+      font-size: 11px;
+      background: var(--subtle);
+      color: var(--purple);
+      border: 1px solid var(--purple);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-weight: 600;
+    }
+    .header-right { font-size: 13px; color: var(--muted); }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── HERO ── */
+    .hero { text-align: center; margin-bottom: 48px; }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .hero h1 span {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p { color: var(--muted); font-size: 18px; margin-bottom: 40px; }
+
+    .input-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px;
+      text-align: left;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .input-card textarea {
+      width: 100%;
+      background: var(--subtle);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 120px;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.6;
+    }
+    .input-card textarea:focus { border-color: var(--purple); }
+    .input-card textarea::placeholder { color: var(--muted); }
+
+    .input-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .skill-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+    .skill-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .skill-btn {
+      background: var(--subtle);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .skill-btn:hover { color: var(--text); border-color: var(--purple); }
+    .skill-btn.active { background: rgba(139,92,246,0.15); border-color: var(--purple); color: var(--purple); }
+
+    .analyze-btn {
+      background: var(--grad);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .analyze-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 30px rgba(139,92,246,0.4); }
+    .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── PROGRESS ── */
+    #progress-section { margin-bottom: 40px; display: none; }
+    .progress-header { text-align: center; margin-bottom: 24px; }
+    .progress-header p { color: var(--muted); font-size: 15px; }
+    .progress-steps { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .progress-step {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 100px; padding: 8px 16px;
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      transition: all 0.3s;
+    }
+    .progress-step.active { border-color: var(--purple); color: var(--purple); background: rgba(139,92,246,0.1); }
+    .progress-step.done { border-color: var(--green); color: var(--green); background: rgba(16,185,129,0.1); }
+    .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: all 0.3s; }
+    .progress-step.active .step-dot { background: var(--purple); animation: pulse 1s infinite; }
+    .progress-step.done .step-dot { background: var(--green); animation: none; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* ── RESULTS ── */
+    #results-section { display: none; }
+    .results-header { text-align: center; margin-bottom: 32px; }
+    .results-header h2 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .results-header p { color: var(--muted); font-size: 15px; }
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 20px; }
+
+    /* ── CARDS ── */
+    .result-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--radius); overflow: hidden;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.5s, transform 0.5s, border-color 0.2s;
+    }
+    .result-card.visible { opacity: 1; transform: translateY(0); }
+    .result-card:hover { border-color: #2a2a50; }
+    .card-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 18px 22px; border-bottom: 1px solid var(--card-border);
+    }
+    .card-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .icon-purple { background: rgba(139,92,246,0.15); }
+    .icon-pink   { background: rgba(236,72,153,0.15); }
+    .icon-blue   { background: rgba(59,130,246,0.15); }
+    .icon-green  { background: rgba(16,185,129,0.15); }
+    .icon-yellow { background: rgba(245,158,11,0.15); }
+    .icon-cyan   { background: rgba(6,182,212,0.15); }
+    .icon-red    { background: rgba(239,68,68,0.15); }
+    .card-title { font-size: 15px; font-weight: 700; }
+    .card-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .card-body { padding: 22px; }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--subtle) 25%, #1a1a35 50%, var(--subtle) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ── SCORE RING ── */
+    .score-display { display: flex; align-items: center; gap: 24px; margin-bottom: 20px; }
+    .score-ring { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-number { font-size: 22px; font-weight: 800; }
+    .score-label { font-size: 10px; color: var(--muted); }
+    .score-meta strong { font-size: 18px; font-weight: 700; }
+    .score-meta p { color: var(--muted); font-size: 13px; margin-top: 4px; line-height: 1.5; }
+
+    /* ── PILLS ── */
+    .pill { display: inline-flex; align-items: center; gap: 4px; border-radius: 100px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+    .pill-purple { background: rgba(139,92,246,0.15); color: var(--purple); }
+    .pill-green  { background: rgba(16,185,129,0.15); color: var(--green); }
+    .pill-red    { background: rgba(239,68,68,0.15);  color: var(--red); }
+    .pill-yellow { background: rgba(245,158,11,0.15); color: var(--yellow); }
+    .pill-blue   { background: rgba(59,130,246,0.15); color: var(--blue); }
+    .pill-cyan   { background: rgba(6,182,212,0.15);  color: var(--cyan); }
+    .pill-muted  { background: var(--subtle); color: var(--muted); }
+
+    /* ── ITEM ROWS ── */
+    .item-row { display: flex; align-items: flex-start; gap: 10px; padding: 12px; background: var(--subtle); border-radius: 10px; }
+    .item-row-icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+    .item-row-content strong { display: block; font-size: 14px; margin-bottom: 2px; }
+    .item-row-content span { font-size: 13px; color: var(--muted); }
+
+    /* ── COMPETITOR CARDS ── */
+    .competitor-card { border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .competitor-card:last-child { margin-bottom: 0; }
+    .competitor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 10px; flex-wrap: wrap; }
+    .competitor-name { font-size: 15px; font-weight: 700; }
+    .competitor-name a { color: var(--text); text-decoration: none; }
+    .competitor-name a:hover { color: var(--purple); }
+    .competitor-desc { font-size: 13px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
+    .sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .sw-col small { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+    .sw-col.strengths small { color: var(--green); }
+    .sw-col.weaknesses small { color: var(--red); }
+    .sw-item { font-size: 12px; color: var(--muted); padding: 3px 0; }
+
+    /* ── TECH STACK ── */
+    .stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .stack-item { background: var(--subtle); border-radius: 10px; padding: 12px; }
+    .stack-item small { display: block; font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .stack-item span { font-size: 13px; font-weight: 600; }
+
+    /* ── TIME ESTIMATES ── */
+    .time-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+    .time-item { background: var(--subtle); border-radius: 10px; padding: 12px; text-align: center; }
+    .time-item small { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .time-item strong { font-size: 13px; }
+
+    /* ── DIFFICULTY BAR ── */
+    .diff-bar-wrap { margin-bottom: 16px; }
+    .diff-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .diff-bar { height: 8px; background: var(--subtle); border-radius: 100px; overflow: hidden; }
+    .diff-bar-fill { height: 100%; border-radius: 100px; transition: width 0.8s ease; }
+
+    /* ── PLATFORM GRID ── */
+    .platform-grid { display: flex; flex-direction: column; gap: 8px; }
+    .platform-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--subtle); border-radius: 10px; border-left: 3px solid transparent; }
+    .platform-row.rec-high { border-left-color: var(--green); }
+    .platform-row.rec-med  { border-left-color: var(--yellow); }
+    .platform-row.rec-low  { border-left-color: var(--red); }
+    .platform-name { font-size: 14px; font-weight: 600; flex: 1; }
+    .platform-meta { font-size: 12px; color: var(--muted); }
+
+    /* ── REDDIT ── */
+    .reddit-section { margin-bottom: 20px; }
+    .reddit-section:last-child { margin-bottom: 0; }
+    .reddit-section-title { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+    .reddit-post { display: flex; gap: 10px; padding: 10px 12px; background: var(--subtle); border-radius: 10px; margin-bottom: 6px; text-decoration: none; color: var(--text); transition: background 0.2s; }
+    .reddit-post:hover { background: #1a1a35; }
+    .reddit-score { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 36px; flex-shrink: 0; }
+    .reddit-score strong { font-size: 13px; font-weight: 700; }
+    .reddit-score span { font-size: 10px; color: var(--muted); }
+    .reddit-title { font-size: 13px; line-height: 1.4; flex: 1; }
+    .reddit-meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .sentiment-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; }
+
+    /* ── IMPROVEMENTS ── */
+    .improvement-card { border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+    .improvement-card:last-child { margin-bottom: 0; }
+    .improvement-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .improvement-title { font-size: 14px; font-weight: 700; flex: 1; }
+    .improvement-reason { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ── SATURATION ── */
+    .sat-meter { margin: 16px 0; }
+    .sat-meter-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .sat-track { height: 10px; background: var(--subtle); border-radius: 100px; overflow: hidden; }
+    .sat-fill { height: 100%; border-radius: 100px; transition: width 0.8s ease; }
+
+    /* ── SUMMARY BOX ── */
+    .summary-box { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); border-radius: 10px; padding: 14px; font-size: 13px; line-height: 1.6; color: var(--text); margin-top: 16px; }
+
+    /* ── MONETIZATION ── */
+    .mono-row { display: flex; gap: 10px; padding: 12px; background: var(--subtle); border-radius: 10px; margin-bottom: 8px; align-items: flex-start; }
+    .mono-row:last-child { margin-bottom: 0; }
+    .mono-model { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .mono-desc { font-size: 13px; color: var(--muted); }
+    .mono-meta { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+
+    /* ── DIVIDER ── */
+    .section-divider { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 18px 0 12px; display: flex; align-items: center; gap: 10px; }
+    .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--card-border); }
+
+    /* ── EXISTENCE ── */
+    .existence-status { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 12px; margin-bottom: 16px; font-weight: 700; font-size: 15px; }
+    .exist-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── NEW ANALYSIS ── */
+    .new-analysis-wrap { text-align: center; margin-top: 48px; }
+
+    @media (max-width: 600px) {
+      header { padding: 16px; }
+      .results-grid { grid-template-columns: 1fr; }
+      .stack-grid, .time-grid { grid-template-columns: 1fr; }
+      .sw-grid { grid-template-columns: 1fr; }
+      main { padding: 24px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-text">✨ Vibe Check</div>
+    <div class="logo-badge">BETA</div>
+  </div>
+  <div class="header-right">Know before you build.</div>
+</header>
+
+<main>
+
+  <!-- ── INPUT ── -->
+  <section class="hero" id="input-section">
+    <h1>Know <span>before</span> you build.</h1>
+    <p>Describe any product idea. Get a real-time deep analysis in seconds.</p>
+
+    <div class="input-card">
+      <textarea
+        id="idea-input"
+        placeholder="e.g. A Chrome extension that blocks distracting websites during focus sessions and gives you weekly productivity reports..."
+        rows="5"
+      ></textarea>
+
+      <div class="input-footer">
+        <div>
+          <div class="skill-label">Your level</div>
+          <div class="skill-selector">
+            <button class="skill-btn" data-skill="vibe_coder">🎮 Vibe Coder</button>
+            <button class="skill-btn active" data-skill="beginner">🌱 Beginner</button>
+            <button class="skill-btn" data-skill="intermediate">💻 Intermediate</button>
+            <button class="skill-btn" data-skill="senior">🚀 Senior Dev</button>
+          </div>
+        </div>
+        <button class="analyze-btn" id="analyze-btn" onclick="startAnalysis()">
+          ✨ Analyze Idea
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROGRESS ── -->
+  <section id="progress-section">
+    <div class="progress-header">
+      <p id="progress-message">Initializing research agents...</p>
+    </div>
+    <div class="progress-steps">
+      <div class="progress-step" id="step-market"><div class="step-dot"></div>🔍 Market</div>
+      <div class="progress-step" id="step-technical"><div class="step-dot"></div>🛠 Technical</div>
+      <div class="progress-step" id="step-opportunity"><div class="step-dot"></div>📊 Opportunity</div>
+      <div class="progress-step" id="step-deployment"><div class="step-dot"></div>🚀 Deployment</div>
+      <div class="progress-step" id="step-sentiment"><div class="step-dot"></div>💬 Sentiment</div>
+    </div>
+  </section>
+
+  <!-- ── RESULTS ── -->
+  <section id="results-section">
+    <div class="results-header">
+      <h2 id="results-title">Vibe Check Complete</h2>
+      <p id="results-subtitle">Here's everything we found.</p>
+    </div>
+
+    <div class="results-grid">
+
+      <div class="result-card" id="card-market">
+        <div class="card-header">
+          <div class="card-icon icon-purple">🔍</div>
+          <div><div class="card-title">Market Existence</div><div class="card-subtitle">Does this already exist?</div></div>
+        </div>
+        <div class="card-body" id="body-market">
+          <div class="skeleton" style="height:60px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:120px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:80px"></div>
+        </div>
+      </div>
+
+      <div class="result-card" id="card-opportunity">
+        <div class="card-header">
+          <div class="card-icon icon-pink">📊</div>
+          <div><div class="card-title">Opportunity Score</div><div class="card-subtitle">How good is this idea?</div></div>
+        </div>
+        <div class="card-body" id="body-opportunity">
+          <div class="skeleton" style="height:80px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:60px"></div>
+        </div>
+      </div>
+
+      <div class="result-card" id="card-technical">
+        <div class="card-header">
+          <div class="card-icon icon-yellow">🛠</div>
+          <div><div class="card-title">Technical Difficulty</div><div class="card-subtitle">How hard is it to build?</div></div>
+        </div>
+        <div class="card-body" id="body-technical">
+          <div class="skeleton" style="height:60px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:80px"></div>
+        </div>
+      </div>
+
+      <div class="result-card" id="card-stack">
+        <div class="card-header">
+          <div class="card-icon icon-blue">🔧</div>
+          <div><div class="card-title">Recommended Stack & Tools</div><div class="card-subtitle">What to build it with</div></div>
+        </div>
+        <div class="card-body" id="body-stack">
+          <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:100px"></div>
+        </div>
+      </div>
+
+      <div class="result-card" id="card-deployment">
+        <div class="card-header">
+          <div class="card-icon icon-green">🚀</div>
+          <div><div class="card-title">Optimal Deployment</div><div class="card-subtitle">Where to ship it</div></div>
+        </div>
+        <div class="card-body" id="body-deployment">
+          <div class="skeleton" style="height:60px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:150px"></div>
+        </div>
+      </div>
+
+      <div class="result-card" id="card-monetization">
+        <div class="card-header">
+          <div class="card-icon icon-cyan">💰</div>
+          <div><div class="card-title">Monetization Strategy</div><div class="card-subtitle">How to make money</div></div>
+        </div>
+        <div class="card-body" id="body-monetization">
+          <div class="skeleton" style="height:120px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:80px"></div>
+        </div>
+      </div>
+
+      <div class="result-card" id="card-competitors" style="grid-column: 1/-1">
+        <div class="card-header">
+          <div class="card-icon icon-red">🏆</div>
+          <div><div class="card-title">Competitive Landscape</div><div class="card-subtitle">Who's already in the game</div></div>
+        </div>
+        <div class="card-body" id="body-competitors">
+          <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
+          <div class="skeleton" style="height:100px"></div>
+        </div>
+      </div>
+
+      <div class="result-card" id="card-sentiment" style="grid-column: 1/-1">
+        <div class="card-header">
+          <div class="card-icon icon-purple">💬</div>
+          <div><div class="card-title">Public Sentiment</div><div class="card-subtitle">What Reddit is saying</div></div>
+        </div>
+        <div class="card-body" id="body-sentiment">
+          <div class="skeleton" style="height:80px;margin-bottom:8px"></div>
+          <div class="skeleton" style="height:80px;margin-bottom:8px"></div>
+          <div class="skeleton" style="height:80px"></div>
+        </div>
+      </div>
+
+      <div class="result-card" id="card-improvements" style="grid-column: 1/-1">
+        <div class="card-header">
+          <div class="card-icon icon-pink">✨</div>
+          <div><div class="card-title">Improvement Suggestions</div><div class="card-subtitle">How to make it even better</div></div>
+        </div>
+        <div class="card-body" id="body-improvements">
+          <div class="skeleton" style="height:80px;margin-bottom:10px"></div>
+          <div class="skeleton" style="height:80px;margin-bottom:10px"></div>
+          <div class="skeleton" style="height:80px"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="new-analysis-wrap">
+      <button class="analyze-btn" onclick="resetApp()" style="margin:0 auto">↩ Analyze Another Idea</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+let selectedSkill = 'beginner';
+let currentIdea = '';
+
+document.querySelectorAll('.skill-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedSkill = btn.dataset.skill;
+  });
+});
+
+function scoreColor(s) { return s>=8?'var(--green)':s>=6?'var(--yellow)':s>=4?'var(--purple)':'var(--red)'; }
+function diffColor(s)  { return s<=3?'var(--green)':s<=5?'var(--yellow)':s<=7?'var(--purple)':'var(--red)'; }
+function formatScore(n){ return Math.max(1,Math.min(10,parseInt(n)||5)); }
+
+function existenceInfo(e) {
+  const m = {
+    fully_exists:     {label:'Already Exists',     color:'var(--red)',    dot:'var(--red)',    bg:'rgba(239,68,68,0.08)'},
+    mostly_exists:    {label:'Mostly Exists',      color:'var(--yellow)', dot:'var(--yellow)', bg:'rgba(245,158,11,0.08)'},
+    partially_exists: {label:'Partially Exists',   color:'var(--yellow)', dot:'var(--yellow)', bg:'rgba(245,158,11,0.08)'},
+    significant_gap:  {label:'Significant Gap',    color:'var(--cyan)',   dot:'var(--cyan)',   bg:'rgba(6,182,212,0.08)'},
+    blue_ocean:       {label:'🌊 Blue Ocean!',     color:'var(--green)',  dot:'var(--green)',  bg:'rgba(16,185,129,0.08)'},
+  };
+  return m[e]||m['partially_exists'];
+}
+
+function makeScoreRing(score, color) {
+  const r=32,cx=40,cy=40,circ=2*Math.PI*r,pct=score/10;
+  return `<div class="score-ring">
+    <svg width="80" height="80" viewBox="0 0 80 80">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--subtle)" stroke-width="7"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="7"
+        stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-pct)}" stroke-linecap="round"/>
+    </svg>
+    <div class="score-ring-text">
+      <span class="score-number" style="color:${color}">${score}</span>
+      <span class="score-label">/ 10</span>
+    </div>
+  </div>`;
+}
+
+function recLevel(l) { return l==='highly_recommended'?'rec-high':l==='recommended'?'rec-med':'rec-low'; }
+function recLabel(l) { return {highly_recommended:'✅ Top Pick',recommended:'👍 Good Fit',possible:'🤔 Possible',not_recommended:'❌ Skip'}[l]||l; }
+function sentimentColor(s) { return s==='positive'?'var(--green)':s==='negative'?'var(--red)':'var(--yellow)'; }
+function priorityPill(p) { return p==='high'?'<span class="pill pill-red">🔥 High</span>':p==='medium'?'<span class="pill pill-yellow">⚡ Med</span>':'<span class="pill pill-muted">Low</span>'; }
+function effortPill(e)   { return e==='low'?'<span class="pill pill-green">Easy Win</span>':e==='high'?'<span class="pill pill-red">High Effort</span>':'<span class="pill pill-yellow">Medium</span>'; }
+
+function makeVisible(id) { document.getElementById(id)?.classList.add('visible'); }
+
+function setStep(phase, state) {
+  const el = document.getElementById(`step-${phase}`);
+  if (!el) return;
+  el.classList.remove('active','done');
+  el.classList.add(state);
+}
+function setProgressMsg(msg) {
+  const el = document.getElementById('progress-message');
+  if (el) el.innerHTML = msg;
+}
+
+const platformEmojis = {
+  web_app:'🌐',mobile_ios:'📱',mobile_android:'📱',mobile_cross_platform:'📱',
+  chrome_extension:'🔌',shopify_app:'🛍️',wordpress_plugin:'📝',
+  desktop_mac:'🖥️',desktop_windows:'🖥️',desktop_cross_platform:'🖥️',
+  api_service:'⚙️',slack_app:'💬',vs_code_extension:'💻',notion_integration:'📒',
+};
+
+function renderMarket(d) {
+  const ei=existenceInfo(d.exists),sat=formatScore(d.saturation_score);
+  const satColor=sat>=8?'var(--red)':sat>=5?'var(--yellow)':'var(--green)';
+  const comps=(d.competitors||[]).slice(0,5).map(c=>`
+    <div class="competitor-card">
+      <div class="competitor-header">
+        <div class="competitor-name">${c.url?`<a href="${c.url}" target="_blank" rel="noopener">${c.name} ↗</a>`:c.name}</div>
+        ${c.pricing?`<span class="pill pill-muted">${c.pricing}</span>`:''}
+      </div>
+      <div class="competitor-desc">${c.description||''}</div>
+      <div class="sw-grid">
+        <div class="sw-col strengths"><small>Strengths</small>${(c.strengths||[]).slice(0,3).map(s=>`<div class="sw-item">✅ ${s}</div>`).join('')}</div>
+        <div class="sw-col weaknesses"><small>Weaknesses</small>${(c.weaknesses||[]).slice(0,3).map(w=>`<div class="sw-item">⚠️ ${w}</div>`).join('')}</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('body-market').innerHTML = `
+    <div class="existence-status" style="background:${ei.bg};color:${ei.color}">
+      <div class="exist-dot" style="background:${ei.dot}"></div>${ei.label}
+    </div>
+    <div class="sat-meter">
+      <div class="sat-meter-label"><span>Market Saturation</span><strong style="color:${satColor}">${sat}/10</strong></div>
+      <div class="sat-track"><div class="sat-fill" style="width:${sat*10}%;background:${satColor}"></div></div>
+    </div>
+    ${(d.key_differentiators_needed||[]).length?`<div class="section-divider">To stand out</div>${d.key_differentiators_needed.slice(0,3).map(x=>`<div class="item-row" style="margin-bottom:8px"><div class="item-row-icon">💡</div><div class="item-row-content"><span>${x}</span></div></div>`).join('')}`:''}
+    ${d.market_summary?`<div class="summary-box">${d.market_summary}</div>`:''}
+    ${comps?`<div class="section-divider">Existing Players (${(d.competitors||[]).length})</div>${comps}`:''}`;
+  makeVisible('card-market');
+
+  // Full-width competitors card
+  document.getElementById('body-competitors').innerHTML=(d.competitors||[]).length?`
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
+      ${(d.competitors||[]).map(c=>`
+        <div style="background:var(--subtle);border-radius:12px;padding:16px;border:1px solid var(--card-border)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px">
+            <strong>${c.url?`<a href="${c.url}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${c.name} ↗</a>`:c.name}</strong>
+            ${c.pricing?`<span class="pill pill-muted" style="font-size:11px">${c.pricing}</span>`:''}
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5">${c.description||''}</p>
+          ${c.strengths?.length?`<div style="font-size:12px;color:var(--green);margin-bottom:4px">${c.strengths.slice(0,2).map(s=>'✅ '+s).join('<br>')}</div>`:''}
+          ${c.weaknesses?.length?`<div style="font-size:12px;color:var(--red)">${c.weaknesses.slice(0,2).map(w=>'⚠️ '+w).join('<br>')}</div>`:''}
+        </div>`).join('')}
+    </div>
+    ${d.market_summary?`<div class="summary-box" style="margin-top:16px">${d.market_summary}</div>`:''}
+  `:'<p style="color:var(--muted)">No major competitors found — this might be a true gap!</p>';
+  makeVisible('card-competitors');
+}
+
+function renderOpportunity(d) {
+  const score=formatScore(d.opportunity_score),color=scoreColor(score);
+  const trendIcon={rapidly_growing:'🚀',growing:'📈',stable:'➡️',declining:'📉',emerging:'🌱'};
+  document.getElementById('body-opportunity').innerHTML=`
+    <div class="score-display">
+      ${makeScoreRing(score,color)}
+      <div class="score-meta">
+        <strong style="color:${color}">${d.opportunity_grade||''} — ${score}/10</strong>
+        <p>${d.opportunity_summary||''}</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+      ${d.opportunity_type?`<span class="pill pill-purple">${d.opportunity_type.replace(/_/g,' ')}</span>`:''}
+      ${d.trend?`<span class="pill pill-cyan">${trendIcon[d.trend]||''} ${d.trend.replace(/_/g,' ')}</span>`:''}
+      ${d.market_size?`<span class="pill pill-muted">TAM: ${d.market_size}</span>`:''}
+    </div>
+    ${d.trend_evidence?`<div class="item-row" style="margin-bottom:16px"><div class="item-row-icon">📊</div><div class="item-row-content"><span>${d.trend_evidence}</span></div></div>`:''}
+    ${(d.target_audiences||[]).length?`<div class="section-divider">Target Audiences</div>${d.target_audiences.slice(0,3).map(a=>`<div class="item-row" style="margin-bottom:8px"><div class="item-row-icon">👥</div><div class="item-row-content"><strong>${a.segment||a}</strong>${a.size?`<span>Size: ${a.size} · Pays: ${a.willingness_to_pay||'?'}</span>`:''}</div></div>`).join('')}`:''}`;
+  makeVisible('card-opportunity');
+
+  document.getElementById('body-monetization').innerHTML=(d.monetization_strategies||[]).slice(0,4).map(m=>`
+    <div class="mono-row">
+      <div style="flex:1">
+        <div class="mono-model">${m.model}</div>
+        <div class="mono-desc">${m.description||''}</div>
+        <div class="mono-meta">
+          ${m.revenue_potential?`<span class="pill pill-green">${m.revenue_potential}</span>`:''}
+          ${m.difficulty?`<span class="pill pill-muted">Difficulty: ${m.difficulty}</span>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+  makeVisible('card-monetization');
+
+  window._improvements=d.improvement_suggestions||[];
+  renderImprovements();
+}
+
+function renderImprovements() {
+  const imps=window._improvements||[];
+  document.getElementById('body-improvements').innerHTML=imps.length?imps.slice(0,6).map(i=>`
+    <div class="improvement-card">
+      <div class="improvement-header">
+        <div class="improvement-title">💡 ${i.suggestion}</div>
+        <div style="display:flex;gap:6px;flex-shrink:0">${priorityPill(i.priority)}${effortPill(i.effort)}</div>
+      </div>
+      <div class="improvement-reason">${i.reasoning||''}</div>
+    </div>`).join(''):'<p style="color:var(--muted);font-size:13px">Loading suggestions...</p>';
+  makeVisible('card-improvements');
+}
+
+function renderTechnical(d) {
+  const score=formatScore(d.difficulty_score),color=diffColor(score);
+  const dl={no_code:{label:'🎮 No-Code',color:'var(--green)'},beginner:{label:'🌱 Beginner',color:'var(--cyan)'},intermediate:{label:'💻 Intermediate',color:'var(--yellow)'},advanced:{label:'🔥 Advanced',color:'var(--purple)'},expert:{label:'🚀 Expert',color:'var(--red)'}}[d.difficulty]||{label:d.difficulty,color:'var(--muted)'};
+  const t=d.time_estimates||{};
+  const times=[{l:'🎮 Vibe Coder',v:t.vibe_coder},{l:'🌱 Beginner',v:t.beginner},{l:'💻 Intermediate',v:t.intermediate},{l:'🚀 Senior',v:t.senior_dev}].filter(x=>x.v);
+  document.getElementById('body-technical').innerHTML=`
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+      ${makeScoreRing(score,color)}
+      <div><strong style="font-size:18px;color:${dl.color}">${dl.label}</strong><p style="font-size:13px;color:var(--muted);margin-top:4px;line-height:1.5">${d.technical_summary||''}</p></div>
+    </div>
+    <div class="diff-bar-wrap">
+      <div class="diff-bar-label"><span>Complexity</span><span style="color:${color}">${score}/10</span></div>
+      <div class="diff-bar"><div class="diff-bar-fill" style="width:${score*10}%;background:${color}"></div></div>
+    </div>
+    ${times.length?`<div class="section-divider">Time Estimates</div><div class="time-grid">${times.map(t=>`<div class="time-item"><small>${t.l}</small><strong>${t.v}</strong></div>`).join('')}</div>`:''}
+    ${(d.biggest_challenges||[]).length?`<div class="section-divider">Biggest Challenges</div>${d.biggest_challenges.slice(0,3).map(c=>`<div class="item-row" style="margin-bottom:8px"><div class="item-row-icon">⚠️</div><div class="item-row-content"><span>${c}</span></div></div>`).join('')}`:''}`;
+  makeVisible('card-technical');
+
+  const stack=d.tech_stack||{};
+  const stackItems=[{l:'Frontend',v:stack.frontend},{l:'Backend',v:stack.backend},{l:'Database',v:stack.database},{l:'Hosting',v:stack.hosting}].filter(s=>s.v);
+  document.getElementById('body-stack').innerHTML=`
+    ${stackItems.length?`<div class="stack-grid">${stackItems.map(s=>`<div class="stack-item"><small>${s.l}</small><span>${s.v}</span></div>`).join('')}</div>`:''}
+    ${(d.required_apis||[]).length?`<div class="section-divider">Required APIs</div>${d.required_apis.slice(0,5).map(a=>`<div class="item-row" style="margin-bottom:8px"><div class="item-row-icon">🔗</div><div class="item-row-content"><strong>${a.url?`<a href="${a.url}" target="_blank" style="color:var(--text);text-decoration:none">${a.name} ↗</a>`:a.name}</strong><span>${a.purpose} · <em>${a.cost||''}</em></span></div></div>`).join('')}`:''}
+    ${(d.recommended_tools||[]).length?`<div class="section-divider">Recommended Tools</div>${d.recommended_tools.slice(0,5).map(t=>`<div class="item-row" style="margin-bottom:8px"><div class="item-row-icon">🔧</div><div class="item-row-content"><strong>${t.name}</strong><span>${t.purpose} · ${t.cost||''}</span></div></div>`).join('')}`:''}
+    ${(d.no_code_alternatives||[]).length?`<div class="section-divider">No-Code Alternatives</div>${d.no_code_alternatives.slice(0,3).map(n=>`<div class="item-row" style="margin-bottom:8px"><div class="item-row-icon">🧩</div><div class="item-row-content"><strong>${n.tool}</strong><span>${n.coverage} · ${n.limitations||''}</span></div></div>`).join('')}`:''}`;
+  makeVisible('card-stack');
+}
+
+function renderDeployment(d) {
+  const primary=d.primary_recommendation||'web_app',emoji=platformEmojis[primary]||'🌐';
+  document.getElementById('body-deployment').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:14px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:12px">
+      <div style="font-size:28px">${emoji}</div>
+      <div><strong style="font-size:15px;color:var(--green)">${primary.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}</strong><p style="font-size:13px;color:var(--muted);margin-top:4px">${d.reasoning||''}</p></div>
+    </div>
+    ${d.quick_win_approach?`<div class="item-row" style="margin-bottom:16px"><div class="item-row-icon">⚡</div><div class="item-row-content"><strong>Quick Win</strong><span>${d.quick_win_approach}</span></div></div>`:''}
+    <div class="section-divider">All Platforms</div>
+    <div class="platform-grid">${(d.deployment_options||[]).map(opt=>`
+      <div class="platform-row ${recLevel(opt.recommendation_level)}">
+        <div style="font-size:16px">${platformEmojis[opt.platform?.toLowerCase().replace(/\s+/g,'_')]||'🌐'}</div>
+        <div style="flex:1">
+          <div class="platform-name">${opt.platform}</div>
+          <div class="platform-meta">${opt.time_to_market||''} · Build: ${opt.build_complexity||'?'} · Revenue: ${opt.monetization_potential||'?'}</div>
+          ${opt.pros?.length?`<div style="font-size:12px;color:var(--green);margin-top:4px">${opt.pros.slice(0,2).map(p=>'✅ '+p).join(' · ')}</div>`:''}
+        </div>
+        <span class="pill ${recLevel(opt.recommendation_level)==='rec-high'?'pill-green':recLevel(opt.recommendation_level)==='rec-med'?'pill-yellow':'pill-muted'}" style="font-size:11px;flex-shrink:0">${recLabel(opt.recommendation_level)}</span>
+      </div>`).join('')}</div>
+    ${d.go_to_market_strategy?`<div class="summary-box" style="margin-top:16px">🎯 ${d.go_to_market_strategy}</div>`:''}`;
+  makeVisible('card-deployment');
+}
+
+function renderSentiment(d) {
+  const results=d.results||[];
+  document.getElementById('body-sentiment').innerHTML=results.length?results.map(g=>`
+    <div class="reddit-section">
+      <div class="reddit-section-title">r/everything · ${g.competitor}</div>
+      ${g.posts.length?g.posts.map(p=>`
+        <a href="${p.url}" target="_blank" rel="noopener" class="reddit-post">
+          <div class="reddit-score"><strong>${p.score>=1000?(p.score/1000).toFixed(1)+'k':p.score}</strong><span>▲</span></div>
+          <div style="flex:1">
+            <div class="reddit-title">${p.title}</div>
+            <div class="reddit-meta"><span class="sentiment-dot" style="background:${sentimentColor(p.sentiment)}"></span>r/${p.subreddit} · ${p.numComments} comments</div>
+          </div>
+        </a>`).join(''):'<p style="color:var(--muted);font-size:13px;padding:8px 0">No posts found.</p>'}
+    </div>`).join(''):'<p style="color:var(--muted);font-size:13px">No Reddit data found for this topic yet.</p>';
+  makeVisible('card-sentiment');
+}
+
+function handleEvent(event, data) {
+  switch(event) {
+    case 'status':    setProgressMsg(data.message); if(data.phase) setStep(data.phase,'active'); break;
+    case 'market':    setStep('market','done');    renderMarket(data);    break;
+    case 'technical': setStep('technical','done'); renderTechnical(data); break;
+    case 'opportunity':setStep('opportunity','done');renderOpportunity(data);break;
+    case 'deployment':setStep('deployment','done'); renderDeployment(data); break;
+    case 'sentiment': setStep('sentiment','done');  renderSentiment(data); break;
+    case 'complete':  setProgressMsg('✅ Analysis complete!'); document.getElementById('results-title').textContent=`Vibe Check: ${currentIdea.substring(0,60)}${currentIdea.length>60?'…':''}`; break;
+    case 'error':     setProgressMsg(`❌ Error: ${data.message}`); break;
+  }
+}
+
+async function startAnalysis() {
+  const idea = document.getElementById('idea-input').value.trim();
+  if (!idea) {
+    document.getElementById('idea-input').style.borderColor='var(--red)';
+    setTimeout(()=>document.getElementById('idea-input').style.borderColor='',2000);
+    return;
+  }
+  currentIdea = idea;
+
+  document.getElementById('input-section').style.display='none';
+  document.getElementById('progress-section').style.display='block';
+  document.getElementById('results-section').style.display='block';
+  ['market','opportunity','technical','stack','deployment','monetization','competitors','sentiment','improvements'].forEach(id=>document.getElementById(`card-${id}`)?.classList.remove('visible'));
+  ['market','technical','opportunity','deployment','sentiment'].forEach(s=>{const el=document.getElementById(`step-${s}`);if(el)el.classList.remove('active','done');});
+  setProgressMsg('Spinning up research agents...');
+
+  const response = await fetch('/api/analyze', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ idea, skillLevel: selectedSkill }),
+  });
+
+  if (!response.ok) { alert('Server error: '+response.statusText); resetApp(); return; }
+
+  const reader=response.body.getReader(), decoder=new TextDecoder();
+  let buffer='';
+  while(true) {
+    const {done,value}=await reader.read();
+    if(done) break;
+    buffer+=decoder.decode(value,{stream:true});
+    const parts=buffer.split('\n\n');
+    buffer=parts.pop();
+    for(const part of parts) {
+      if(!part.trim()) continue;
+      const lines=part.split('\n');
+      let event='message',dataStr='';
+      for(const line of lines) {
+        if(line.startsWith('event: ')) event=line.slice(7).trim();
+        if(line.startsWith('data: ')) dataStr=line.slice(6).trim();
+      }
+      if(!dataStr) continue;
+      let data; try{data=JSON.parse(dataStr);}catch{continue;}
+      handleEvent(event,data);
+    }
+  }
+}
+
+function resetApp() {
+  document.getElementById('input-section').style.display='';
+  document.getElementById('progress-section').style.display='none';
+  document.getElementById('results-section').style.display='none';
+  document.getElementById('idea-input').value='';
+  ['market','technical','opportunity','deployment','sentiment'].forEach(s=>{const el=document.getElementById(`step-${s}`);if(el)el.classList.remove('active','done');});
+}
+
+document.getElementById('idea-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)) startAnalysis();
+});
+</script>
+</body>
+</html>
