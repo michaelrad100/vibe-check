@@ -4,15 +4,15 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { randomUUID } from 'crypto';
 
-// In-memory result store for shareable links (survives for the server's lifetime)
-const resultStore = new Map();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
 
 const app = express();
 app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
+
+// In-memory result store for shareable links
+const resultStore = new Map();
 
 const PERPLEXITY_KEY = process.env.PERPLEXITY_KEY;
 if (!PERPLEXITY_KEY) { console.error('PERPLEXITY_KEY env var is missing'); process.exit(1); }
@@ -51,6 +51,13 @@ function parseJSON(text) {
   throw new Error('Could not parse JSON from Perplexity response');
 }
 
+// ── SKILL LEVEL DESCRIPTIONS ────────────────────
+const SKILL_DESCRIPTIONS = {
+  first_project:    'a complete beginner on their very first vibe coding project, using AI tools like Cursor or Replit to build without deep coding knowledge',
+  done_a_few:       'someone who has completed a few vibe coding projects and is comfortable with AI-assisted development tools',
+  build_regularly:  'an experienced vibe coder who builds and ships projects regularly using AI development tools',
+};
+
 // ── PROMPTS ─────────────────────────────────────
 const PROMPTS = {
 
@@ -69,23 +76,25 @@ Return JSON with this exact structure (no other text):
 
 Include 4-6 real competitors with actual URLs. Be specific and data-driven.`,
 
-  technical: (idea, skillLevel) => `Analyze the technical complexity of building: "${idea}"
-The developer's skill level is: ${skillLevel}
+  technical: (idea, skillLevel) => {
+    const levelDesc = SKILL_DESCRIPTIONS[skillLevel] || SKILL_DESCRIPTIONS.first_project;
+    return `Analyze the technical complexity of building: "${idea}"
+The developer is: ${levelDesc}
 
 Return JSON with this exact structure (no other text):
 {
   "difficulty": "no_code|beginner|intermediate|advanced|expert",
   "difficulty_score": 1-10,
-  "technical_summary": "2-3 sentence overview tailored to a ${skillLevel} developer",
+  "technical_summary": "2-3 sentence overview written specifically for this developer's experience level",
   "time_estimates": {
-    "vibe_coder": "X weeks/months",
-    "beginner": "X weeks/months",
-    "intermediate": "X weeks/months",
-    "senior_dev": "X weeks"
+    "first_project": "X weeks/months with AI tools",
+    "done_a_few": "X weeks/months",
+    "build_regularly": "X weeks"
   },
   "tech_stack": {"frontend":"","backend":"","database":"","hosting":""},
   "required_apis": [{"name":"","url":"","cost":""}]
-}`,
+}`;
+  },
 
   opportunity: (idea) => `Assess the market opportunity for: "${idea}"
 
@@ -120,31 +129,30 @@ Return JSON with this exact structure (no other text):
   ]
 }`,
 
-  sentiment: (idea) => `Search forums like Reddit (r/entrepreneur, r/startups, product-specific subreddits), Hacker News, Product Hunt comments, and app store reviews for real user opinions about existing products similar to: "${idea}"
+  sentiment: (idea) => `Search Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, and app store reviews for real user opinions about existing apps and products that are direct competitors to: "${idea}"
 
-Find authentic quotes or close paraphrases of what real people say. Focus on:
-1. Pain points — what frustrates users about current solutions
-2. Loved features — what users genuinely praise about existing products
-3. Wish list — features people are asking for that don't exist yet
+Find specific quotes where users discuss their experience with competing products — what frustrates them, what they love, what they wish existed.
+
+IMPORTANT: Only include quotes that are specifically about product experiences with competing apps, NOT generic topic discussions.
 
 Return JSON with this exact structure (no other text):
 {
   "community_insights": [
     {
-      "quote": "Direct or close paraphrase of real user comment",
+      "quote": "Direct or close paraphrase of a real user comment about a specific competing product",
       "sentiment": "pain_point|loved_feature|wish",
-      "theme": "Short theme (3-5 words)",
-      "source": "e.g. r/entrepreneur, Hacker News, Product Hunt"
+      "theme": "Short theme label (3-5 words)",
+      "source": "e.g. r/entrepreneur, Hacker News, App Store"
     }
   ]
 }
 
-Include 6-9 diverse insights spread across all three sentiment types. Make quotes feel specific and authentic.`,
+Include 6-9 insights spread across all three sentiment types. Quotes must be about real competing products, not general topics.`,
 };
 
 // ── SSE ENDPOINT ────────────────────────────────
 app.post('/api/analyze', async (req, res) => {
-  const { idea, skillLevel = 'beginner' } = req.body;
+  const { idea, skillLevel = 'first_project' } = req.body;
   if (!idea?.trim()) return res.status(400).json({ error: 'idea is required' });
 
   res.setHeader('Content-Type', 'text/event-stream');

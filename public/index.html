@@ -3,1036 +3,1516 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vibe Check — Know Before You Build</title>
+  <title>Vibe Check — Is Your Idea Worth Building?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg: #07070f;
-      --card-bg: #0d0d1a;
-      --card-border: #1a1a30;
-      --purple: #8b5cf6;
-      --pink: #ec4899;
-      --blue: #3b82f6;
-      --cyan: #06b6d4;
-      --green: #10b981;
-      --yellow: #f59e0b;
-      --red: #ef4444;
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --subtle: #1e1e3a;
-      --radius: 14px;
-      --grad: linear-gradient(135deg, var(--purple), var(--pink));
-    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0f;
+      --surface: #16161a;
+      --surface2: #1e1e24;
+      --border: #2a2a35;
+      --text: #e8e8f0;
+      --muted: #8888a0;
+      --accent: #7c6ff7;
+      --accent2: #a78bfa;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --blue: #60a5fa;
+      --pink: #f472b6;
+    }
+
     body {
-      background: var(--bg); color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      min-height: 100vh; overflow-x: hidden;
-    }
-    body::before {
-      content: ''; position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
-      width: 70vw; height: 50vh;
-      background: radial-gradient(ellipse, rgba(139,92,246,0.1) 0%, transparent 70%);
-      pointer-events: none; z-index: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* ── HEADER ── */
-    header {
-      position: relative; z-index: 1;
-      display: flex; align-items: center; padding: 20px 32px;
-      border-bottom: 1px solid var(--card-border);
-    }
-    .logo { display: flex; align-items: center; gap: 10px; }
-    .logo-text {
-      font-size: 17px; font-weight: 700; letter-spacing: -0.01em;
-      background: var(--grad);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    .logo-badge {
-      font-size: 10px; background: var(--subtle); color: var(--purple);
-      border: 1px solid rgba(139,92,246,0.35); border-radius: 5px;
-      padding: 2px 7px; font-weight: 700; letter-spacing: 0.05em;
+    /* ── LANDING ──────────────────────────────────── */
+    #landing {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
     }
 
-    /* ── MAIN ── */
-    main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 52px 24px 100px; }
+    .landing-inner {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
 
-    /* ── HERO ── */
-    .hero { text-align: center; margin-bottom: 44px; }
-    .hero h1 {
-      font-size: clamp(34px, 5vw, 52px); font-weight: 800;
-      line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 14px;
+    .landing-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(124,111,247,0.12);
+      border: 1px solid rgba(124,111,247,0.3);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent2);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      width: fit-content;
     }
-    .hero h1 span {
-      background: var(--grad);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    .hero p { color: var(--muted); font-size: 17px; }
 
-    /* ── INPUT CARD ── */
-    .input-card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 20px; padding: 24px;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.3); margin-top: 36px;
+    .landing-title {
+      font-size: clamp(36px, 6vw, 52px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--text);
     }
-    .textarea-section { margin-top: 20px; }
-    .input-card textarea {
-      width: 100%; background: var(--subtle); border: 1px solid var(--card-border);
-      border-radius: 12px; padding: 16px 18px; color: var(--text);
-      font-size: 15px; font-family: inherit; resize: none; height: 110px;
-      outline: none; transition: border-color 0.2s; line-height: 1.65;
-    }
-    .input-card textarea:focus { border-color: var(--purple); }
-    .input-card textarea::placeholder { color: var(--muted); }
 
-    /* ── SEGMENTED CONTROL ── */
-    .skill-section { margin-bottom: 0; }
-    .skill-label-row { margin-bottom: 10px; }
-    .skill-label-text {
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.09em; color: var(--muted);
+    .landing-title span {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--pink) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
+
+    .landing-sub {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: -12px;
+    }
+
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Skill section */
+    .skill-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .skill-question {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
     .segmented {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      background: var(--subtle); border-radius: 11px; padding: 3px; gap: 2px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
     }
+
     .seg-btn {
-      padding: 9px 8px; border-radius: 8px; text-align: center;
-      cursor: pointer; font-size: 13px; font-weight: 600;
-      color: var(--muted); transition: all 0.18s;
-      border: none; background: none; font-family: inherit;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      padding: 9px 8px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      white-space: nowrap;
     }
-    .seg-btn:hover:not(.active) { color: var(--text); }
+
+    .seg-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
     .seg-btn.active {
-      background: var(--card-bg); color: var(--purple);
-      box-shadow: 0 1px 6px rgba(0,0,0,0.35);
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 0 12px rgba(124,111,247,0.4);
     }
 
-    /* ── WEB3 ANALYZE BUTTON ── */
+    /* Textarea */
+    .idea-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .idea-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.6;
+      padding: 14px 16px;
+      resize: vertical;
+      min-height: 110px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    textarea::placeholder { color: #4a4a60; }
+    textarea:focus { border-color: var(--accent); }
+
+    /* Analyze button - Web3 style */
     .analyze-btn {
-      display: block; width: 100%; margin-top: 20px;
-      background: var(--grad); color: white; border: none;
-      border-radius: 14px; padding: 20px 32px;
-      font-size: 18px; font-weight: 800; letter-spacing: -0.01em;
-      cursor: pointer; font-family: inherit; text-align: center;
-      transition: all 0.25s;
-      box-shadow: 0 0 40px rgba(139,92,246,0.3), 0 8px 32px rgba(0,0,0,0.3);
+      width: 100%;
+      padding: 18px 24px;
+      background: linear-gradient(135deg, var(--accent) 0%, #9b7fe8 50%, var(--pink) 100%);
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 30px rgba(124,111,247,0.35), 0 4px 20px rgba(0,0,0,0.4);
     }
+
     .analyze-btn:hover {
-      opacity: 0.92; transform: translateY(-2px);
-      box-shadow: 0 0 64px rgba(139,92,246,0.5), 0 12px 40px rgba(0,0,0,0.4);
-    }
-    .analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
-    .analyze-btn.secondary {
-      background: var(--subtle); color: var(--text);
-      font-size: 15px; padding: 14px 28px; width: auto; display: inline-block;
-      box-shadow: none; border: 1px solid var(--card-border); font-weight: 700;
-    }
-    .analyze-btn.secondary:hover { background: #252545; box-shadow: none; transform: none; opacity: 1; }
-
-    /* ── PROGRESS ── */
-    #progress-section { margin-bottom: 52px; display: none; }
-    .progress-header { text-align: center; margin-bottom: 20px; }
-    .progress-msg { font-size: 13px; color: var(--muted); }
-    .progress-steps { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-    .progress-step {
-      display: flex; align-items: center; gap: 6px;
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 100px; padding: 6px 14px; font-size: 12px; font-weight: 500; color: var(--muted);
-      transition: all 0.3s;
-    }
-    .progress-step.active { border-color: var(--purple); color: var(--purple); background: rgba(139,92,246,0.08); }
-    .progress-step.done  { border-color: var(--green);  color: var(--green);  background: rgba(16,185,129,0.08); }
-    .step-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-    .progress-step.active .step-dot { animation: pulse 1s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-
-    /* ── RESULTS HEADER ── */
-    #results-section { display: none; }
-    .results-header {
-      margin-bottom: 36px; padding-bottom: 28px;
-      border-bottom: 1px solid var(--card-border); text-align: center;
-    }
-    .results-eyebrow {
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.12em; color: var(--muted); margin-bottom: 14px;
-    }
-    .results-idea {
-      font-size: clamp(20px, 2.5vw, 26px); font-weight: 600;
-      line-height: 1.4; letter-spacing: -0.01em; color: var(--text);
-      max-width: 720px; margin: 0 auto;
+      transform: translateY(-1px);
+      box-shadow: 0 0 40px rgba(124,111,247,0.5), 0 8px 30px rgba(0,0,0,0.4);
     }
 
-    /* ── RESULTS LAYOUT: sidebar + content ── */
-    .results-layout { display: flex; gap: 32px; align-items: flex-start; }
+    .analyze-btn:active { transform: translateY(0); }
+    .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-    /* ── SIDEBAR NAV ── */
-    .results-nav { width: 148px; flex-shrink: 0; position: sticky; top: 24px; }
-    .nav-label {
-      font-size: 10px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--muted); margin-bottom: 10px; padding-left: 10px;
+    /* ── RESULTS PAGE ─────────────────────────────── */
+    #results { display: none; min-height: 100vh; }
+
+    .results-layout {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      gap: 40px;
+      align-items: start;
     }
+
+    /* Sidebar nav */
+    .results-nav {
+      position: sticky;
+      top: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
     .nav-item {
-      display: block; padding: 8px 10px; border-radius: 8px;
-      font-size: 12px; font-weight: 500; color: var(--muted);
-      cursor: pointer; transition: all 0.2s; margin-bottom: 2px;
-      border-left: 2px solid transparent;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      text-align: left;
     }
+
     .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+
     .nav-item.active {
-      color: var(--purple); background: rgba(139,92,246,0.08);
-      border-left-color: var(--purple); font-weight: 700;
+      color: var(--accent2);
+      background: rgba(124,111,247,0.1);
+      font-weight: 600;
     }
 
-    /* ── RESULTS CONTENT + GRID ── */
-    .results-content { flex: 1; min-width: 0; }
-    .results-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
 
-    /* ── CARDS ── */
+    @media (max-width: 900px) {
+      .results-layout { grid-template-columns: 1fr; }
+      .results-nav { display: none; }
+    }
+
+    /* Results content */
+    .results-content { min-width: 0; }
+
+    .results-header {
+      margin-bottom: 32px;
+    }
+
+    .results-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .results-idea-label {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* Cards grid */
+    .cards-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 680px) { .card-row { grid-template-columns: 1fr; } }
+
     .result-card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: var(--radius); overflow: hidden;
-      opacity: 0; transform: translateY(14px);
-      transition: opacity 0.4s, transform 0.4s, border-color 0.2s;
-      scroll-margin-top: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      scroll-margin-top: 40px;
     }
-    .result-card.visible { opacity: 1; transform: translateY(0); }
-    .result-card.full { grid-column: 1 / -1; }
-    .result-card.vibe-hero {
-      grid-column: 1 / -1;
-      border-color: rgba(139,92,246,0.28);
-      background: linear-gradient(135deg, rgba(139,92,246,0.06), rgba(236,72,153,0.04));
-    }
+
     .card-header {
-      display: flex; align-items: center; gap: 12px;
-      padding: 15px 20px; border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
     }
-    .card-icon {
-      width: 32px; height: 32px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; flex-shrink: 0;
-    }
-    .icon-purple { background: rgba(139,92,246,0.15); }
-    .icon-pink   { background: rgba(236,72,153,0.15); }
-    .icon-green  { background: rgba(16,185,129,0.15); }
-    .icon-yellow { background: rgba(245,158,11,0.15); }
-    .icon-cyan   { background: rgba(6,182,212,0.15); }
-    .icon-red    { background: rgba(239,68,68,0.15); }
-    .card-title   { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
-    .card-subtitle{ font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .card-body { padding: 20px; }
 
-    .skeleton {
-      background: linear-gradient(90deg, var(--subtle) 25%, #1a1a35 50%, var(--subtle) 75%);
-      background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;
+    .card-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
     }
-    @keyframes shimmer { 0%{background-position:200% 0}100%{background-position:-200% 0} }
 
-    /* ── VIBE SCORE ── */
-    .vibe-layout { display: flex; gap: 28px; align-items: flex-start; }
-    .vibe-grade-block { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; width: 72px; }
+    .card-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--surface2);
+    }
+
+    .card-body { display: flex; flex-direction: column; gap: 12px; }
+
+    /* Vibe Score hero */
+    #sec-score {
+      background: linear-gradient(135deg, rgba(124,111,247,0.08) 0%, rgba(244,114,182,0.06) 100%);
+      border-color: rgba(124,111,247,0.25);
+    }
+
+    .vibe-hero { text-align: center; padding: 8px 0 4px; }
+
     .vibe-grade {
-      font-size: 52px; font-weight: 900; line-height: 1; letter-spacing: -0.03em;
-      background: var(--grad);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      font-size: 80px;
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--pink) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .vibe-score-num { font-size: 12px; color: var(--muted); font-weight: 600; }
-    .vibe-content { flex: 1; min-width: 0; }
-    .vibe-summary { font-size: 16px; font-weight: 600; line-height: 1.45; margin-bottom: 8px; letter-spacing: -0.01em; }
-    .vibe-detail  { font-size: 13px; color: var(--muted); line-height: 1.65; }
-    .vibe-pills   { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
 
-    /* ── PILLS ── */
-    .pill { display: inline-flex; align-items: center; border-radius: 100px; padding: 3px 10px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-    .pill-purple { background: rgba(139,92,246,0.15); color: var(--purple); }
-    .pill-green  { background: rgba(16,185,129,0.15); color: var(--green); }
-    .pill-red    { background: rgba(239,68,68,0.15);  color: var(--red); }
-    .pill-yellow { background: rgba(245,158,11,0.15); color: var(--yellow); }
-    .pill-cyan   { background: rgba(6,182,212,0.15);  color: var(--cyan); }
-    .pill-muted  { background: var(--subtle); color: var(--muted); }
-
-    /* ── SATURATION ── */
-    .exists-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 7px 12px; border-radius: 9px; font-size: 13px; font-weight: 600; margin-bottom: 14px;
+    .vibe-summary-text {
+      font-size: 16px;
+      color: var(--muted);
+      margin: 8px 0 16px;
     }
-    .exists-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .sat-block { margin-bottom: 4px; }
-    .sat-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-    .sat-track { height: 7px; background: var(--subtle); border-radius: 100px; overflow: hidden; }
-    .sat-fill  { height: 100%; border-radius: 100px; transition: width 0.8s ease; }
 
-    /* ── COMPETITORS ── */
-    .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-    .comp-card { background: var(--subtle); border: 1px solid var(--card-border); border-radius: 11px; padding: 14px; }
-    .comp-name { font-size: 14px; font-weight: 700; margin-bottom: 5px; letter-spacing: -0.01em; }
-    .comp-name a { color: var(--text); text-decoration: none; }
-    .comp-name a:hover { color: var(--purple); }
-    .comp-price { font-size: 11px; }
-    .comp-desc { font-size: 12px; color: var(--muted); line-height: 1.55; margin-bottom: 8px; }
-    .comp-sw-item { font-size: 12px; color: var(--muted); display: flex; gap: 5px; margin-bottom: 3px; line-height: 1.4; }
-
-    /* ── DATA BLOCKS ── */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .data-block { background: var(--subtle); border-radius: 10px; padding: 12px; }
-    .data-block small { display: block; font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 4px; }
-    .data-block span { font-size: 13px; }
-
-    /* ── AUDIENCE / REVENUE ── */
-    .aud-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--subtle); border-radius: 10px; margin-bottom: 8px; }
-    .aud-row:last-child { margin-bottom: 0; }
-    .aud-main strong { display: block; font-size: 13px; margin-bottom: 2px; }
-    .aud-main span { font-size: 12px; color: var(--muted); }
-    .rev-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 10px 12px; background: var(--subtle); border-radius: 10px; margin-bottom: 7px; }
-    .rev-row:last-child { margin-bottom: 0; }
-    .rev-model { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
-    .rev-desc  { font-size: 12px; color: var(--muted); }
-
-    /* ── DIFFICULTY RING ── */
-    .diff-display { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; }
-    .diff-ring { position: relative; width: 68px; height: 68px; flex-shrink: 0; }
-    .diff-ring svg { transform: rotate(-90deg); }
-    .diff-ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .diff-ring-text strong { font-size: 17px; font-weight: 800; }
-    .diff-ring-text span { font-size: 10px; color: var(--muted); }
-
-    /* ── SECTION LABEL ── */
-    .sec-label {
-      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--muted); margin: 16px 0 10px;
-      display: flex; align-items: center; gap: 8px;
+    .vibe-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 8px;
     }
-    .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--card-border); }
 
-    /* ── ITEM ROWS ── */
-    .item-row { display: flex; gap: 8px; padding: 9px 12px; background: var(--subtle); border-radius: 10px; margin-bottom: 7px; align-items: flex-start; }
-    .item-row:last-child { margin-bottom: 0; }
-    .item-body strong { display: block; font-size: 13px; margin-bottom: 2px; }
-    .item-body span { font-size: 12px; color: var(--muted); }
-
-    /* ── PLATFORM ── */
-    .plat-hero { display: flex; align-items: center; gap: 14px; padding: 13px 15px; border-radius: 11px; background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.18); margin-bottom: 14px; }
-    .plat-emoji { font-size: 24px; }
-    .plat-name { font-size: 15px; font-weight: 700; color: var(--green); letter-spacing: -0.01em; }
-    .plat-reason { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
-    .plat-list { display: flex; flex-direction: column; gap: 7px; }
-    .plat-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--subtle); border-radius: 9px; border-left: 3px solid transparent; }
-    .plat-row.high { border-left-color: var(--green); }
-    .plat-row.med  { border-left-color: var(--yellow); }
-    .plat-row.low  { border-left-color: var(--red); }
-    .plat-name-txt { font-size: 13px; font-weight: 600; flex: 1; }
-    .plat-meta { font-size: 11px; color: var(--muted); }
-
-    /* ── COMMUNITY PULSE ── */
-    .sentiment-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .sentiment-col-label {
-      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em;
-      margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    .vibe-detail {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 4px;
     }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .pill-green  { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+    .pill-yellow { background: rgba(251,191,36,0.12); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+    .pill-red    { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+    .pill-blue   { background: rgba(96,165,250,0.12); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+    .pill-purple { background: rgba(124,111,247,0.12); color: var(--accent2); border: 1px solid rgba(124,111,247,0.2); }
+    .pill-muted  { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+    /* Summary text */
+    .summary-text {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #c0c0d8;
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    /* Competitor cards */
+    .competitor-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .competitor-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .competitor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .competitor-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .competitor-url {
+      font-size: 12px;
+      color: var(--accent2);
+      text-decoration: none;
+    }
+    .competitor-url:hover { text-decoration: underline; }
+
+    .competitor-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .competitor-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+    }
+
+    .competitor-meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .meta-label { color: #555570; font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; }
+    .meta-val { color: var(--muted); }
+
+    /* Strengths/weaknesses tags */
+    .sw-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .sw-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    .sw-strength { background: rgba(52,211,153,0.1); color: var(--green); }
+    .sw-weakness { background: rgba(248,113,113,0.1); color: var(--red); }
+
+    /* Audience / monetization */
+    .segment-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .segment-item {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .segment-name { font-size: 13px; font-weight: 600; color: var(--text); }
+
+    .segment-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* Monetization */
+    .mono-item {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+
+    .mono-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .mono-model { font-size: 13px; font-weight: 700; color: var(--text); }
+    .mono-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* Tech stack */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .stack-item {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .stack-layer { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #555570; margin-bottom: 3px; }
+    .stack-val { font-size: 13px; color: var(--muted); }
+
+    /* Build time */
+    .build-time-big {
+      text-align: center;
+      padding: 16px 0;
+    }
+    .build-time-num {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+    }
+    .build-time-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Deployment options */
+    .deploy-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .deploy-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+
+    .deploy-platform { font-size: 13px; font-weight: 600; color: var(--text); }
+    .deploy-time { font-size: 12px; color: var(--muted); }
+    .deploy-reason { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+    /* Community pulse / sentiment */
+    .sentiment-list { display: flex; flex-direction: column; gap: 10px; }
+
     .sentiment-item {
-      padding: 12px 14px; background: var(--subtle); border-radius: 10px;
-      border-left: 3px solid; margin-bottom: 8px;
+      background: var(--surface2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      border-left: 3px solid transparent;
     }
-    .sentiment-item:last-child { margin-bottom: 0; }
-    .sentiment-quote { font-size: 13px; line-height: 1.5; color: var(--text); }
-    .sentiment-meta { font-size: 11px; color: var(--muted); margin-top: 6px; }
 
-    /* ── HOW TO WIN ── */
-    .win-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; }
-    .win-card { background: var(--subtle); border: 1px solid var(--card-border); border-radius: 11px; padding: 14px; }
-    .win-card-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 4px; }
-    .win-card-title { font-size: 13px; font-weight: 700; line-height: 1.4; margin-bottom: 4px; }
-    .win-card-reason { font-size: 12px; color: var(--muted); line-height: 1.55; }
-    .win-badges { display: flex; gap: 5px; margin-top: 9px; flex-wrap: wrap; }
+    .sentiment-item.pain_point { border-left-color: var(--red); }
+    .sentiment-item.loved_feature { border-left-color: var(--green); }
+    .sentiment-item.wish { border-left-color: var(--yellow); }
 
-    /* ── ACTION ROW ── */
-    .action-row { display: flex; gap: 12px; justify-content: center; margin-top: 48px; flex-wrap: wrap; }
-    .share-btn {
-      background: var(--subtle); color: var(--purple);
-      border: 1px solid rgba(139,92,246,0.35); border-radius: 12px;
-      padding: 14px 28px; font-size: 15px; font-weight: 700;
-      cursor: pointer; transition: all 0.2s; font-family: inherit;
+    .sentiment-quote {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #c0c0d8;
+      font-style: italic;
+      margin-bottom: 8px;
     }
-    .share-btn:hover { background: rgba(139,92,246,0.1); border-color: var(--purple); }
 
-    /* ── VERSION BADGE ── */
-    .version-badge {
-      position: fixed; bottom: 16px; right: 16px; z-index: 100;
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 100px; padding: 5px 12px; font-size: 11px; color: var(--muted);
-      cursor: pointer; transition: all 0.2s; font-weight: 600; font-family: inherit;
+    .sentiment-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .version-badge:hover { border-color: var(--purple); color: var(--text); }
 
-    /* ── CHANGELOG ── */
-    .changelog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: flex-end; justify-content: flex-end; padding: 20px; }
-    .changelog-overlay.hidden { display: none; }
-    .changelog-modal { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 22px; width: 300px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-    .changelog-modal h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
-    .changelog-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0; font-family: inherit; }
-    .changelog-close:hover { color: var(--text); }
-    .changelog-entry { margin-bottom: 12px; }
-    .changelog-entry:last-child { margin-bottom: 0; }
-    .changelog-ver { font-size: 12px; font-weight: 700; color: var(--purple); margin-bottom: 3px; }
-    .changelog-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 900px) { .results-nav { display: none; } }
-    @media (max-width: 640px) {
-      header { padding: 14px 16px; }
-      main { padding: 32px 14px 80px; }
-      .results-grid { grid-template-columns: 1fr; }
-      .two-col { grid-template-columns: 1fr; }
-      .vibe-layout { flex-direction: column; }
-      .comp-grid { grid-template-columns: 1fr; }
-      .win-grid { grid-template-columns: 1fr; }
-      .sentiment-cols { grid-template-columns: 1fr; }
-      .seg-btn { font-size: 11px; padding: 8px 4px; }
+    .sentiment-theme {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
     }
+
+    .sentiment-source {
+      font-size: 11px;
+      color: #444460;
+    }
+
+    /* How to win */
+    .win-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .win-item {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .win-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .win-suggestion { font-size: 13px; font-weight: 600; color: var(--text); }
+    .win-reasoning { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* APIs */
+    .api-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .api-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+
+    .api-name { font-size: 13px; color: var(--text); font-weight: 500; }
+    .api-name a { color: var(--accent2); text-decoration: none; }
+    .api-name a:hover { text-decoration: underline; }
+    .api-cost { font-size: 12px; color: var(--muted); }
+
+    /* Status bar */
+    .status-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.2s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .status-text { font-size: 14px; color: var(--muted); }
+
+    /* Skeleton loaders */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface2) 25%, #22222e 50%, var(--surface2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Action row */
+    .action-row {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-row.visible { display: flex; }
+
+    .btn-secondary {
+      padding: 10px 18px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); }
+
+    .btn-accent {
+      padding: 10px 18px;
+      background: rgba(124,111,247,0.15);
+      border: 1px solid rgba(124,111,247,0.3);
+      border-radius: 10px;
+      color: var(--accent2);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-accent:hover { background: rgba(124,111,247,0.25); }
+
+    /* Loading card placeholder */
+    .card-loading {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Divider label for win sections */
+    .win-divider {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #444460;
+      margin: 4px 0 2px;
+    }
+
+    /* Saturation bar */
+    .sat-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sat-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: var(--surface2);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .sat-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--green), var(--yellow), var(--red));
+      transition: width 0.6s ease;
+    }
+    .sat-bar-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+    /* Score bar */
+    .score-bars { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .score-row { display: flex; align-items: center; gap: 10px; }
+    .score-row-label { font-size: 12px; color: var(--muted); width: 100px; flex-shrink: 0; }
+    .score-bar-bg { flex: 1; height: 6px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 100px; background: var(--accent); }
+    .score-row-val { font-size: 12px; color: var(--muted); width: 24px; text-align: right; flex-shrink: 0; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Tooltip copy feedback */
+    .copy-feedback {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 14px;
+      color: var(--green);
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.2s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .copy-feedback.show { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">
-    <div class="logo-text">✨ Vibe Check</div>
-    <div class="logo-badge">BETA</div>
-  </div>
-</header>
+<!-- ── LANDING ───────────────────────────────────── -->
+<section id="landing">
+  <div class="landing-inner">
+    <div>
+      <div class="landing-badge">⚡ AI-Powered</div>
+    </div>
 
-<main>
+    <div>
+      <h1 class="landing-title">Is your idea<br/><span>worth building?</span></h1>
+      <p class="landing-sub">Drop your idea. Get a real market analysis, technical breakdown, and opportunity score in under 60 seconds.</p>
+    </div>
 
-  <!-- ── INPUT ── -->
-  <section class="hero" id="input-section">
-    <h1>Know <span>before</span> you build.</h1>
-    <p>Describe any product idea — get a real-time deep analysis in seconds.</p>
-
-    <div class="input-card">
-      <!-- Skill level FIRST -->
+    <div class="form-card">
+      <!-- Skill level selector -->
       <div class="skill-section">
-        <div class="skill-label-row">
-          <span class="skill-label-text">Your level</span>
-        </div>
+        <div class="skill-question">What's your vibe coding experience?</div>
         <div class="segmented">
-          <button class="seg-btn" onclick="selectSkill(0)">🎮 Vibe Coder</button>
-          <button class="seg-btn active" onclick="selectSkill(1)">🌱 Beginner</button>
-          <button class="seg-btn" onclick="selectSkill(2)">💻 Intermediate</button>
-          <button class="seg-btn" onclick="selectSkill(3)">🚀 Senior</button>
+          <button class="seg-btn active" onclick="selectSkill(0)">First project</button>
+          <button class="seg-btn" onclick="selectSkill(1)">Done a few</button>
+          <button class="seg-btn" onclick="selectSkill(2)">Build regularly</button>
         </div>
       </div>
 
       <!-- Idea textarea -->
-      <div class="textarea-section">
+      <div class="idea-section">
+        <div class="idea-label">Your idea</div>
         <textarea
           id="idea-input"
-          placeholder="e.g. A Chrome extension that blocks distracting websites during focus sessions and sends you weekly productivity reports..."
+          placeholder="e.g. A mobile app that lets friends split restaurant bills by scanning the receipt with their camera..."
+          rows="4"
         ></textarea>
       </div>
 
-      <!-- Big Web3 button, no emoji -->
-      <button class="analyze-btn" id="analyze-btn" onclick="startAnalysis()">
-        Analyze Idea →
-      </button>
-    </div>
-  </section>
-
-  <!-- ── PROGRESS ── -->
-  <section id="progress-section">
-    <div class="progress-header">
-      <p class="progress-msg" id="progress-message">Initializing research agents...</p>
-    </div>
-    <div class="progress-steps">
-      <div class="progress-step" id="step-market"><div class="step-dot"></div>Market</div>
-      <div class="progress-step" id="step-technical"><div class="step-dot"></div>Technical</div>
-      <div class="progress-step" id="step-opportunity"><div class="step-dot"></div>Opportunity</div>
-      <div class="progress-step" id="step-deployment"><div class="step-dot"></div>Deployment</div>
-      <div class="progress-step" id="step-sentiment"><div class="step-dot"></div>Community</div>
-    </div>
-  </section>
-
-  <!-- ── RESULTS ── -->
-  <section id="results-section">
-
-    <div class="results-header">
-      <div class="results-eyebrow" id="results-eyebrow">Analyzing...</div>
-      <div class="results-idea" id="results-idea"></div>
-    </div>
-
-    <div class="results-layout">
-
-      <!-- Sticky sidebar nav -->
-      <nav class="results-nav" id="results-nav">
-        <div class="nav-label">Sections</div>
-        <div class="nav-item" data-target="card-vibe">Vibe Score</div>
-        <div class="nav-item" data-target="card-market">Market</div>
-        <div class="nav-item" data-target="card-competitors">Competitors</div>
-        <div class="nav-item" data-target="card-audience">Audience</div>
-        <div class="nav-item" data-target="card-build">Build It</div>
-        <div class="nav-item" data-target="card-ship">Ship It</div>
-        <div class="nav-item" data-target="card-reddit">Community</div>
-        <div class="nav-item" data-target="card-win">How to Win</div>
-      </nav>
-
-      <!-- Main content -->
-      <div class="results-content">
-        <div class="results-grid">
-
-          <!-- 1. Vibe Score (full width) -->
-          <div class="result-card vibe-hero" id="card-vibe">
-            <div class="card-header">
-              <div class="card-icon icon-pink">◆</div>
-              <div>
-                <div class="card-title">Vibe Score</div>
-                <div class="card-subtitle">Overall opportunity assessment</div>
-              </div>
-            </div>
-            <div class="card-body" id="body-vibe">
-              <div class="skeleton" style="height:90px"></div>
-            </div>
-          </div>
-
-          <!-- 2. Market Overview (full width) -->
-          <div class="result-card full" id="card-market">
-            <div class="card-header">
-              <div class="card-icon icon-purple">◎</div>
-              <div>
-                <div class="card-title">Market Overview</div>
-                <div class="card-subtitle">Saturation &amp; landscape</div>
-              </div>
-            </div>
-            <div class="card-body" id="body-market">
-              <div class="skeleton" style="height:50px;margin-bottom:10px"></div>
-              <div class="skeleton" style="height:60px"></div>
-            </div>
-          </div>
-
-          <!-- 3. Competitors (full width) -->
-          <div class="result-card full" id="card-competitors">
-            <div class="card-header">
-              <div class="card-icon icon-red">◉</div>
-              <div>
-                <div class="card-title">Competitors</div>
-                <div class="card-subtitle">Who's already in the space</div>
-              </div>
-            </div>
-            <div class="card-body" id="body-competitors">
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-                <div class="skeleton" style="height:90px"></div>
-                <div class="skeleton" style="height:90px"></div>
-                <div class="skeleton" style="height:90px"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 4a. Audience & Revenue (half) -->
-          <div class="result-card" id="card-audience">
-            <div class="card-header">
-              <div class="card-icon icon-cyan">◈</div>
-              <div>
-                <div class="card-title">Audience &amp; Revenue</div>
-                <div class="card-subtitle">Who pays and how</div>
-              </div>
-            </div>
-            <div class="card-body" id="body-audience">
-              <div class="skeleton" style="height:80px;margin-bottom:10px"></div>
-              <div class="skeleton" style="height:80px"></div>
-            </div>
-          </div>
-
-          <!-- 4b. Build It (half) -->
-          <div class="result-card" id="card-build">
-            <div class="card-header">
-              <div class="card-icon icon-yellow">◧</div>
-              <div>
-                <div class="card-title">Build It</div>
-                <div class="card-subtitle">Difficulty, time &amp; stack</div>
-              </div>
-            </div>
-            <div class="card-body" id="body-build">
-              <div class="skeleton" style="height:70px;margin-bottom:10px"></div>
-              <div class="skeleton" style="height:80px"></div>
-            </div>
-          </div>
-
-          <!-- 5. Ship It (full width) -->
-          <div class="result-card full" id="card-ship">
-            <div class="card-header">
-              <div class="card-icon icon-green">▲</div>
-              <div>
-                <div class="card-title">Ship It</div>
-                <div class="card-subtitle">Where to deploy first</div>
-              </div>
-            </div>
-            <div class="card-body" id="body-ship">
-              <div class="skeleton" style="height:70px;margin-bottom:10px"></div>
-              <div class="skeleton" style="height:90px"></div>
-            </div>
-          </div>
-
-          <!-- 6. Community Pulse (full width) -->
-          <div class="result-card full" id="card-reddit">
-            <div class="card-header">
-              <div class="card-icon icon-purple">◐</div>
-              <div>
-                <div class="card-title">Community Pulse</div>
-                <div class="card-subtitle">What real users say about existing solutions</div>
-              </div>
-            </div>
-            <div class="card-body" id="body-reddit">
-              <div class="skeleton" style="height:50px;margin-bottom:8px"></div>
-              <div class="skeleton" style="height:50px;margin-bottom:8px"></div>
-              <div class="skeleton" style="height:50px"></div>
-            </div>
-          </div>
-
-          <!-- 7. How to Win (full width) -->
-          <div class="result-card full" id="card-win">
-            <div class="card-header">
-              <div class="card-icon icon-pink">◇</div>
-              <div>
-                <div class="card-title">How to Win</div>
-                <div class="card-subtitle">Top differentiators &amp; improvements</div>
-              </div>
-            </div>
-            <div class="card-body" id="body-win">
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-                <div class="skeleton" style="height:80px"></div>
-                <div class="skeleton" style="height:80px"></div>
-                <div class="skeleton" style="height:80px"></div>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- /results-grid -->
-
-        <!-- Share + New Analysis -->
-        <div class="action-row" id="action-row" style="display:none">
-          <button class="share-btn" id="share-btn" onclick="shareResult()">Share Result ↗</button>
-          <button class="analyze-btn secondary" onclick="resetApp()">← New Analysis</button>
-        </div>
-
-      </div><!-- /results-content -->
-    </div><!-- /results-layout -->
-
-  </section>
-
-</main>
-
-<button class="version-badge" onclick="openChangelog()">v1.4</button>
-
-<div class="changelog-overlay hidden" id="changelog-overlay" onclick="if(event.target===this)closeChangelog()">
-  <div class="changelog-modal">
-    <h3>What's New <button class="changelog-close" onclick="closeChangelog()">×</button></h3>
-    <div class="changelog-entry">
-      <div class="changelog-ver">v1.4 &mdash; Feb 20, 2026</div>
-      <div class="changelog-desc">Web3 button, skill-level-first layout, sticky section nav, shareable result links, Community Pulse replaces Reddit, Build It shows your time only, How to Win focused.</div>
-    </div>
-    <div class="changelog-entry">
-      <div class="changelog-ver">v1.3 &mdash; Feb 20, 2026</div>
-      <div class="changelog-desc">Redesigned results header, full idea as title, consistent type hierarchy, reduced emoji, cleaner card icons.</div>
-    </div>
-    <div class="changelog-entry">
-      <div class="changelog-ver">v1.2 &mdash; Feb 20, 2026</div>
-      <div class="changelog-desc">Replaced skill slider with segmented control.</div>
-    </div>
-    <div class="changelog-entry">
-      <div class="changelog-ver">v1.1 &mdash; Feb 20, 2026</div>
-      <div class="changelog-desc">Consolidated cards, Reddit quotes view, How to Win section.</div>
-    </div>
-    <div class="changelog-entry">
-      <div class="changelog-ver">v1.0 &mdash; Feb 20, 2026</div>
-      <div class="changelog-desc">Initial launch.</div>
+      <!-- Analyze button -->
+      <button class="analyze-btn" id="analyze-btn" onclick="analyze()">Analyze Idea</button>
     </div>
   </div>
-</div>
+</section>
+
+<!-- ── RESULTS ────────────────────────────────────── -->
+<section id="results">
+  <div class="results-layout">
+
+    <!-- Sidebar nav -->
+    <nav class="results-nav" id="results-nav">
+      <button class="nav-item active" onclick="jumpTo('sec-score')">
+        <span class="nav-dot"></span> Vibe Score
+      </button>
+      <button class="nav-item" onclick="jumpTo('sec-market')">
+        <span class="nav-dot"></span> Market
+      </button>
+      <button class="nav-item" onclick="jumpTo('sec-competitors')">
+        <span class="nav-dot"></span> Competitors
+      </button>
+      <button class="nav-item" onclick="jumpTo('sec-audience')">
+        <span class="nav-dot"></span> Audience
+      </button>
+      <button class="nav-item" onclick="jumpTo('sec-build')">
+        <span class="nav-dot"></span> Build It
+      </button>
+      <button class="nav-item" onclick="jumpTo('sec-ship')">
+        <span class="nav-dot"></span> Ship It
+      </button>
+      <button class="nav-item" onclick="jumpTo('sec-pulse')">
+        <span class="nav-dot"></span> Community
+      </button>
+      <button class="nav-item" onclick="jumpTo('sec-win')">
+        <span class="nav-dot"></span> How to Win
+      </button>
+    </nav>
+
+    <!-- Main content -->
+    <div class="results-content">
+      <div class="results-header">
+        <div class="results-title" id="results-title">Analyzing your idea...</div>
+        <div class="results-idea-label" id="results-idea-label"></div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="status-bar" id="status-bar">
+        <div class="status-dot"></div>
+        <div class="status-text" id="status-text">Getting started...</div>
+      </div>
+
+      <div class="cards-grid">
+        <!-- Vibe Score -->
+        <div class="result-card" id="sec-score">
+          <div class="card-header">
+            <div class="card-title">Vibe Score</div>
+          </div>
+          <div id="score-body" class="card-body">
+            <div class="card-loading">
+              <div class="skeleton" style="height:80px; border-radius:12px;"></div>
+              <div class="skeleton" style="height:20px; width:60%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Market Overview -->
+        <div class="result-card" id="sec-market">
+          <div class="card-header">
+            <div class="card-title">Market Overview</div>
+            <div class="card-badge" id="market-badge">—</div>
+          </div>
+          <div id="market-body" class="card-body">
+            <div class="card-loading">
+              <div class="skeleton" style="height:60px; border-radius:8px;"></div>
+              <div class="skeleton" style="height:8px; width:80%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Competitors -->
+        <div class="result-card" id="sec-competitors">
+          <div class="card-header">
+            <div class="card-title">Competitors</div>
+          </div>
+          <div id="competitors-body" class="card-body">
+            <div class="card-loading">
+              <div class="skeleton" style="height:80px; border-radius:10px;"></div>
+              <div class="skeleton" style="height:80px; border-radius:10px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audience + Build It row -->
+        <div class="card-row">
+          <!-- Audience -->
+          <div class="result-card" id="sec-audience">
+            <div class="card-header">
+              <div class="card-title">Audience</div>
+            </div>
+            <div id="audience-body" class="card-body">
+              <div class="skeleton" style="height:120px; border-radius:10px;"></div>
+            </div>
+          </div>
+
+          <!-- Build It -->
+          <div class="result-card" id="sec-build">
+            <div class="card-header">
+              <div class="card-title">Build It</div>
+              <div class="card-badge" id="diff-badge">—</div>
+            </div>
+            <div id="build-body" class="card-body">
+              <div class="skeleton" style="height:120px; border-radius:10px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ship It -->
+        <div class="result-card" id="sec-ship">
+          <div class="card-header">
+            <div class="card-title">Ship It</div>
+            <div class="card-badge" id="ship-badge">—</div>
+          </div>
+          <div id="ship-body" class="card-body">
+            <div class="skeleton" style="height:80px; border-radius:10px;"></div>
+          </div>
+        </div>
+
+        <!-- Community Pulse -->
+        <div class="result-card" id="sec-pulse">
+          <div class="card-header">
+            <div class="card-title">Community Pulse</div>
+          </div>
+          <div id="pulse-body" class="card-body">
+            <div class="card-loading">
+              <div class="skeleton" style="height:70px; border-radius:10px;"></div>
+              <div class="skeleton" style="height:70px; border-radius:10px;"></div>
+              <div class="skeleton" style="height:70px; border-radius:10px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- How to Win -->
+        <div class="result-card" id="sec-win">
+          <div class="card-header">
+            <div class="card-title">How to Win</div>
+          </div>
+          <div id="win-body" class="card-body">
+            <div class="card-loading">
+              <div class="skeleton" style="height:70px; border-radius:10px;"></div>
+              <div class="skeleton" style="height:70px; border-radius:10px;"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /cards-grid -->
+
+      <!-- Action row (shows after complete) -->
+      <div class="action-row" id="action-row">
+        <button class="btn-secondary" onclick="newAnalysis()">New Analysis</button>
+        <button class="btn-accent" id="share-btn" onclick="shareResult()">Share Result ↗</button>
+      </div>
+
+    </div><!-- /results-content -->
+  </div><!-- /results-layout -->
+</section>
+
+<!-- Copy feedback toast -->
+<div class="copy-feedback" id="copy-feedback">Link copied!</div>
 
 <script>
-// ── SKILL SELECTOR ─────────────────────────────
-const SKILLS = [
-  { key: 'vibe_coder',   label: 'Vibe Coder' },
-  { key: 'beginner',     label: 'Beginner' },
-  { key: 'intermediate', label: 'Intermediate' },
-  { key: 'senior',       label: 'Senior Dev' },
-];
-let selectedSkill = 'beginner';
-function selectSkill(idx) {
-  selectedSkill = SKILLS[idx].key;
-  document.querySelectorAll('.seg-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
-}
+  // ── STATE ──────────────────────────────────────────
+  const SKILLS = [
+    { key: 'first_project',   label: 'First project' },
+    { key: 'done_a_few',      label: 'Done a few' },
+    { key: 'build_regularly', label: 'Build regularly' },
+  ];
 
-// ── HELPERS ────────────────────────────────────
-const scoreColor = s => s>=8?'var(--green)':s>=6?'var(--yellow)':s>=4?'var(--purple)':'var(--red)';
-const diffColor  = s => s<=3?'var(--green)':s<=5?'var(--yellow)':s<=7?'var(--purple)':'var(--red)';
-const fmtScore   = n => Math.max(1,Math.min(10,parseInt(n)||5));
-const trendIcon  = {rapidly_growing:'↑↑',growing:'↑',stable:'→',declining:'↓',emerging:'◎'};
-const recLevel   = l => l==='highly_recommended'?'high':l==='recommended'?'med':'low';
-const recLabel   = l => ({highly_recommended:'Top pick',recommended:'Good fit',possible:'Possible',not_recommended:'Skip'}[l]||l);
-const platEmoji  = p=>({'web_app':'🌐','mobile_ios':'📱','mobile_android':'📱','mobile_cross_platform':'📱','chrome_extension':'🔌','shopify_app':'🛍','wordpress_plugin':'📝','desktop_mac':'🖥','desktop_windows':'🖥','desktop_cross_platform':'🖥','api_service':'⚙','slack_app':'💬','vs_code_extension':'⌨','notion_integration':'📓'}[p]||'🌐');
-const priorityPill = p => p==='high'?'<span class="pill pill-red">High priority</span>':p==='medium'?'<span class="pill pill-yellow">Medium</span>':'<span class="pill pill-muted">Low</span>';
+  let selectedSkillIdx = 0;
+  let currentResultId  = null;
+  let navObserver      = null;
 
-function diffRing(score, color) {
-  const r=27,cx=34,cy=34,circ=2*Math.PI*r,pct=score/10;
-  return `<div class="diff-ring">
-    <svg width="68" height="68" viewBox="0 0 68 68">
-      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--subtle)" stroke-width="5"/>
-      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="5"
-        stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-pct)}" stroke-linecap="round"/>
-    </svg>
-    <div class="diff-ring-text"><strong style="color:${color}">${score}</strong><span>/10</span></div>
-  </div>`;
-}
-
-const existInfo = e=>({
-  fully_exists:    {label:'Already exists',   color:'var(--red)',   dot:'var(--red)',   bg:'rgba(239,68,68,0.07)'},
-  mostly_exists:   {label:'Mostly exists',    color:'var(--yellow)',dot:'var(--yellow)',bg:'rgba(245,158,11,0.07)'},
-  partially_exists:{label:'Partially exists', color:'var(--yellow)',dot:'var(--yellow)',bg:'rgba(245,158,11,0.07)'},
-  significant_gap: {label:'Significant gap',  color:'var(--cyan)',  dot:'var(--cyan)',  bg:'rgba(6,182,212,0.07)'},
-  blue_ocean:      {label:'Blue ocean',       color:'var(--green)', dot:'var(--green)', bg:'rgba(16,185,129,0.07)'},
-}[e]||{label:e||'Unknown',color:'var(--muted)',dot:'var(--muted)',bg:'var(--subtle)'});
-
-function makeVisible(id){document.getElementById(id)?.classList.add('visible');}
-
-let _marketData=null, _opportunityData=null, _currentResultId=null;
-
-// ── VIBE SCORE ─────────────────────────────────
-function renderVibeScore(){
-  if(!_opportunityData) return;
-  const d=_opportunityData, score=fmtScore(d.opportunity_score), color=scoreColor(score);
-  document.getElementById('body-vibe').innerHTML=`
-    <div class="vibe-layout">
-      <div class="vibe-grade-block">
-        <div class="vibe-grade">${d.opportunity_grade||'?'}</div>
-        <div class="vibe-score-num">${score} / 10</div>
-      </div>
-      <div class="vibe-content">
-        <div class="vibe-summary">${d.opportunity_summary||''}</div>
-        ${_marketData?.market_summary?`<div class="vibe-detail">${_marketData.market_summary}</div>`:''}
-        <div class="vibe-pills">
-          ${d.opportunity_type?`<span class="pill pill-purple">${d.opportunity_type.replace(/_/g,' ')}</span>`:''}
-          ${d.trend?`<span class="pill pill-cyan">${trendIcon[d.trend]||''} ${d.trend.replace(/_/g,' ')}</span>`:''}
-        </div>
-        ${d.market_size?`<div class="vibe-detail" style="margin-top:10px;font-size:12px;">${d.market_size}</div>`:''}
-      </div>
-    </div>`;
-  makeVisible('card-vibe');
-}
-
-// ── MARKET ─────────────────────────────────────
-function renderMarket(d){
-  _marketData=d;
-  const ei=existInfo(d.exists), sat=fmtScore(d.saturation_score);
-  const satColor=sat>=8?'var(--red)':sat>=5?'var(--yellow)':'var(--green)';
-  document.getElementById('body-market').innerHTML=`
-    <div class="exists-badge" style="background:${ei.bg};color:${ei.color}">
-      <div class="exists-dot" style="background:${ei.dot}"></div>${ei.label}
-    </div>
-    <div class="sat-block">
-      <div class="sat-label"><span>Market saturation</span><strong style="color:${satColor}">${sat}/10</strong></div>
-      <div class="sat-track"><div class="sat-fill" style="width:${sat*10}%;background:${satColor}"></div></div>
-    </div>`;
-  makeVisible('card-market');
-
-  const comps=d.competitors||[];
-  document.getElementById('body-competitors').innerHTML=comps.length
-    ?`<div class="comp-grid">${comps.map(c=>`
-        <div class="comp-card">
-          <div class="comp-name">${c.url?`<a href="${c.url}" target="_blank" rel="noopener">${c.name} ↗</a>`:c.name}
-            ${c.pricing?`<span class="pill pill-muted comp-price">${c.pricing}</span>`:''}</div>
-          <div class="comp-desc">${c.description||''}</div>
-          ${(c.strengths||[]).slice(0,2).map(s=>`<div class="comp-sw-item"><span style="color:var(--green)">+</span>${s}</div>`).join('')}
-          ${(c.weaknesses||[]).slice(0,2).map(w=>`<div class="comp-sw-item"><span style="color:var(--red)">−</span>${w}</div>`).join('')}
-        </div>`).join('')}</div>`
-    :'<p style="color:var(--muted);font-size:13px">No major competitors found — possible blue ocean.</p>';
-  makeVisible('card-competitors');
-  renderVibeScore(); renderHowToWin();
-}
-
-// ── AUDIENCE & REVENUE ─────────────────────────
-function renderAudience(d){
-  const auds=d.target_audiences||[], revs=d.monetization_strategies||[];
-  document.getElementById('body-audience').innerHTML=`
-    ${auds.length?`<div class="sec-label">Audiences</div>
-      ${auds.slice(0,3).map(a=>`<div class="aud-row"><div class="aud-main">
-        <strong>${a.segment||a}</strong>
-        ${a.size||a.willingness_to_pay?`<span>${[a.size,a.willingness_to_pay?'Pays: '+a.willingness_to_pay:''].filter(Boolean).join(' · ')}</span>`:''}
-      </div></div>`).join('')}`:''}
-    ${revs.length?`<div class="sec-label">Revenue models</div>
-      ${revs.slice(0,3).map(m=>`<div class="rev-row">
-        <div><div class="rev-model">${m.model}</div>${m.description?`<div class="rev-desc">${m.description}</div>`:''}</div>
-        ${m.revenue_potential?`<span class="pill pill-green">${m.revenue_potential}</span>`:''}
-      </div>`).join('')}`:''}`;
-  makeVisible('card-audience');
-}
-
-// ── BUILD IT (selected skill only) ─────────────
-function renderBuild(d){
-  const score=fmtScore(d.difficulty_score),color=diffColor(score);
-  const dlLabel={no_code:'No-code',beginner:'Beginner',intermediate:'Intermediate',advanced:'Advanced',expert:'Expert'}[d.difficulty]||d.difficulty||'?';
-  const t=d.time_estimates||{};
-  const skillTimeKey={vibe_coder:'vibe_coder',beginner:'beginner',intermediate:'intermediate',senior:'senior_dev'}[selectedSkill]||'beginner';
-  const selectedTime=t[skillTimeKey];
-  const skillLabel=SKILLS.find(s=>s.key===selectedSkill)?.label||'You';
-  const stack=d.tech_stack||{};
-  const stackItems=[{l:'Frontend',v:stack.frontend},{l:'Backend',v:stack.backend},{l:'Database',v:stack.database},{l:'Hosting',v:stack.hosting}].filter(s=>s.v);
-  document.getElementById('body-build').innerHTML=`
-    <div class="diff-display">
-      ${diffRing(score,color)}
-      <div><strong style="font-size:15px;color:${color}">${dlLabel}</strong>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5">${d.technical_summary||''}</p></div>
-    </div>
-    ${selectedTime?`<div class="sec-label">Your build time</div>
-      <div class="data-block" style="display:flex;align-items:center;justify-content:space-between;padding:16px">
-        <small style="font-size:12px;color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0">${skillLabel}</small>
-        <strong style="font-size:22px;font-weight:800;color:${color}">${selectedTime}</strong>
-      </div>`:''}
-    ${stackItems.length?`<div class="sec-label">Stack</div><div class="two-col">${stackItems.map(s=>`<div class="data-block"><small>${s.l}</small><span>${s.v}</span></div>`).join('')}</div>`:''}
-    ${(d.required_apis||[]).length?`<div class="sec-label">Key APIs</div>${d.required_apis.slice(0,3).map(a=>`<div class="item-row"><div class="item-body"><strong>${a.url?`<a href="${a.url}" target="_blank" style="color:var(--text);text-decoration:none">${a.name} ↗</a>`:a.name}</strong><span>${a.cost||''}</span></div></div>`).join('')}`:''}`;
-  makeVisible('card-build');
-}
-
-// ── SHIP IT ────────────────────────────────────
-function renderShip(d){
-  const primary=d.primary_recommendation||'web_app';
-  const opts=(d.deployment_options||[]).filter(o=>o.recommendation_level!=='not_recommended').slice(0,4);
-  document.getElementById('body-ship').innerHTML=`
-    <div class="plat-hero">
-      <div class="plat-emoji">${platEmoji(primary)}</div>
-      <div><div class="plat-name">${primary.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}</div>
-        <div class="plat-reason">${d.quick_win_approach||d.reasoning||''}</div></div>
-    </div>
-    ${opts.length?`<div class="plat-list">${opts.map(o=>`
-      <div class="plat-row ${recLevel(o.recommendation_level)}">
-        <div style="font-size:13px">${platEmoji(o.platform?.toLowerCase().replace(/\s+/g,'_'))}</div>
-        <div class="plat-name-txt">${o.platform}</div>
-        <div class="plat-meta">${o.time_to_market||''}</div>
-        <span class="pill ${recLevel(o.recommendation_level)==='high'?'pill-green':recLevel(o.recommendation_level)==='med'?'pill-yellow':'pill-muted'}">${recLabel(o.recommendation_level)}</span>
-      </div>`).join('')}</div>`:''}`;
-  makeVisible('card-ship');
-}
-
-// ── COMMUNITY PULSE ─────────────────────────────
-function renderSentiment(d){
-  const insights=d.community_insights||[];
-  if(!insights.length){
-    document.getElementById('body-reddit').innerHTML='<p style="color:var(--muted);font-size:13px">No community discussions found for this topic yet.</p>';
-    makeVisible('card-reddit'); return;
+  // ── SKILL SELECTOR ────────────────────────────────
+  function selectSkill(i) {
+    selectedSkillIdx = i;
+    document.querySelectorAll('.seg-btn').forEach((b, j) => b.classList.toggle('active', i === j));
   }
-  const pain   = insights.filter(i=>i.sentiment==='pain_point');
-  const loved  = insights.filter(i=>i.sentiment==='loved_feature');
-  const wishes = insights.filter(i=>i.sentiment==='wish');
 
-  const col=(items,color,label,icon)=>items.length?`
-    <div>
-      <div class="sentiment-col-label" style="color:${color}">${icon} ${label}</div>
-      ${items.map(i=>`
-        <div class="sentiment-item" style="border-left-color:${color}">
-          <div class="sentiment-quote">"${i.quote}"</div>
-          <div class="sentiment-meta">${[i.source,i.theme].filter(Boolean).join(' · ')}</div>
-        </div>`).join('')}
-    </div>`:'' ;
+  // ── NAVIGATION ────────────────────────────────────
+  function jumpTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
-  document.getElementById('body-reddit').innerHTML=`
-    <div class="sentiment-cols">
-      ${col(pain,  'var(--red)',    'Pain Points',    '⚡')}
-      ${col(loved, 'var(--green)',  'What They Love', '★')}
-      ${col(wishes,'var(--purple)', 'Wish List',      '◎')}
-    </div>`;
-  makeVisible('card-reddit');
-}
+  function setupNavObserver() {
+    if (navObserver) navObserver.disconnect();
+    const sections = ['sec-score','sec-market','sec-competitors','sec-audience','sec-build','sec-ship','sec-pulse','sec-win'];
+    const navItems = document.querySelectorAll('.nav-item');
 
-// ── HOW TO WIN (filtered, priority only) ───────
-function renderHowToWin(){
-  const diffs=_marketData?.key_differentiators_needed||[];
-  const imps=_opportunityData?.improvement_suggestions||[];
-  if(!diffs.length&&!imps.length) return;
+    navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const idx = sections.indexOf(entry.target.id);
+          navItems.forEach((item, i) => item.classList.toggle('active', i === idx));
+        }
+      });
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
 
-  const highImps=imps.filter(i=>i.priority==='high').slice(0,2);
-  const medImps =imps.filter(i=>i.priority==='medium').slice(0,2);
-
-  document.getElementById('body-win').innerHTML=`<div class="win-grid">
-    ${diffs.slice(0,2).map(d=>`
-      <div class="win-card">
-        <div class="win-card-label">Differentiator</div>
-        <div class="win-card-title">${d}</div>
-      </div>`).join('')}
-    ${[...highImps,...medImps].map(i=>`
-      <div class="win-card">
-        <div class="win-card-label">Improvement</div>
-        <div class="win-card-title">${i.suggestion}</div>
-        <div class="win-card-reason">${i.reasoning||''}</div>
-        <div class="win-badges">${priorityPill(i.priority)}</div>
-      </div>`).join('')}
-  </div>`;
-  makeVisible('card-win');
-}
-
-// ── PROGRESS ───────────────────────────────────
-function setStep(phase,state){
-  const el=document.getElementById(`step-${phase}`);
-  if(!el)return; el.classList.remove('active','done'); el.classList.add(state);
-}
-function setProgressMsg(msg){const el=document.getElementById('progress-message');if(el)el.innerHTML=msg;}
-
-// ── SIDEBAR NAV ─────────────────────────────────
-let navObserver=null;
-function setupNavObserver(){
-  if(navObserver)navObserver.disconnect();
-  navObserver=new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-        const item=document.querySelector(`.nav-item[data-target="${entry.target.id}"]`);
-        if(item)item.classList.add('active');
-      }
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) navObserver.observe(el);
     });
-  },{rootMargin:'-15% 0px -70% 0px'});
-  document.querySelectorAll('.result-card').forEach(c=>navObserver.observe(c));
-}
-
-document.querySelectorAll('.nav-item').forEach(item=>{
-  item.addEventListener('click',()=>{
-    const t=document.getElementById(item.dataset.target);
-    if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
-  });
-});
-
-// ── EVENT HANDLER ──────────────────────────────
-function handleEvent(event,data){
-  switch(event){
-    case 'status':      setProgressMsg(data.message); if(data.phase)setStep(data.phase,'active'); break;
-    case 'market':      setStep('market','done');      renderMarket(data); break;
-    case 'technical':   setStep('technical','done');   renderBuild(data);  break;
-    case 'opportunity': setStep('opportunity','done'); _opportunityData=data; renderVibeScore(); renderAudience(data); renderHowToWin(); break;
-    case 'deployment':  setStep('deployment','done');  renderShip(data);   break;
-    case 'sentiment':   setStep('sentiment','done');   renderSentiment(data); break;
-    case 'complete': {
-      if(data.resultId){
-        _currentResultId=data.resultId;
-        history.replaceState(null,'',`?r=${data.resultId}`);
-      }
-      document.getElementById('results-eyebrow').textContent='Analyzed';
-      document.getElementById('action-row').style.display='flex';
-      const prog=document.getElementById('progress-section');
-      prog.style.transition='opacity 0.6s'; prog.style.opacity='0';
-      setTimeout(()=>prog.style.display='none',700);
-      break;
-    }
-    case 'error': setProgressMsg(`Error: ${data.message}`); break;
   }
-}
 
-// ── SHARE RESULT ───────────────────────────────
-function shareResult(){
-  const url=_currentResultId?`${window.location.origin}/?r=${_currentResultId}`:window.location.href;
-  navigator.clipboard.writeText(url).then(()=>{
-    const btn=document.getElementById('share-btn');
-    const orig=btn.textContent;
-    btn.textContent='Link copied!';
-    btn.style.color='var(--green)'; btn.style.borderColor='var(--green)';
-    setTimeout(()=>{btn.textContent=orig;btn.style.color='';btn.style.borderColor='';},2500);
-  }).catch(()=>prompt('Copy this link:',url));
-}
+  // ── PILL HELPERS ──────────────────────────────────
+  function gradeColor(g) {
+    return { A: 'green', B: 'blue', C: 'yellow', D: 'red', F: 'red' }[g] || 'muted';
+  }
 
-// ── LOAD SHARED RESULT ─────────────────────────
-async function loadSharedResult(id){
-  document.getElementById('input-section').style.display='none';
-  document.getElementById('results-section').style.display='block';
-  document.getElementById('results-eyebrow').textContent='Loading...';
-  try{
-    const res=await fetch(`/api/result/${id}`);
-    if(!res.ok)throw new Error('Not found');
-    const data=await res.json();
-    document.getElementById('results-idea').textContent=data.idea||'Shared result';
-    document.getElementById('results-eyebrow').textContent='Analyzed';
-    _currentResultId=id;
-    if(data.skillLevel){const idx=SKILLS.findIndex(s=>s.key===data.skillLevel);if(idx>=0)selectSkill(idx);}
-    _marketData=null; _opportunityData=null;
-    if(data.market)    renderMarket(data.market);
-    if(data.technical) renderBuild(data.technical);
-    if(data.opportunity){_opportunityData=data.opportunity;renderVibeScore();renderAudience(data.opportunity);renderHowToWin();}
-    if(data.deployment) renderShip(data.deployment);
-    if(data.sentiment)  renderSentiment(data.sentiment);
-    document.getElementById('action-row').style.display='flex';
+  function existsColor(e) {
+    const m = { fully_exists:'red', mostly_exists:'red', partially_exists:'yellow', significant_gap:'green', blue_ocean:'green' };
+    return m[e] || 'muted';
+  }
+
+  function trendColor(t) {
+    return { rapidly_growing:'green', growing:'green', stable:'blue', declining:'red', emerging:'yellow' }[t] || 'muted';
+  }
+
+  function diffColor(d) {
+    const m = { no_code:'green', beginner:'green', intermediate:'yellow', advanced:'red', expert:'red' };
+    return m[d] || 'muted';
+  }
+
+  function recColor(r) {
+    const m = { highly_recommended:'green', recommended:'blue', possible:'yellow', not_recommended:'red' };
+    return m[r] || 'muted';
+  }
+
+  function priorityColor(p) {
+    return { high:'red', medium:'yellow', low:'muted' }[p] || 'muted';
+  }
+
+  function sentimentColor(s) {
+    return { pain_point:'red', loved_feature:'green', wish:'yellow' }[s] || 'muted';
+  }
+
+  function sentimentEmoji(s) {
+    return { pain_point:'😤', loved_feature:'❤️', wish:'✨' }[s] || '';
+  }
+
+  function pill(text, color) {
+    return `<span class="pill pill-${color}">${text}</span>`;
+  }
+
+  function humanize(str) {
+    return (str || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  // ── RENDERERS ─────────────────────────────────────
+
+  function renderOpportunity(d) {
+    const g = d.opportunity_grade || '?';
+    const gc = gradeColor(g);
+    const score = d.opportunity_score || 0;
+    const tc = trendColor(d.trend);
+
+    document.getElementById('score-body').innerHTML = `
+      <div class="vibe-hero">
+        <div class="vibe-grade">${g}</div>
+        <div class="vibe-summary-text">${d.opportunity_summary || ''}</div>
+        <div class="vibe-pills">
+          ${pill(humanize(d.trend || ''), tc)}
+          ${pill(humanize(d.opportunity_type || ''), 'purple')}
+        </div>
+        <div class="vibe-detail">${d.market_size || ''}</div>
+      </div>
+      <div class="score-bars">
+        <div class="score-row">
+          <div class="score-row-label">Opportunity</div>
+          <div class="score-bar-bg"><div class="score-bar-fill" style="width:${score*10}%; background: var(--${gc === 'green' ? 'green' : gc === 'yellow' ? 'yellow' : 'red'})"></div></div>
+          <div class="score-row-val">${score}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderMarket(d) {
+    const color = existsColor(d.exists);
+    document.getElementById('market-badge').textContent = humanize(d.exists || '');
+    document.getElementById('market-badge').className = `card-badge pill pill-${color}`;
+
+    const satScore = d.saturation_score || 0;
+    document.getElementById('market-body').innerHTML = `
+      <p class="summary-text">${d.market_summary || ''}</p>
+      <div>
+        <div class="section-label">Market Saturation</div>
+        <div class="sat-bar-wrap">
+          <div class="sat-bar-bg">
+            <div class="sat-bar-fill" style="width:${satScore * 10}%"></div>
+          </div>
+          <div class="sat-bar-label">${satScore}/10</div>
+        </div>
+      </div>
+      ${d.key_differentiators_needed?.length ? `
+        <div>
+          <div class="section-label">Differentiators Needed</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            ${d.key_differentiators_needed.map(k => pill(k, 'purple')).join('')}
+          </div>
+        </div>
+      ` : ''}
+    `;
+  }
+
+  function renderCompetitors(d) {
+    if (!d.competitors?.length) {
+      document.getElementById('competitors-body').innerHTML = '<div class="empty-state">No competitors found.</div>';
+      return;
+    }
+    document.getElementById('competitors-body').innerHTML = `
+      <div class="competitor-list">
+        ${d.competitors.map(c => `
+          <div class="competitor-card">
+            <div class="competitor-header">
+              <div class="competitor-name">${c.name || ''}</div>
+              ${c.url ? `<a class="competitor-url" href="${c.url}" target="_blank" rel="noopener">${new URL(c.url.startsWith('http') ? c.url : 'https://'+c.url).hostname}</a>` : ''}
+            </div>
+            <div class="competitor-desc">${c.description || ''}</div>
+            <div class="competitor-meta">
+              ${c.pricing ? `<div class="competitor-meta-item"><div class="meta-label">Pricing</div><div class="meta-val">${c.pricing}</div></div>` : ''}
+            </div>
+            ${(c.strengths?.length || c.weaknesses?.length) ? `
+              <div class="sw-row">
+                ${(c.strengths||[]).map(s => `<span class="sw-tag sw-strength">✓ ${s}</span>`).join('')}
+                ${(c.weaknesses||[]).map(w => `<span class="sw-tag sw-weakness">✗ ${w}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderAudience(d) {
+    if (!d.target_audiences?.length) {
+      document.getElementById('audience-body').innerHTML = '<div class="empty-state">No data.</div>';
+      return;
+    }
+    document.getElementById('audience-body').innerHTML = `
+      <div class="segment-list">
+        ${d.target_audiences.map(a => `
+          <div class="segment-item">
+            <div class="segment-name">${a.segment || ''}</div>
+            <div class="segment-meta">
+              ${pill(a.size + ' audience', a.size === 'large' ? 'green' : a.size === 'medium' ? 'yellow' : 'muted')}
+              ${pill(a.willingness_to_pay + ' WTP', a.willingness_to_pay === 'high' ? 'green' : a.willingness_to_pay === 'medium' ? 'yellow' : 'red')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      ${d.monetization_strategies?.length ? `
+        <div style="margin-top:4px">
+          <div class="section-label" style="margin-bottom:8px">Monetization</div>
+          ${d.monetization_strategies.slice(0,2).map(m => `
+            <div class="mono-item">
+              <div class="mono-header">
+                <div class="mono-model">${m.model || ''}</div>
+                ${pill(m.revenue_potential || '', m.revenue_potential?.includes('High') ? 'green' : m.revenue_potential?.includes('Medium') ? 'yellow' : 'muted')}
+              </div>
+              <div class="mono-desc">${m.description || ''}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    `;
+  }
+
+  function renderBuild(d) {
+    const diffLabel = humanize(d.difficulty || '');
+    const diffC = diffColor(d.difficulty);
+    const diffScore = d.difficulty_score || 0;
+    document.getElementById('diff-badge').textContent = diffLabel;
+    document.getElementById('diff-badge').className = `card-badge pill pill-${diffC}`;
+
+    // Show time for the selected skill level
+    const skillKey = SKILLS[selectedSkillIdx].key;
+    const timeEstimate = d.time_estimates?.[skillKey] || 'Varies';
+
+    const stack = d.tech_stack || {};
+    const apis = d.required_apis || [];
+
+    document.getElementById('build-body').innerHTML = `
+      <div class="build-time-big">
+        <div class="build-time-num">${timeEstimate}</div>
+        <div class="build-time-label">for your experience level</div>
+      </div>
+      <p class="summary-text">${d.technical_summary || ''}</p>
+      ${Object.keys(stack).length ? `
+        <div>
+          <div class="section-label">Tech Stack</div>
+          <div class="stack-grid">
+            ${Object.entries(stack).map(([k,v]) => v ? `
+              <div class="stack-item">
+                <div class="stack-layer">${k}</div>
+                <div class="stack-val">${v}</div>
+              </div>
+            ` : '').join('')}
+          </div>
+        </div>
+      ` : ''}
+      ${apis.length ? `
+        <div>
+          <div class="section-label">Key APIs</div>
+          <div class="api-list">
+            ${apis.slice(0,4).map(a => `
+              <div class="api-item">
+                <div class="api-name">
+                  ${a.url ? `<a href="${a.url}" target="_blank" rel="noopener">${a.name}</a>` : a.name}
+                </div>
+                <div class="api-cost">${a.cost || ''}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+    `;
+  }
+
+  function renderDeploy(d) {
+    const rec = d.primary_recommendation || '';
+    document.getElementById('ship-badge').textContent = humanize(rec);
+    document.getElementById('ship-badge').className = 'card-badge pill pill-blue';
+
+    const options = d.deployment_options || [];
+    document.getElementById('ship-body').innerHTML = `
+      ${d.quick_win_approach ? `<p class="summary-text" style="margin-bottom:4px">${d.quick_win_approach}</p>` : ''}
+      <div class="deploy-list">
+        ${options.slice(0,4).map(o => {
+          const rc = recColor(o.recommendation_level);
+          return `
+            <div class="deploy-item">
+              <div>
+                <div class="deploy-platform">${o.platform || ''}</div>
+                ${o.reasoning ? `<div class="deploy-reason">${o.reasoning}</div>` : ''}
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:12px">
+                ${pill(humanize(o.recommendation_level || ''), rc)}
+                ${o.time_to_market ? `<div class="deploy-time">${o.time_to_market}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function renderSentiment(d) {
+    const insights = d.community_insights || [];
+    if (!insights.length) {
+      document.getElementById('pulse-body').innerHTML = '<div class="empty-state">No community data found.</div>';
+      return;
+    }
+    document.getElementById('pulse-body').innerHTML = `
+      <div class="sentiment-list">
+        ${insights.map(s => `
+          <div class="sentiment-item ${s.sentiment}">
+            <div class="sentiment-quote">"${s.quote || ''}"</div>
+            <div class="sentiment-meta">
+              ${pill(sentimentEmoji(s.sentiment) + ' ' + humanize(s.sentiment || ''), sentimentColor(s.sentiment))}
+              <span class="sentiment-theme">${s.theme || ''}</span>
+              ${s.source ? `<span class="sentiment-source">— ${s.source}</span>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderWin(d) {
+    const all = d.improvement_suggestions || [];
+
+    // Cap to: top 2 differentiators (any priority labeled "differentiator" or first 2 high), then 2 high, 2 medium
+    const diffs    = all.filter(s => s.priority === 'high').slice(0, 2);
+    const highs    = all.filter(s => s.priority === 'high').slice(2, 4);
+    const mediums  = all.filter(s => s.priority === 'medium').slice(0, 2);
+
+    const renderItems = (items, label) => {
+      if (!items.length) return '';
+      return `
+        <div class="win-divider">${label}</div>
+        ${items.map(s => `
+          <div class="win-item">
+            <div class="win-header">
+              <div class="win-suggestion">${s.suggestion || ''}</div>
+              ${pill(s.priority, priorityColor(s.priority))}
+            </div>
+            <div class="win-reasoning">${s.reasoning || ''}</div>
+          </div>
+        `).join('')}
+      `;
+    };
+
+    // Simpler: just show top 6 with priority pill
+    const shown = all.slice(0, 6);
+    document.getElementById('win-body').innerHTML = `
+      <div class="win-list">
+        ${shown.map(s => `
+          <div class="win-item">
+            <div class="win-header">
+              <div class="win-suggestion">${s.suggestion || ''}</div>
+              ${pill(s.priority, priorityColor(s.priority))}
+            </div>
+            <div class="win-reasoning">${s.reasoning || ''}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // ── MAIN ANALYZE FLOW ─────────────────────────────
+  async function analyze() {
+    const idea = document.getElementById('idea-input').value.trim();
+    if (!idea) { alert('Please describe your idea first.'); return; }
+
+    const skillKey = SKILLS[selectedSkillIdx].key;
+
+    // Switch to results page
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results-title').textContent = 'Analyzing your idea...';
+    document.getElementById('results-idea-label').textContent = idea;
+    document.getElementById('status-bar').style.display = 'flex';
+    document.getElementById('action-row').classList.remove('visible');
+
+    // Reset all card bodies to skeleton
+    resetSkeletons();
     setupNavObserver();
-  }catch(err){
-    document.getElementById('results-section').style.display='none';
-    document.getElementById('input-section').style.display='';
-    alert('Could not load shared result — it may have expired.');
-  }
-}
+    window.scrollTo(0, 0);
 
-// ── MAIN FLOW ──────────────────────────────────
-async function startAnalysis(){
-  const idea=document.getElementById('idea-input').value.trim();
-  if(!idea){
-    document.getElementById('idea-input').style.borderColor='var(--red)';
-    setTimeout(()=>document.getElementById('idea-input').style.borderColor='',2000);
-    return;
-  }
-  _marketData=null; _opportunityData=null; _currentResultId=null;
+    currentResultId = null;
 
-  document.getElementById('results-idea').textContent=idea;
-  document.getElementById('results-eyebrow').textContent='Analyzing...';
-  document.getElementById('action-row').style.display='none';
-  document.getElementById('input-section').style.display='none';
-  document.getElementById('progress-section').style.display='block';
-  document.getElementById('progress-section').style.opacity='1';
-  document.getElementById('results-section').style.display='block';
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idea, skillLevel: skillKey }),
+      });
 
-  ['vibe','market','audience','competitors','build','ship','reddit','win'].forEach(id=>document.getElementById(`card-${id}`)?.classList.remove('visible'));
-  ['market','technical','opportunity','deployment','sentiment'].forEach(s=>{const el=document.getElementById(`step-${s}`);if(el)el.classList.remove('active','done');});
-  setProgressMsg('Spinning up research agents...');
-  setupNavObserver();
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
 
-  const response=await fetch('/api/analyze',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({idea,skillLevel:selectedSkill}),
-  });
-  if(!response.ok){alert('Server error: '+response.statusText);resetApp();return;}
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
 
-  const reader=response.body.getReader(),decoder=new TextDecoder();
-  let buffer='';
-  while(true){
-    const{done,value}=await reader.read();
-    if(done)break;
-    buffer+=decoder.decode(value,{stream:true});
-    const parts=buffer.split('\n\n');buffer=parts.pop();
-    for(const part of parts){
-      if(!part.trim())continue;
-      const lines=part.split('\n');
-      let event='message',dataStr='';
-      for(const line of lines){
-        if(line.startsWith('event: '))event=line.slice(7).trim();
-        if(line.startsWith('data: '))dataStr=line.slice(6).trim();
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop();
+
+        for (const part of parts) {
+          const lines = part.split('\n');
+          let event = '', data = '';
+          for (const line of lines) {
+            if (line.startsWith('event: ')) event = line.slice(7);
+            if (line.startsWith('data: '))  data  = line.slice(6);
+          }
+          if (!event || !data) continue;
+
+          try {
+            const parsed = JSON.parse(data);
+            handleEvent(event, parsed, idea);
+          } catch {}
+        }
       }
-      if(!dataStr)continue;
-      let data;try{data=JSON.parse(dataStr);}catch{continue;}
-      handleEvent(event,data);
+    } catch (err) {
+      document.getElementById('status-text').textContent = 'Error: ' + err.message;
     }
   }
-}
 
-function resetApp(){
-  history.replaceState(null,'','/');
-  document.getElementById('input-section').style.display='';
-  document.getElementById('progress-section').style.display='none';
-  document.getElementById('results-section').style.display='none';
-  document.getElementById('action-row').style.display='none';
-  document.getElementById('idea-input').value='';
-  if(navObserver)navObserver.disconnect();
-}
+  function handleEvent(event, data, idea) {
+    switch (event) {
+      case 'status':
+        document.getElementById('status-text').textContent = data.message || '';
+        break;
+      case 'market':
+        renderMarket(data);
+        renderCompetitors(data);
+        break;
+      case 'technical':
+        renderBuild(data);
+        break;
+      case 'opportunity':
+        renderOpportunity(data);
+        break;
+      case 'deployment':
+        renderDeploy(data);
+        break;
+      case 'sentiment':
+        renderSentiment(data);
+        break;
+      case 'complete':
+        currentResultId = data.resultId;
+        document.getElementById('status-bar').style.display = 'none';
+        document.getElementById('results-title').textContent = `Analyzed: ${idea}`;
+        document.getElementById('action-row').classList.add('visible');
+        if (data.resultId) {
+          history.replaceState(null, '', `?r=${data.resultId}`);
+        }
+        break;
+      case 'error':
+        document.getElementById('status-text').textContent = '⚠ ' + (data.message || 'Something went wrong');
+        break;
+    }
+  }
 
-function openChangelog(){document.getElementById('changelog-overlay').classList.remove('hidden');}
-function closeChangelog(){document.getElementById('changelog-overlay').classList.add('hidden');}
+  function resetSkeletons() {
+    document.getElementById('score-body').innerHTML = `<div class="card-loading"><div class="skeleton" style="height:80px;border-radius:12px;"></div><div class="skeleton" style="height:20px;width:60%;"></div></div>`;
+    document.getElementById('market-body').innerHTML = `<div class="card-loading"><div class="skeleton" style="height:60px;border-radius:8px;"></div><div class="skeleton" style="height:8px;width:80%;"></div></div>`;
+    document.getElementById('competitors-body').innerHTML = `<div class="card-loading"><div class="skeleton" style="height:80px;border-radius:10px;"></div><div class="skeleton" style="height:80px;border-radius:10px;"></div></div>`;
+    document.getElementById('audience-body').innerHTML = `<div class="skeleton" style="height:120px;border-radius:10px;"></div>`;
+    document.getElementById('build-body').innerHTML = `<div class="skeleton" style="height:120px;border-radius:10px;"></div>`;
+    document.getElementById('ship-body').innerHTML = `<div class="skeleton" style="height:80px;border-radius:10px;"></div>`;
+    document.getElementById('pulse-body').innerHTML = `<div class="card-loading"><div class="skeleton" style="height:70px;border-radius:10px;"></div><div class="skeleton" style="height:70px;border-radius:10px;"></div><div class="skeleton" style="height:70px;border-radius:10px;"></div></div>`;
+    document.getElementById('win-body').innerHTML = `<div class="card-loading"><div class="skeleton" style="height:70px;border-radius:10px;"></div><div class="skeleton" style="height:70px;border-radius:10px;"></div></div>`;
+    document.getElementById('market-badge').textContent = '—';
+    document.getElementById('market-badge').className = 'card-badge';
+    document.getElementById('diff-badge').textContent = '—';
+    document.getElementById('diff-badge').className = 'card-badge';
+    document.getElementById('ship-badge').textContent = '—';
+    document.getElementById('ship-badge').className = 'card-badge';
+  }
 
-document.getElementById('idea-input').addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))startAnalysis();
-});
+  // ── SHARE / LOAD ──────────────────────────────────
+  function shareResult() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      const el = document.getElementById('copy-feedback');
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
+    });
+  }
 
-// ── CHECK FOR SHARED RESULT ON LOAD ────────────
-const sharedId=new URLSearchParams(window.location.search).get('r');
-if(sharedId)loadSharedResult(sharedId);
+  async function loadSharedResult(id) {
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('status-text').textContent = 'Loading shared result...';
+    window.scrollTo(0, 0);
+
+    try {
+      const r = await fetch(`/api/result/${id}`);
+      if (!r.ok) throw new Error('Result not found or expired');
+      const d = await r.json();
+
+      document.getElementById('results-title').textContent = `Analyzed: ${d.idea}`;
+      document.getElementById('results-idea-label').textContent = d.idea;
+
+      // Restore selected skill for time display
+      const skillIdx = SKILLS.findIndex(s => s.key === d.skillLevel);
+      if (skillIdx >= 0) selectedSkillIdx = skillIdx;
+
+      renderMarket(d.market);
+      renderCompetitors(d.market);
+      renderOpportunity(d.opportunity);
+      renderBuild(d.technical);
+      renderDeploy(d.deployment);
+      renderSentiment(d.sentiment);
+      renderWin(d.opportunity);
+      renderAudience(d.opportunity);
+
+      document.getElementById('status-bar').style.display = 'none';
+      document.getElementById('action-row').classList.add('visible');
+      currentResultId = id;
+      setupNavObserver();
+    } catch (err) {
+      document.getElementById('status-text').textContent = '⚠ ' + err.message;
+    }
+  }
+
+  // ── NEW ANALYSIS ──────────────────────────────────
+  function newAnalysis() {
+    if (navObserver) navObserver.disconnect();
+    currentResultId = null;
+    history.replaceState(null, '', '/');
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('landing').style.display = 'flex';
+    document.getElementById('idea-input').value = '';
+    window.scrollTo(0, 0);
+  }
+
+  // ── INIT: check for shared result ─────────────────
+  (function init() {
+    const params = new URLSearchParams(window.location.search);
+    const rid = params.get('r');
+    if (rid) {
+      loadSharedResult(rid);
+    }
+  })();
 </script>
 </body>
 </html>
