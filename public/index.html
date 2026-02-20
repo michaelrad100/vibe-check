@@ -22,9 +22,7 @@
       --radius: 14px;
       --grad: linear-gradient(135deg, var(--purple), var(--pink));
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background: var(--bg);
       color: var(--text);
@@ -32,185 +30,89 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
     body::before {
       content: '';
-      position: fixed;
-      top: -20%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 70vw;
-      height: 50vh;
+      position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 70vw; height: 50vh;
       background: radial-gradient(ellipse, rgba(139,92,246,0.1) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
+      pointer-events: none; z-index: 0;
     }
 
     /* ── HEADER ── */
     header {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: space-between;
       padding: 20px 32px;
       border-bottom: 1px solid var(--card-border);
     }
     .logo { display: flex; align-items: center; gap: 10px; }
     .logo-text {
-      font-size: 18px;
-      font-weight: 800;
+      font-size: 18px; font-weight: 800;
       background: var(--grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .logo-badge {
-      font-size: 11px;
-      background: var(--subtle);
-      color: var(--purple);
-      border: 1px solid rgba(139,92,246,0.4);
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-weight: 600;
+      font-size: 11px; background: var(--subtle); color: var(--purple);
+      border: 1px solid rgba(139,92,246,0.4); border-radius: 6px;
+      padding: 2px 8px; font-weight: 600;
     }
 
     /* ── MAIN ── */
-    main {
-      position: relative;
-      z-index: 1;
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 52px 24px 100px;
-    }
+    main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 52px 24px 100px; }
 
     /* ── HERO ── */
     .hero { text-align: center; margin-bottom: 44px; }
-    .hero h1 {
-      font-size: clamp(36px, 5vw, 56px);
-      font-weight: 800;
-      line-height: 1.12;
-      margin-bottom: 14px;
-    }
-    .hero h1 span {
-      background: var(--grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+    .hero h1 { font-size: clamp(36px, 5vw, 56px); font-weight: 800; line-height: 1.12; margin-bottom: 14px; }
+    .hero h1 span { background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .hero p { color: var(--muted); font-size: 17px; }
 
     /* ── INPUT CARD ── */
     .input-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
-      margin-top: 36px;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 20px; padding: 24px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.3); margin-top: 36px;
     }
     .input-card textarea {
-      width: 100%;
-      background: var(--subtle);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 16px 18px;
-      color: var(--text);
-      font-size: 15px;
-      font-family: inherit;
-      resize: none;
-      height: 110px;
-      outline: none;
-      transition: border-color 0.2s;
-      line-height: 1.65;
+      width: 100%; background: var(--subtle); border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 16px 18px; color: var(--text);
+      font-size: 15px; font-family: inherit; resize: none; height: 110px;
+      outline: none; transition: border-color 0.2s; line-height: 1.65;
     }
     .input-card textarea:focus { border-color: var(--purple); }
     .input-card textarea::placeholder { color: var(--muted); }
 
-    /* ── SKILL SLIDER ── */
+    /* ── SEGMENTED CONTROL ── */
     .skill-section { margin: 20px 0 4px; }
     .skill-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
     }
     .skill-header-label {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
     }
-    .skill-current {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--purple);
-      background: rgba(139,92,246,0.12);
-      border: 1px solid rgba(139,92,246,0.3);
-      border-radius: 100px;
-      padding: 3px 12px;
-      transition: all 0.2s;
+    .segmented {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      background: var(--subtle); border-radius: 11px; padding: 3px; gap: 2px;
     }
-    .slider-wrap { position: relative; padding: 0 2px; }
-    input[type="range"] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 4px;
-      background: var(--subtle);
-      border-radius: 2px;
-      outline: none;
-      cursor: pointer;
+    .seg-btn {
+      padding: 9px 8px; border-radius: 8px; text-align: center;
+      cursor: pointer; font-size: 13px; font-weight: 600;
+      color: var(--muted); transition: all 0.18s;
+      border: none; background: none; font-family: inherit;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    input[type="range"]::-webkit-slider-runnable-track {
-      height: 4px;
-      border-radius: 2px;
+    .seg-btn:hover:not(.active) { color: var(--text); }
+    .seg-btn.active {
+      background: var(--card-bg); color: var(--purple);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.35);
     }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: white;
-      box-shadow: 0 2px 10px rgba(139,92,246,0.5);
-      cursor: pointer;
-      margin-top: -9px;
-      border: 2px solid var(--purple);
-      transition: transform 0.15s, box-shadow 0.15s;
-    }
-    input[type="range"]::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
-      box-shadow: 0 4px 16px rgba(139,92,246,0.6);
-    }
-    .slider-labels {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-    .slider-labels span {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-      flex: 1;
-      transition: color 0.2s;
-    }
-    .slider-labels span.active { color: var(--purple); font-weight: 600; }
 
     /* ── ANALYZE BUTTON ── */
     .input-footer { display: flex; justify-content: flex-end; margin-top: 20px; }
     .analyze-btn {
-      background: var(--grad);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 13px 30px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      background: var(--grad); color: white; border: none;
+      border-radius: 12px; padding: 13px 30px; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
     }
     .analyze-btn:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(139,92,246,0.45); }
     .analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -223,9 +125,7 @@
     .progress-step {
       display: flex; align-items: center; gap: 7px;
       background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 100px; padding: 7px 14px;
-      font-size: 12px; font-weight: 500; color: var(--muted);
-      transition: all 0.3s;
+      border-radius: 100px; padding: 7px 14px; font-size: 12px; font-weight: 500; color: var(--muted); transition: all 0.3s;
     }
     .progress-step.active { border-color: var(--purple); color: var(--purple); background: rgba(139,92,246,0.08); }
     .progress-step.done  { border-color: var(--green);  color: var(--green);  background: rgba(16,185,129,0.08); }
@@ -242,12 +142,9 @@
 
     /* ── CARDS ── */
     .result-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(16px);
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--radius); overflow: hidden;
+      opacity: 0; transform: translateY(16px);
       transition: opacity 0.45s, transform 0.45s, border-color 0.2s;
     }
     .result-card.visible { opacity: 1; transform: translateY(0); }
@@ -268,7 +165,6 @@
     }
     .icon-purple { background: rgba(139,92,246,0.15); }
     .icon-pink   { background: rgba(236,72,153,0.15); }
-    .icon-blue   { background: rgba(59,130,246,0.15); }
     .icon-green  { background: rgba(16,185,129,0.15); }
     .icon-yellow { background: rgba(245,158,11,0.15); }
     .icon-cyan   { background: rgba(6,182,212,0.15); }
@@ -279,43 +175,20 @@
 
     .skeleton {
       background: linear-gradient(90deg, var(--subtle) 25%, #1a1a35 50%, var(--subtle) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 8px;
+      background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;
     }
     @keyframes shimmer { 0%{background-position:200% 0}100%{background-position:-200% 0} }
 
-    /* ── VIBE SCORE HERO ── */
-    .vibe-score-layout {
-      display: flex;
-      gap: 28px;
-      align-items: flex-start;
-    }
-    .vibe-grade-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
+    /* ── VIBE SCORE ── */
+    .vibe-layout { display: flex; gap: 28px; align-items: flex-start; }
+    .vibe-grade-block { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
     .vibe-grade {
-      font-size: 52px;
-      font-weight: 900;
-      background: var(--grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      line-height: 1;
+      font-size: 54px; font-weight: 900; line-height: 1;
+      background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .vibe-score-num {
-      font-size: 13px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-    .vibe-score-ring { flex-shrink: 0; }
-    .vibe-score-ring svg { transform: rotate(-90deg); }
+    .vibe-score-num { font-size: 13px; color: var(--muted); font-weight: 600; }
     .vibe-content { flex: 1; min-width: 0; }
-    .vibe-content h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .vibe-content h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; line-height: 1.35; }
     .vibe-content p { font-size: 14px; color: var(--muted); line-height: 1.65; }
     .vibe-pills { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 14px; }
 
@@ -325,80 +198,52 @@
     .pill-green  { background: rgba(16,185,129,0.15); color: var(--green); }
     .pill-red    { background: rgba(239,68,68,0.15);  color: var(--red); }
     .pill-yellow { background: rgba(245,158,11,0.15); color: var(--yellow); }
-    .pill-blue   { background: rgba(59,130,246,0.15); color: var(--blue); }
     .pill-cyan   { background: rgba(6,182,212,0.15);  color: var(--cyan); }
     .pill-muted  { background: var(--subtle); color: var(--muted); }
 
-    /* ── SATURATION METER ── */
-    .sat-block { margin-bottom: 16px; }
+    /* ── SATURATION ── */
+    .sat-block { margin-bottom: 14px; }
     .sat-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
     .sat-track { height: 8px; background: var(--subtle); border-radius: 100px; overflow: hidden; }
     .sat-fill  { height: 100%; border-radius: 100px; transition: width 0.8s ease; }
-
     .exists-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 9px 14px; border-radius: 10px;
-      font-size: 14px; font-weight: 700;
-      margin-bottom: 14px;
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px;
+      border-radius: 10px; font-size: 13px; font-weight: 700; margin-bottom: 14px;
     }
     .exists-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
     /* ── COMPETITOR GRID ── */
-    .competitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-    .comp-card {
-      background: var(--subtle);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 14px;
-    }
+    .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+    .comp-card { background: var(--subtle); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; }
     .comp-name { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
     .comp-name a { color: var(--text); text-decoration: none; }
     .comp-name a:hover { color: var(--purple); }
     .comp-desc { font-size: 12px; color: var(--muted); line-height: 1.55; margin-bottom: 8px; }
-    .comp-sw { display: flex; flex-direction: column; gap: 4px; }
-    .comp-sw-item { font-size: 12px; color: var(--muted); display: flex; gap: 5px; }
+    .comp-sw-item { font-size: 12px; color: var(--muted); display: flex; gap: 5px; margin-bottom: 3px; }
 
-    /* ── TWO-COL ── */
+    /* ── DATA BLOCKS ── */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
     .data-block { background: var(--subtle); border-radius: 10px; padding: 12px; }
     .data-block small { display: block; font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
-    .data-block span, .data-block strong { font-size: 13px; }
+    .data-block span { font-size: 13px; }
 
-    /* ── AUDIENCE ROWS ── */
-    .audience-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 12px;
-      background: var(--subtle);
-      border-radius: 10px;
-      margin-bottom: 8px;
-    }
-    .audience-row:last-child { margin-bottom: 0; }
-    .audience-row-main { flex: 1; }
-    .audience-row-main strong { display: block; font-size: 13px; margin-bottom: 2px; }
-    .audience-row-main span { font-size: 12px; color: var(--muted); }
-
-    /* ── REVENUE ROWS ── */
-    .rev-row {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      padding: 10px 12px;
-      background: var(--subtle);
-      border-radius: 10px;
-      margin-bottom: 7px;
-    }
+    /* ── AUDIENCE / REVENUE ── */
+    .aud-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--subtle); border-radius: 10px; margin-bottom: 8px; }
+    .aud-row:last-child { margin-bottom: 0; }
+    .aud-main strong { display: block; font-size: 13px; margin-bottom: 2px; }
+    .aud-main span { font-size: 12px; color: var(--muted); }
+    .rev-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; background: var(--subtle); border-radius: 10px; margin-bottom: 7px; }
     .rev-row:last-child { margin-bottom: 0; }
     .rev-model { font-size: 13px; font-weight: 700; }
     .rev-desc  { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .rev-badge { flex-shrink: 0; }
 
-    /* ── DIFF BAR ── */
+    /* ── DIFFICULTY ── */
     .diff-display { display: flex; align-items: center; gap: 20px; margin-bottom: 18px; }
-    .diff-score-ring { position: relative; width: 70px; height: 70px; flex-shrink: 0; }
-    .diff-score-ring svg { transform: rotate(-90deg); }
+    .diff-ring { position: relative; width: 70px; height: 70px; flex-shrink: 0; }
+    .diff-ring svg { transform: rotate(-90deg); }
     .diff-ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .diff-ring-text strong { font-size: 18px; font-weight: 800; }
     .diff-ring-text span { font-size: 10px; color: var(--muted); }
-
-    /* ── TIME GRID ── */
     .time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
     .time-cell { background: var(--subtle); border-radius: 9px; padding: 10px; text-align: center; }
     .time-cell small { display: block; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
@@ -406,9 +251,8 @@
 
     /* ── SECTION LABEL ── */
     .sec-label {
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--muted);
-      margin: 16px 0 10px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--muted); margin: 16px 0 10px;
       display: flex; align-items: center; gap: 8px;
     }
     .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--card-border); }
@@ -421,128 +265,83 @@
     .item-body span { font-size: 12px; color: var(--muted); }
 
     /* ── PLATFORM ── */
-    .platform-hero {
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px; border-radius: 12px;
-      background: rgba(16,185,129,0.08);
-      border: 1px solid rgba(16,185,129,0.2);
-      margin-bottom: 14px;
-    }
-    .platform-emoji { font-size: 28px; }
-    .platform-name { font-size: 16px; font-weight: 700; color: var(--green); }
-    .platform-reason { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
-    .platform-list { display: flex; flex-direction: column; gap: 7px; }
-    .plat-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 9px 12px; background: var(--subtle); border-radius: 9px;
-      border-left: 3px solid transparent;
-    }
+    .plat-hero { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 12px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); margin-bottom: 14px; }
+    .plat-emoji { font-size: 26px; }
+    .plat-name { font-size: 15px; font-weight: 700; color: var(--green); }
+    .plat-reason { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+    .plat-list { display: flex; flex-direction: column; gap: 7px; }
+    .plat-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--subtle); border-radius: 9px; border-left: 3px solid transparent; }
     .plat-row.high { border-left-color: var(--green); }
     .plat-row.med  { border-left-color: var(--yellow); }
     .plat-row.low  { border-left-color: var(--red); }
-    .plat-row-name { font-size: 13px; font-weight: 600; flex: 1; }
-    .plat-row-meta { font-size: 11px; color: var(--muted); }
+    .plat-name-txt { font-size: 13px; font-weight: 600; flex: 1; }
+    .plat-meta { font-size: 11px; color: var(--muted); }
 
     /* ── REDDIT QUOTES ── */
-    .reddit-group { margin-bottom: 20px; }
+    .reddit-group { margin-bottom: 22px; }
     .reddit-group:last-child { margin-bottom: 0; }
     .reddit-group-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
     .reddit-quote {
       display: flex; align-items: flex-start; gap: 10px;
-      padding: 12px 14px;
-      background: var(--subtle);
-      border-radius: 10px;
-      border-left: 3px solid rgba(139,92,246,0.4);
-      margin-bottom: 8px;
-      text-decoration: none;
-      color: var(--text);
-      transition: background 0.2s, border-color 0.2s;
+      padding: 12px 14px; background: var(--subtle); border-radius: 10px;
+      border-left: 3px solid rgba(139,92,246,0.35); margin-bottom: 8px;
+      text-decoration: none; color: var(--text); transition: background 0.2s, border-color 0.2s;
     }
+    .reddit-quote:last-child { margin-bottom: 0; }
     .reddit-quote:hover { background: #1a1a38; border-left-color: var(--purple); }
     .reddit-quote-text { font-size: 13px; line-height: 1.5; flex: 1; }
     .reddit-quote-src { font-size: 11px; color: var(--muted); margin-top: 5px; }
-    .reddit-arrow { font-size: 14px; color: var(--muted); flex-shrink: 0; padding-top: 1px; transition: color 0.2s; }
+    .reddit-arrow { font-size: 13px; color: var(--muted); flex-shrink: 0; padding-top: 2px; transition: color 0.2s; }
     .reddit-quote:hover .reddit-arrow { color: var(--purple); }
 
     /* ── HOW TO WIN ── */
-    .win-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
-    .win-card {
-      background: var(--subtle);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 14px;
-    }
+    .win-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+    .win-card { background: var(--subtle); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; }
     .win-card-header { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+    .win-card-icon { font-size: 16px; flex-shrink: 0; }
     .win-card-title { font-size: 13px; font-weight: 700; flex: 1; line-height: 1.4; }
     .win-card-reason { font-size: 12px; color: var(--muted); line-height: 1.55; }
     .win-badges { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
-
-    /* ── SUMMARY BOX ── */
-    .summary-box {
-      background: rgba(139,92,246,0.07);
-      border: 1px solid rgba(139,92,246,0.18);
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 13px;
-      line-height: 1.65;
-      color: var(--text);
-      margin-top: 14px;
-    }
 
     /* ── NEW ANALYSIS ── */
     .new-analysis-wrap { text-align: center; margin-top: 44px; }
 
     /* ── VERSION BADGE ── */
     .version-badge {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      z-index: 100;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 100px;
-      padding: 5px 12px;
-      font-size: 11px;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.2s;
-      font-weight: 600;
+      position: fixed; bottom: 16px; right: 16px; z-index: 100;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 100px; padding: 5px 12px; font-size: 11px; color: var(--muted);
+      cursor: pointer; transition: all 0.2s; font-weight: 600; font-family: inherit;
     }
     .version-badge:hover { border-color: var(--purple); color: var(--text); }
 
     /* ── CHANGELOG MODAL ── */
-    .changelog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: flex-end; justify-content: flex-end; padding: 20px; }
+    .changelog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: flex-end; justify-content: flex-end; padding: 20px; }
     .changelog-overlay.hidden { display: none; }
-    .changelog-modal {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 22px;
-      width: 320px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-    .changelog-modal h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
-    .changelog-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; }
+    .changelog-modal { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 22px; width: 300px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .changelog-modal h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .changelog-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0; }
     .changelog-close:hover { color: var(--text); }
     .changelog-entry { margin-bottom: 12px; }
     .changelog-entry:last-child { margin-bottom: 0; }
-    .changelog-version { font-size: 12px; font-weight: 700; color: var(--purple); margin-bottom: 3px; }
-    .changelog-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .changelog-ver { font-size: 12px; font-weight: 700; color: var(--purple); margin-bottom: 3px; }
+    .changelog-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
 
     @media (max-width: 640px) {
       header { padding: 14px 16px; }
       main { padding: 32px 14px 80px; }
       .results-grid { grid-template-columns: 1fr; }
       .two-col, .time-grid { grid-template-columns: 1fr; }
-      .vibe-score-layout { flex-direction: column; }
-      .competitor-grid { grid-template-columns: 1fr; }
+      .vibe-layout { flex-direction: column; }
+      .comp-grid { grid-template-columns: 1fr; }
       .win-grid { grid-template-columns: 1fr; }
+      .segmented { gap: 1px; }
+      .seg-btn { font-size: 11px; padding: 8px 4px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <header>
   <div class="logo">
     <div class="logo-text">✨ Vibe Check</div>
@@ -550,10 +349,9 @@
   </div>
 </header>
 
-<!-- ── MAIN ── -->
 <main>
 
-  <!-- INPUT -->
+  <!-- ── INPUT ── -->
   <section class="hero" id="input-section">
     <h1>Know <span>before</span> you build.</h1>
     <p>Describe any product idea — get a real-time deep analysis in seconds.</p>
@@ -567,16 +365,12 @@
       <div class="skill-section">
         <div class="skill-header">
           <span class="skill-header-label">Your level</span>
-          <span class="skill-current" id="skill-display">🌱 Beginner</span>
         </div>
-        <div class="slider-wrap">
-          <input type="range" id="skill-range" min="0" max="3" step="1" value="1" />
-          <div class="slider-labels">
-            <span id="lbl-0" class="">🎮 Vibe Coder</span>
-            <span id="lbl-1" class="active">🌱 Beginner</span>
-            <span id="lbl-2" class="">💻 Intermediate</span>
-            <span id="lbl-3" class="">🚀 Senior</span>
-          </div>
+        <div class="segmented">
+          <button class="seg-btn" onclick="selectSkill(0)">🎮 Vibe Coder</button>
+          <button class="seg-btn active" onclick="selectSkill(1)">🌱 Beginner</button>
+          <button class="seg-btn" onclick="selectSkill(2)">💻 Intermediate</button>
+          <button class="seg-btn" onclick="selectSkill(3)">🚀 Senior</button>
         </div>
       </div>
 
@@ -588,7 +382,7 @@
     </div>
   </section>
 
-  <!-- PROGRESS -->
+  <!-- ── PROGRESS ── -->
   <section id="progress-section">
     <div class="progress-header">
       <p id="progress-message">Initializing research agents...</p>
@@ -602,7 +396,7 @@
     </div>
   </section>
 
-  <!-- RESULTS -->
+  <!-- ── RESULTS ── -->
   <section id="results-section">
     <div class="results-header">
       <h2 id="results-title">Analysis Complete</h2>
@@ -611,7 +405,6 @@
 
     <div class="results-grid">
 
-      <!-- 1. VIBE SCORE (hero, full width) -->
       <div class="result-card vibe-hero" id="card-vibe">
         <div class="card-header">
           <div class="card-icon icon-pink">📊</div>
@@ -622,7 +415,6 @@
         </div>
       </div>
 
-      <!-- 2. MARKET (half) -->
       <div class="result-card" id="card-market">
         <div class="card-header">
           <div class="card-icon icon-purple">🔍</div>
@@ -630,23 +422,21 @@
         </div>
         <div class="card-body" id="body-market">
           <div class="skeleton" style="height:50px;margin-bottom:10px"></div>
-          <div class="skeleton" style="height:80px"></div>
+          <div class="skeleton" style="height:60px"></div>
         </div>
       </div>
 
-      <!-- 3. AUDIENCE & REVENUE (half) -->
       <div class="result-card" id="card-audience">
         <div class="card-header">
           <div class="card-icon icon-cyan">👥</div>
           <div><div class="card-title">Audience & Revenue</div><div class="card-subtitle">Who pays and how</div></div>
         </div>
         <div class="card-body" id="body-audience">
-          <div class="skeleton" style="height:100px;margin-bottom:10px"></div>
+          <div class="skeleton" style="height:80px;margin-bottom:10px"></div>
           <div class="skeleton" style="height:80px"></div>
         </div>
       </div>
 
-      <!-- 4. COMPETITORS (full width) -->
       <div class="result-card full" id="card-competitors">
         <div class="card-header">
           <div class="card-icon icon-red">🏆</div>
@@ -654,14 +444,13 @@
         </div>
         <div class="card-body" id="body-competitors">
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-            <div class="skeleton" style="height:100px"></div>
-            <div class="skeleton" style="height:100px"></div>
-            <div class="skeleton" style="height:100px"></div>
+            <div class="skeleton" style="height:90px"></div>
+            <div class="skeleton" style="height:90px"></div>
+            <div class="skeleton" style="height:90px"></div>
           </div>
         </div>
       </div>
 
-      <!-- 5. BUILD IT (half) -->
       <div class="result-card" id="card-build">
         <div class="card-header">
           <div class="card-icon icon-yellow">🛠</div>
@@ -669,11 +458,10 @@
         </div>
         <div class="card-body" id="body-build">
           <div class="skeleton" style="height:70px;margin-bottom:10px"></div>
-          <div class="skeleton" style="height:90px"></div>
+          <div class="skeleton" style="height:80px"></div>
         </div>
       </div>
 
-      <!-- 6. SHIP IT (half) -->
       <div class="result-card" id="card-ship">
         <div class="card-header">
           <div class="card-icon icon-green">🚀</div>
@@ -681,11 +469,10 @@
         </div>
         <div class="card-body" id="body-ship">
           <div class="skeleton" style="height:70px;margin-bottom:10px"></div>
-          <div class="skeleton" style="height:100px"></div>
+          <div class="skeleton" style="height:90px"></div>
         </div>
       </div>
 
-      <!-- 7. REDDIT PULSE (full width) -->
       <div class="result-card full" id="card-reddit">
         <div class="card-header">
           <div class="card-icon icon-purple">💬</div>
@@ -698,7 +485,6 @@
         </div>
       </div>
 
-      <!-- 8. HOW TO WIN (full width) -->
       <div class="result-card full" id="card-win">
         <div class="card-header">
           <div class="card-icon icon-pink">🎯</div>
@@ -713,7 +499,7 @@
         </div>
       </div>
 
-    </div><!-- /results-grid -->
+    </div>
 
     <div class="new-analysis-wrap">
       <button class="analyze-btn" onclick="resetApp()" style="margin:0 auto">↩ Analyze Another Idea</button>
@@ -722,73 +508,61 @@
 
 </main>
 
-<!-- ── VERSION BADGE ── -->
-<button class="version-badge" onclick="openChangelog()">v1.1</button>
+<button class="version-badge" onclick="openChangelog()">v1.2</button>
 
-<!-- ── CHANGELOG MODAL ── -->
-<div class="changelog-overlay hidden" id="changelog-overlay" onclick="closeChangelog(event)">
+<div class="changelog-overlay hidden" id="changelog-overlay" onclick="if(event.target===this)closeChangelog()">
   <div class="changelog-modal">
-    <h3>
-      What's New
-      <button class="changelog-close" onclick="closeChangelog()">×</button>
-    </h3>
+    <h3>What's New <button class="changelog-close" onclick="closeChangelog()">×</button></h3>
     <div class="changelog-entry">
-      <div class="changelog-version">v1.1 — Current</div>
-      <div class="changelog-desc">Redesigned UI — consolidated cards, skill level slider, cleaner results layout, Reddit quotes view.</div>
+      <div class="changelog-ver">v1.2 &mdash; Feb 20, 2026</div>
+      <div class="changelog-desc">Replaced skill slider with segmented control. Cleaner layout, better alignment.</div>
     </div>
     <div class="changelog-entry">
-      <div class="changelog-version">v1.0 — Initial launch</div>
-      <div class="changelog-desc">First version live with Perplexity-powered analysis across market, technical, opportunity, and deployment sections.</div>
+      <div class="changelog-ver">v1.1 &mdash; Feb 20, 2026</div>
+      <div class="changelog-desc">Redesigned UI — consolidated cards, cleaner results, Reddit quotes view, How to Win section.</div>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-ver">v1.0 &mdash; Feb 20, 2026</div>
+      <div class="changelog-desc">Initial launch. Perplexity-powered analysis across market, technical, opportunity & deployment.</div>
     </div>
   </div>
 </div>
 
 <script>
-// ── SKILL SLIDER ──────────────────────────────
+// ── SEGMENTED SKILL SELECTOR ──────────────────
 const SKILLS = [
-  { key: 'vibe_coder',    label: '🎮 Vibe Coder' },
-  { key: 'beginner',      label: '🌱 Beginner' },
-  { key: 'intermediate',  label: '💻 Intermediate' },
-  { key: 'senior',        label: '🚀 Senior Dev' },
+  { key: 'vibe_coder',   label: '🎮 Vibe Coder' },
+  { key: 'beginner',     label: '🌱 Beginner' },
+  { key: 'intermediate', label: '💻 Intermediate' },
+  { key: 'senior',       label: '🚀 Senior Dev' },
 ];
 let selectedSkill = 'beginner';
 
-const skillRange = document.getElementById('skill-range');
-const skillDisplay = document.getElementById('skill-display');
-
-function updateSlider(val) {
-  selectedSkill = SKILLS[val].key;
-  skillDisplay.textContent = SKILLS[val].label;
-  // Update gradient fill
-  const pct = (val / 3) * 100;
-  skillRange.style.background = `linear-gradient(to right, var(--purple) ${pct}%, var(--subtle) ${pct}%)`;
-  // Update labels
-  for (let i = 0; i <= 3; i++) {
-    const el = document.getElementById(`lbl-${i}`);
-    el.classList.toggle('active', i === val);
-  }
+function selectSkill(idx) {
+  selectedSkill = SKILLS[idx].key;
+  document.querySelectorAll('.seg-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
 }
-
-skillRange.addEventListener('input', e => updateSlider(parseInt(e.target.value)));
-updateSlider(1); // default: beginner
 
 // ── HELPERS ──────────────────────────────────
 const scoreColor = s => s>=8?'var(--green)':s>=6?'var(--yellow)':s>=4?'var(--purple)':'var(--red)';
 const diffColor  = s => s<=3?'var(--green)':s<=5?'var(--yellow)':s<=7?'var(--purple)':'var(--red)';
 const fmtScore   = n => Math.max(1, Math.min(10, parseInt(n)||5));
+const trendIcon  = {rapidly_growing:'🚀',growing:'📈',stable:'➡️',declining:'📉',emerging:'🌱'};
+const recLevel   = l => l==='highly_recommended'?'high':l==='recommended'?'med':'low';
+const recLabel   = l => ({highly_recommended:'✅ Top pick',recommended:'👍 Good fit',possible:'🤔 Possible',not_recommended:'❌ Skip'}[l]||l);
+const platEmoji  = p => ({'web_app':'🌐','mobile_ios':'📱','mobile_android':'📱','mobile_cross_platform':'📱','chrome_extension':'🔌','shopify_app':'🛍️','wordpress_plugin':'📝','desktop_mac':'🖥️','desktop_windows':'🖥️','desktop_cross_platform':'🖥️','api_service':'⚙️','slack_app':'💬','vs_code_extension':'💻','notion_integration':'📒'}[p]||'🌐');
+const priorityPill = p => p==='high'?'<span class="pill pill-red" style="font-size:11px">🔥 High</span>':p==='medium'?'<span class="pill pill-yellow" style="font-size:11px">⚡ Med</span>':'<span class="pill pill-muted" style="font-size:11px">Low</span>';
+const effortPill   = e => e==='low'?'<span class="pill pill-green" style="font-size:11px">Easy</span>':e==='high'?'<span class="pill pill-red" style="font-size:11px">Hard</span>':'<span class="pill pill-yellow" style="font-size:11px">Medium</span>';
 
-function scoreRing(score, color, size=70) {
-  const r=size*0.4, cx=size/2, cy=size/2, circ=2*Math.PI*r, pct=score/10;
-  return `<div class="diff-score-ring" style="width:${size}px;height:${size}px">
-    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+function diffRing(score, color) {
+  const r=28, cx=35, cy=35, circ=2*Math.PI*r, pct=score/10;
+  return `<div class="diff-ring">
+    <svg width="70" height="70" viewBox="0 0 70 70">
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--subtle)" stroke-width="6"/>
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="6"
         stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-pct)}" stroke-linecap="round"/>
     </svg>
-    <div class="diff-ring-text">
-      <strong style="color:${color}">${score}</strong>
-      <span>/ 10</span>
-    </div>
+    <div class="diff-ring-text"><strong style="color:${color}">${score}</strong><span>/10</span></div>
   </div>`;
 }
 
@@ -798,56 +572,45 @@ const existInfo = e => ({
   partially_exists:{label:'Partially Exists', color:'var(--yellow)', dot:'var(--yellow)', bg:'rgba(245,158,11,0.08)'},
   significant_gap: {label:'Significant Gap',  color:'var(--cyan)',   dot:'var(--cyan)',   bg:'rgba(6,182,212,0.08)'},
   blue_ocean:      {label:'🌊 Blue Ocean',    color:'var(--green)',  dot:'var(--green)',  bg:'rgba(16,185,129,0.08)'},
-}[e] || {label:e, color:'var(--muted)', dot:'var(--muted)', bg:'var(--subtle)'});
-
-const trendIcon  = {rapidly_growing:'🚀',growing:'📈',stable:'➡️',declining:'📉',emerging:'🌱'};
-const recLevel   = l => l==='highly_recommended'?'high':l==='recommended'?'med':'low';
-const recLabel   = l => ({highly_recommended:'✅ Top pick',recommended:'👍 Good fit',possible:'🤔 Possible',not_recommended:'❌ Skip'}[l]||l);
-const platEmoji  = p => ({web_app:'🌐',mobile_ios:'📱',mobile_android:'📱',mobile_cross_platform:'📱',chrome_extension:'🔌',shopify_app:'🛍️',wordpress_plugin:'📝',desktop_mac:'🖥️',desktop_windows:'🖥️',desktop_cross_platform:'🖥️',api_service:'⚙️',slack_app:'💬',vs_code_extension:'💻',notion_integration:'📒'}[p]||'🌐');
-const priorityPill = p => p==='high'?'<span class="pill pill-red" style="font-size:11px">🔥 High</span>':p==='medium'?'<span class="pill pill-yellow" style="font-size:11px">⚡ Med</span>':'<span class="pill pill-muted" style="font-size:11px">Low</span>';
-const effortPill   = e => e==='low'?'<span class="pill pill-green" style="font-size:11px">Easy</span>':e==='high'?'<span class="pill pill-red" style="font-size:11px">Hard</span>':'<span class="pill pill-yellow" style="font-size:11px">Medium</span>';
+}[e]||{label:e||'Unknown',color:'var(--muted)',dot:'var(--muted)',bg:'var(--subtle)'});
 
 function makeVisible(id) { document.getElementById(id)?.classList.add('visible'); }
 
-// stored cross-event data
 let _marketData = null;
 let _opportunityData = null;
 
-// ── RENDER: VIBE SCORE ────────────────────────
+// ── RENDER VIBE SCORE ─────────────────────────
 function renderVibeScore() {
   if (!_opportunityData) return;
   const d = _opportunityData;
   const score = fmtScore(d.opportunity_score);
   const color = scoreColor(score);
   const marketSummary = _marketData?.market_summary || '';
-
   document.getElementById('body-vibe').innerHTML = `
-    <div class="vibe-score-layout">
+    <div class="vibe-layout">
       <div class="vibe-grade-block">
         <div class="vibe-grade">${d.opportunity_grade||'?'}</div>
         <div class="vibe-score-num">${score} / 10</div>
       </div>
       <div class="vibe-content">
         <h3>${d.opportunity_summary||''}</h3>
-        ${marketSummary ? `<p>${marketSummary}</p>` : ''}
+        ${marketSummary?`<p>${marketSummary}</p>`:''}
         <div class="vibe-pills">
-          ${d.opportunity_type ? `<span class="pill pill-purple">${d.opportunity_type.replace(/_/g,' ')}</span>` : ''}
-          ${d.trend ? `<span class="pill pill-cyan">${trendIcon[d.trend]||''} ${d.trend.replace(/_/g,' ')}</span>` : ''}
-          ${d.market_size ? `<span class="pill pill-muted">📦 ${d.market_size}</span>` : ''}
-          ${d.trend_evidence ? `<span class="pill pill-muted" style="max-width:320px;overflow:hidden;text-overflow:ellipsis">📊 ${d.trend_evidence}</span>` : ''}
+          ${d.opportunity_type?`<span class="pill pill-purple">${d.opportunity_type.replace(/_/g,' ')}</span>`:''}
+          ${d.trend?`<span class="pill pill-cyan">${trendIcon[d.trend]||''} ${d.trend.replace(/_/g,' ')}</span>`:''}
+          ${d.market_size?`<span class="pill pill-muted">📦 ${d.market_size}</span>`:''}
         </div>
       </div>
     </div>`;
   makeVisible('card-vibe');
 }
 
-// ── RENDER: MARKET OVERVIEW ───────────────────
+// ── RENDER MARKET ─────────────────────────────
 function renderMarket(d) {
   _marketData = d;
   const ei = existInfo(d.exists);
   const sat = fmtScore(d.saturation_score);
   const satColor = sat>=8?'var(--red)':sat>=5?'var(--yellow)':'var(--green)';
-
   document.getElementById('body-market').innerHTML = `
     <div class="exists-badge" style="background:${ei.bg};color:${ei.color}">
       <div class="exists-dot" style="background:${ei.dot}"></div>${ei.label}
@@ -859,140 +622,91 @@ function renderMarket(d) {
   makeVisible('card-market');
 
   // Competitors
-  const comps = d.competitors || [];
+  const comps = d.competitors||[];
   document.getElementById('body-competitors').innerHTML = comps.length
-    ? `<div class="competitor-grid">
-        ${comps.map(c=>`
-          <div class="comp-card">
-            <div class="comp-name">${c.url?`<a href="${c.url}" target="_blank" rel="noopener">${c.name} ↗</a>`:c.name}
-              ${c.pricing?` <span class="pill pill-muted" style="font-size:11px">${c.pricing}</span>`:''}
-            </div>
-            <div class="comp-desc">${c.description||''}</div>
-            <div class="comp-sw">
-              ${(c.strengths||[]).slice(0,2).map(s=>`<div class="comp-sw-item"><span style="color:var(--green)">✅</span>${s}</div>`).join('')}
-              ${(c.weaknesses||[]).slice(0,2).map(w=>`<div class="comp-sw-item"><span style="color:var(--red)">⚠️</span>${w}</div>`).join('')}
-            </div>
-          </div>`).join('')}
-       </div>`
+    ? `<div class="comp-grid">${comps.map(c=>`
+        <div class="comp-card">
+          <div class="comp-name">${c.url?`<a href="${c.url}" target="_blank" rel="noopener">${c.name} ↗</a>`:c.name}${c.pricing?` <span class="pill pill-muted" style="font-size:10px">${c.pricing}</span>`:''}</div>
+          <div class="comp-desc">${c.description||''}</div>
+          ${(c.strengths||[]).slice(0,2).map(s=>`<div class="comp-sw-item"><span style="color:var(--green)">✅</span>${s}</div>`).join('')}
+          ${(c.weaknesses||[]).slice(0,2).map(w=>`<div class="comp-sw-item"><span style="color:var(--red)">⚠️</span>${w}</div>`).join('')}
+        </div>`).join('')}</div>`
     : '<p style="color:var(--muted);font-size:13px">No major competitors found — possible blue ocean.</p>';
   makeVisible('card-competitors');
 
-  // Try rendering vibe score now that market summary is available
   renderVibeScore();
   renderHowToWin();
 }
 
-// ── RENDER: AUDIENCE & REVENUE ────────────────
+// ── RENDER AUDIENCE & REVENUE ─────────────────
 function renderAudience(d) {
-  const audiences = d.target_audiences || [];
-  const revenues  = d.monetization_strategies || [];
-
+  const auds = d.target_audiences||[];
+  const revs = d.monetization_strategies||[];
   document.getElementById('body-audience').innerHTML = `
-    ${audiences.length ? `
-      <div class="sec-label">Audiences</div>
-      ${audiences.slice(0,3).map(a=>`
-        <div class="audience-row">
-          <div class="audience-row-main">
-            <strong>${a.segment||a}</strong>
-            ${a.size||a.willingness_to_pay ? `<span>${[a.size, a.willingness_to_pay ? 'Pays: '+a.willingness_to_pay : ''].filter(Boolean).join(' · ')}</span>` : ''}
-          </div>
-        </div>`).join('')}
-    ` : ''}
-    ${revenues.length ? `
-      <div class="sec-label">Revenue Models</div>
-      ${revenues.slice(0,3).map(m=>`
-        <div class="rev-row">
-          <div>
-            <div class="rev-model">${m.model}</div>
-            ${m.description?`<div class="rev-desc">${m.description}</div>`:''}
-          </div>
-          ${m.revenue_potential ? `<div class="rev-badge"><span class="pill pill-green" style="font-size:11px">${m.revenue_potential}</span></div>` : ''}
-        </div>`).join('')}
-    ` : ''}`;
+    ${auds.length?`<div class="sec-label">Audiences</div>
+      ${auds.slice(0,3).map(a=>`<div class="aud-row"><div class="aud-main">
+        <strong>${a.segment||a}</strong>
+        ${a.size||a.willingness_to_pay?`<span>${[a.size,a.willingness_to_pay?'Pays: '+a.willingness_to_pay:''].filter(Boolean).join(' · ')}</span>`:''}
+      </div></div>`).join('')}`:''}
+    ${revs.length?`<div class="sec-label">Revenue Models</div>
+      ${revs.slice(0,3).map(m=>`<div class="rev-row">
+        <div><div class="rev-model">${m.model}</div>${m.description?`<div class="rev-desc">${m.description}</div>`:''}</div>
+        ${m.revenue_potential?`<span class="pill pill-green" style="font-size:11px">${m.revenue_potential}</span>`:''}
+      </div>`).join('')}`:''}`;
   makeVisible('card-audience');
 }
 
-// ── RENDER: BUILD IT ─────────────────────────
+// ── RENDER BUILD IT ───────────────────────────
 function renderBuild(d) {
-  const score = fmtScore(d.difficulty_score);
-  const color = diffColor(score);
-  const dlLabels = {no_code:'🎮 No-Code',beginner:'🌱 Beginner',intermediate:'💻 Intermediate',advanced:'🔥 Advanced',expert:'🚀 Expert'};
-  const dl = dlLabels[d.difficulty] || d.difficulty || '?';
-  const t = d.time_estimates || {};
+  const score = fmtScore(d.difficulty_score), color = diffColor(score);
+  const dlLabel = {no_code:'🎮 No-Code',beginner:'🌱 Beginner',intermediate:'💻 Intermediate',advanced:'🔥 Advanced',expert:'🚀 Expert'}[d.difficulty]||d.difficulty||'?';
+  const t = d.time_estimates||{};
   const times = [{l:'🎮 Vibe',v:t.vibe_coder},{l:'🌱 Beg.',v:t.beginner},{l:'💻 Inter.',v:t.intermediate},{l:'🚀 Senior',v:t.senior_dev}].filter(x=>x.v);
-  const stack = d.tech_stack || {};
+  const stack = d.tech_stack||{};
   const stackItems = [{l:'Frontend',v:stack.frontend},{l:'Backend',v:stack.backend},{l:'Database',v:stack.database},{l:'Hosting',v:stack.hosting}].filter(s=>s.v);
-
   document.getElementById('body-build').innerHTML = `
     <div class="diff-display">
-      ${scoreRing(score, color, 70)}
-      <div>
-        <strong style="font-size:16px;color:${color}">${dl}</strong>
-        <p style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5">${d.technical_summary||''}</p>
-      </div>
+      ${diffRing(score, color)}
+      <div><strong style="font-size:15px;color:${color}">${dlLabel}</strong>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5">${d.technical_summary||''}</p></div>
     </div>
-    ${times.length ? `
-      <div class="sec-label">Time to Build</div>
-      <div class="time-grid">${times.map(t=>`<div class="time-cell"><small>${t.l}</small><strong>${t.v}</strong></div>`).join('')}</div>
-    ` : ''}
-    ${stackItems.length ? `
-      <div class="sec-label">Stack</div>
-      <div class="two-col">${stackItems.map(s=>`<div class="data-block"><small>${s.l}</small><span>${s.v}</span></div>`).join('')}</div>
-    ` : ''}
-    ${(d.required_apis||[]).length ? `
-      <div class="sec-label">Key APIs</div>
-      ${d.required_apis.slice(0,3).map(a=>`
-        <div class="item-row">
-          <div class="item-icon">🔗</div>
-          <div class="item-body">
-            <strong>${a.url?`<a href="${a.url}" target="_blank" style="color:var(--text);text-decoration:none">${a.name} ↗</a>`:a.name}</strong>
-            <span>${a.cost||''}</span>
-          </div>
-        </div>`).join('')}
-    ` : ''}`;
+    ${times.length?`<div class="sec-label">Time to Build</div><div class="time-grid">${times.map(t=>`<div class="time-cell"><small>${t.l}</small><strong>${t.v}</strong></div>`).join('')}</div>`:''}
+    ${stackItems.length?`<div class="sec-label">Stack</div><div class="two-col">${stackItems.map(s=>`<div class="data-block"><small>${s.l}</small><span>${s.v}</span></div>`).join('')}</div>`:''}
+    ${(d.required_apis||[]).length?`<div class="sec-label">Key APIs</div>${d.required_apis.slice(0,3).map(a=>`<div class="item-row"><div class="item-icon">🔗</div><div class="item-body"><strong>${a.url?`<a href="${a.url}" target="_blank" style="color:var(--text);text-decoration:none">${a.name} ↗</a>`:a.name}</strong><span>${a.cost||''}</span></div></div>`).join('')}`:''}`;
   makeVisible('card-build');
 }
 
-// ── RENDER: SHIP IT ──────────────────────────
+// ── RENDER SHIP IT ────────────────────────────
 function renderShip(d) {
-  const primary = d.primary_recommendation || 'web_app';
-  const opts = (d.deployment_options || []).filter(o => o.recommendation_level !== 'not_recommended').slice(0, 4);
-
+  const primary = d.primary_recommendation||'web_app';
+  const opts = (d.deployment_options||[]).filter(o=>o.recommendation_level!=='not_recommended').slice(0,4);
   document.getElementById('body-ship').innerHTML = `
-    <div class="platform-hero">
-      <div class="platform-emoji">${platEmoji(primary)}</div>
-      <div>
-        <div class="platform-name">${primary.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}</div>
-        <div class="platform-reason">${d.quick_win_approach || d.reasoning || ''}</div>
-      </div>
+    <div class="plat-hero">
+      <div class="plat-emoji">${platEmoji(primary)}</div>
+      <div><div class="plat-name">${primary.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}</div>
+        <div class="plat-reason">${d.quick_win_approach||d.reasoning||''}</div></div>
     </div>
-    ${opts.length ? `
-      <div class="platform-list">
-        ${opts.map(o=>`
-          <div class="plat-row ${recLevel(o.recommendation_level)}">
-            <div style="font-size:15px">${platEmoji(o.platform?.toLowerCase().replace(/\s+/g,'_'))}</div>
-            <div class="plat-row-name">${o.platform}</div>
-            <div class="plat-row-meta">${o.time_to_market||''}</div>
-            <span class="pill ${recLevel(o.recommendation_level)==='high'?'pill-green':recLevel(o.recommendation_level)==='med'?'pill-yellow':'pill-muted'}" style="font-size:11px">${recLabel(o.recommendation_level)}</span>
-          </div>`).join('')}
-      </div>
-    ` : ''}`;
+    ${opts.length?`<div class="plat-list">${opts.map(o=>`
+      <div class="plat-row ${recLevel(o.recommendation_level)}">
+        <div style="font-size:14px">${platEmoji(o.platform?.toLowerCase().replace(/\s+/g,'_'))}</div>
+        <div class="plat-name-txt">${o.platform}</div>
+        <div class="plat-meta">${o.time_to_market||''}</div>
+        <span class="pill ${recLevel(o.recommendation_level)==='high'?'pill-green':recLevel(o.recommendation_level)==='med'?'pill-yellow':'pill-muted'}" style="font-size:11px">${recLabel(o.recommendation_level)}</span>
+      </div>`).join('')}</div>`:''}`;
   makeVisible('card-ship');
 }
 
-// ── RENDER: REDDIT PULSE ─────────────────────
+// ── RENDER REDDIT ─────────────────────────────
 function renderReddit(d) {
-  const results = d.results || [];
+  const results = d.results||[];
   if (!results.length) {
-    document.getElementById('body-reddit').innerHTML = '<p style="color:var(--muted);font-size:13px">No relevant Reddit posts found yet.</p>';
-    makeVisible('card-reddit');
-    return;
+    document.getElementById('body-reddit').innerHTML = '<p style="color:var(--muted);font-size:13px">No relevant Reddit posts found for this topic yet.</p>';
+    makeVisible('card-reddit'); return;
   }
-
-  document.getElementById('body-reddit').innerHTML = results.map(group => `
+  document.getElementById('body-reddit').innerHTML = results.map(g=>`
     <div class="reddit-group">
-      <div class="reddit-group-label">${group.competitor}</div>
-      ${(group.posts||[]).map(p=>`
+      <div class="reddit-group-label">${g.competitor}</div>
+      ${(g.posts||[]).map(p=>`
         <a href="${p.url}" target="_blank" rel="noopener" class="reddit-quote">
           <div style="flex:1">
             <div class="reddit-quote-text">"${p.title}"</div>
@@ -1004,32 +718,24 @@ function renderReddit(d) {
   makeVisible('card-reddit');
 }
 
-// ── RENDER: HOW TO WIN ───────────────────────
+// ── RENDER HOW TO WIN ─────────────────────────
 function renderHowToWin() {
-  const differentiators = (_marketData?.key_differentiators_needed || []).map(d => ({ type: 'diff', text: d }));
-  const improvements    = (_opportunityData?.improvement_suggestions || []);
-  if (!differentiators.length && !improvements.length) return;
-
-  const diffCards = differentiators.slice(0, 3).map(d => `
-    <div class="win-card">
-      <div class="win-card-header">
-        <span style="font-size:16px">🎯</span>
-        <div class="win-card-title">${d.text}</div>
-      </div>
-      <div class="win-badges"><span class="pill pill-cyan" style="font-size:11px">Differentiator</span></div>
-    </div>`).join('');
-
-  const impCards = improvements.slice(0, 4).map(i => `
-    <div class="win-card">
-      <div class="win-card-header">
-        <span style="font-size:16px">💡</span>
-        <div class="win-card-title">${i.suggestion}</div>
-      </div>
-      <div class="win-card-reason">${i.reasoning||''}</div>
-      <div class="win-badges">${priorityPill(i.priority)}${effortPill(i.effort)}</div>
-    </div>`).join('');
-
-  document.getElementById('body-win').innerHTML = `<div class="win-grid">${diffCards}${impCards}</div>`;
+  const diffs = _marketData?.key_differentiators_needed||[];
+  const imps  = _opportunityData?.improvement_suggestions||[];
+  if (!diffs.length && !imps.length) return;
+  document.getElementById('body-win').innerHTML = `<div class="win-grid">
+    ${diffs.slice(0,3).map(d=>`
+      <div class="win-card">
+        <div class="win-card-header"><div class="win-card-icon">🎯</div><div class="win-card-title">${d}</div></div>
+        <div class="win-badges"><span class="pill pill-cyan" style="font-size:11px">Differentiator</span></div>
+      </div>`).join('')}
+    ${imps.slice(0,4).map(i=>`
+      <div class="win-card">
+        <div class="win-card-header"><div class="win-card-icon">💡</div><div class="win-card-title">${i.suggestion}</div></div>
+        <div class="win-card-reason">${i.reasoning||''}</div>
+        <div class="win-badges">${priorityPill(i.priority)}${effortPill(i.effort)}</div>
+      </div>`).join('')}
+  </div>`;
   makeVisible('card-win');
 }
 
@@ -1048,41 +754,14 @@ function setProgressMsg(msg) {
 // ── EVENT HANDLER ─────────────────────────────
 function handleEvent(event, data) {
   switch(event) {
-    case 'status':
-      setProgressMsg(data.message);
-      if (data.phase) setStep(data.phase, 'active');
-      break;
-    case 'market':
-      setStep('market','done');
-      renderMarket(data);
-      break;
-    case 'technical':
-      setStep('technical','done');
-      renderBuild(data);
-      break;
-    case 'opportunity':
-      setStep('opportunity','done');
-      _opportunityData = data;
-      renderVibeScore();
-      renderAudience(data);
-      renderHowToWin();
-      break;
-    case 'deployment':
-      setStep('deployment','done');
-      renderShip(data);
-      break;
-    case 'sentiment':
-      setStep('sentiment','done');
-      renderReddit(data);
-      break;
-    case 'complete':
-      setProgressMsg('✅ Analysis complete!');
-      const title = currentIdea.substring(0,55)+(currentIdea.length>55?'…':'');
-      document.getElementById('results-title').textContent = title;
-      break;
-    case 'error':
-      setProgressMsg(`❌ ${data.message}`);
-      break;
+    case 'status':      setProgressMsg(data.message); if(data.phase) setStep(data.phase,'active'); break;
+    case 'market':      setStep('market','done');      renderMarket(data);  break;
+    case 'technical':   setStep('technical','done');   renderBuild(data);   break;
+    case 'opportunity': setStep('opportunity','done'); _opportunityData=data; renderVibeScore(); renderAudience(data); renderHowToWin(); break;
+    case 'deployment':  setStep('deployment','done');  renderShip(data);    break;
+    case 'sentiment':   setStep('sentiment','done');   renderReddit(data);  break;
+    case 'complete':    setProgressMsg('✅ Analysis complete!'); document.getElementById('results-title').textContent=currentIdea.substring(0,55)+(currentIdea.length>55?'…':''); break;
+    case 'error':       setProgressMsg(`❌ ${data.message}`); break;
   }
 }
 
@@ -1093,25 +772,18 @@ async function startAnalysis() {
   const idea = document.getElementById('idea-input').value.trim();
   if (!idea) {
     document.getElementById('idea-input').style.borderColor = 'var(--red)';
-    setTimeout(() => document.getElementById('idea-input').style.borderColor = '', 2000);
+    setTimeout(()=>document.getElementById('idea-input').style.borderColor='', 2000);
     return;
   }
   currentIdea = idea;
-  _marketData = null;
-  _opportunityData = null;
+  _marketData = null; _opportunityData = null;
 
   document.getElementById('input-section').style.display = 'none';
   document.getElementById('progress-section').style.display = 'block';
   document.getElementById('results-section').style.display = 'block';
 
-  // Reset all cards
-  ['vibe','market','audience','competitors','build','ship','reddit','win'].forEach(id => {
-    document.getElementById(`card-${id}`)?.classList.remove('visible');
-  });
-  ['market','technical','opportunity','deployment','sentiment'].forEach(s => {
-    const el = document.getElementById(`step-${s}`);
-    if (el) el.classList.remove('active','done');
-  });
+  ['vibe','market','audience','competitors','build','ship','reddit','win'].forEach(id=>document.getElementById(`card-${id}`)?.classList.remove('visible'));
+  ['market','technical','opportunity','deployment','sentiment'].forEach(s=>{const el=document.getElementById(`step-${s}`);if(el)el.classList.remove('active','done');});
   setProgressMsg('Spinning up research agents...');
 
   const response = await fetch('/api/analyze', {
@@ -1119,13 +791,10 @@ async function startAnalysis() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ idea, skillLevel: selectedSkill }),
   });
+  if (!response.ok) { alert('Server error: '+response.statusText); resetApp(); return; }
 
-  if (!response.ok) { alert('Server error: ' + response.statusText); resetApp(); return; }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
+  const reader = response.body.getReader(), decoder = new TextDecoder();
   let buffer = '';
-
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -1155,14 +824,8 @@ function resetApp() {
 }
 
 // ── CHANGELOG ────────────────────────────────
-function openChangelog() {
-  document.getElementById('changelog-overlay').classList.remove('hidden');
-}
-function closeChangelog(e) {
-  if (!e || e.target === document.getElementById('changelog-overlay') || e.type === 'click') {
-    document.getElementById('changelog-overlay').classList.add('hidden');
-  }
-}
+function openChangelog() { document.getElementById('changelog-overlay').classList.remove('hidden'); }
+function closeChangelog() { document.getElementById('changelog-overlay').classList.add('hidden'); }
 
 // ── KEYBOARD SHORTCUT ─────────────────────────
 document.getElementById('idea-input').addEventListener('keydown', e => {
