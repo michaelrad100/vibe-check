@@ -1,273 +1,207 @@
 import 'dotenv/config';
 import express from 'express';
-import path from 'path';
 import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { randomUUID } from 'crypto';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// In-memory result store for shareable links (survives for the server's lifetime)
+const resultStore = new Map();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = dirname(__filename);
+
 const app = express();
-
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(join(__dirname, 'public')));
 
-// ─────────────────────────────────────────────
-// API KEY — set via environment variable
-// ─────────────────────────────────────────────
 const PERPLEXITY_KEY = process.env.PERPLEXITY_KEY;
-if (!PERPLEXITY_KEY) {
-  console.error('❌  Missing PERPLEXITY_KEY environment variable. Add it to your .env file.');
-  process.exit(1);
-}
+if (!PERPLEXITY_KEY) { console.error('PERPLEXITY_KEY env var is missing'); process.exit(1); }
 
-// ─────────────────────────────────────────────
-// PERPLEXITY API HELPER
-// ─────────────────────────────────────────────
+// ── PERPLEXITY CALL ─────────────────────────────
 async function callPerplexity(userMessage) {
-  const response = await fetch('https://api.perplexity.ai/chat/completions', {
+  const res = await fetch('https://api.perplexity.ai/chat/completions', {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${PERPLEXITY_KEY}`,
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Authorization': `Bearer ${PERPLEXITY_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'sonar-pro',
       messages: [
         {
           role: 'system',
-          content:
-            'You are a research assistant that only responds with valid JSON. Never include markdown code fences, explanations, or any text outside the JSON object. Always return a complete, parseable JSON object.',
+          content: 'You are a research analyst. Always respond with valid JSON only. No markdown, no explanations, no code fences — just the raw JSON object.',
         },
         { role: 'user', content: userMessage },
       ],
       temperature: 0.2,
     }),
   });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Perplexity error ${response.status}: ${errText}`);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Perplexity API error ${res.status}: ${body}`);
   }
-
-  const data = await response.json();
-  return data.choices[0].message.content;
+  const json = await res.json();
+  return json.choices[0].message.content;
 }
 
-// ─────────────────────────────────────────────
-// ROBUST JSON PARSER
-// ─────────────────────────────────────────────
+// ── JSON PARSER ─────────────────────────────────
 function parseJSON(text) {
-  let cleaned = text.trim();
-  cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  let cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
   try { return JSON.parse(cleaned); } catch {}
   const match = cleaned.match(/\{[\s\S]*\}/);
-  if (match) { try { return JSON.parse(match[0]); } catch {} }
-  return { _parseError: true, _raw: text };
+  if (match) try { return JSON.parse(match[0]); } catch {}
+  throw new Error('Could not parse JSON from Perplexity response');
 }
 
-// ─────────────────────────────────────────────
-// REDDIT PUBLIC SEARCH
-// ─────────────────────────────────────────────
-async function searchReddit(query) {
-  try {
-    const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(query)}&sort=top&limit=6&t=year&type=link`;
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'VibeCheck/1.0 (research tool; non-commercial)' },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return (data.data?.children || []).map((p) => ({
-      title: p.data.title,
-      score: p.data.score,
-      subreddit: p.data.subreddit,
-      url: `https://reddit.com${p.data.permalink}`,
-      numComments: p.data.num_comments,
-      preview: p.data.selftext?.substring(0, 250) || '',
-      sentiment: p.data.upvote_ratio > 0.75 ? 'positive' : p.data.upvote_ratio > 0.5 ? 'neutral' : 'negative',
-    }));
-  } catch {
-    return [];
-  }
-}
-
-// ─────────────────────────────────────────────
-// PROMPTS
-// ─────────────────────────────────────────────
+// ── PROMPTS ─────────────────────────────────────
 const PROMPTS = {
-  market: (idea) => `
-Search the web thoroughly for existing products, tools, apps, websites, or services that match or compete with this idea. Look at Product Hunt, app stores, SaaS directories, and general web results.
 
-Product Idea: "${idea}"
+  market: (idea) => `Analyze the market for this product idea: "${idea}"
 
-Return ONLY a valid JSON object with this exact structure:
+Return JSON with this exact structure (no other text):
 {
-  "exists": "fully_exists" | "mostly_exists" | "partially_exists" | "significant_gap" | "blue_ocean",
-  "saturation_score": <integer 1-10, where 10 = fully saturated>,
+  "exists": "fully_exists|mostly_exists|partially_exists|significant_gap|blue_ocean",
+  "saturation_score": 1-10,
+  "market_summary": "2-3 sentence market overview with specific data points",
   "competitors": [
-    {
-      "name": "Product Name",
-      "url": "https://example.com",
-      "description": "One sentence about what they do",
-      "pricing": "Free / Freemium / Paid $X/mo / Enterprise",
-      "founded": "Year or estimated",
-      "strengths": ["strength1", "strength2"],
-      "weaknesses": ["weakness1", "weakness2"]
-    }
+    {"name":"","url":"","description":"","pricing":"","strengths":["",""],"weaknesses":["",""]}
   ],
-  "market_summary": "2-3 sentence summary of the competitive landscape",
-  "key_differentiators_needed": ["What you would need to stand out"]
-}`,
+  "key_differentiators_needed": ["differentiator1","differentiator2","differentiator3"]
+}
 
-  technical: (idea, skillLevel) => `
-Analyze the technical requirements for building this product. The developer's skill level is: ${skillLevel}.
+Include 4-6 real competitors with actual URLs. Be specific and data-driven.`,
 
-Product: "${idea}"
+  technical: (idea, skillLevel) => `Analyze the technical complexity of building: "${idea}"
+The developer's skill level is: ${skillLevel}
 
-Return ONLY a valid JSON object:
+Return JSON with this exact structure (no other text):
 {
-  "difficulty": "no_code" | "beginner" | "intermediate" | "advanced" | "expert",
-  "difficulty_score": <integer 1-10>,
+  "difficulty": "no_code|beginner|intermediate|advanced|expert",
+  "difficulty_score": 1-10,
+  "technical_summary": "2-3 sentence overview tailored to a ${skillLevel} developer",
   "time_estimates": {
-    "vibe_coder": "X-Y weeks with no-code/AI tools",
-    "beginner": "X-Y months",
-    "intermediate": "X-Y weeks",
-    "senior_dev": "X-Y days"
+    "vibe_coder": "X weeks/months",
+    "beginner": "X weeks/months",
+    "intermediate": "X weeks/months",
+    "senior_dev": "X weeks"
   },
-  "tech_stack": {
-    "frontend": "Recommended frontend technology",
-    "backend": "Recommended backend technology",
-    "database": "Recommended database",
-    "hosting": "Recommended hosting (e.g. Vercel, Railway, Fly.io)"
-  },
-  "required_apis": [
-    { "name": "API Name", "purpose": "Why it's needed", "cost": "Free/Paid/Freemium", "url": "https://..." }
-  ],
-  "recommended_tools": [
-    { "name": "Tool Name", "purpose": "What it helps with", "cost": "Free/Paid", "skill_level": "all" | "beginner" | "advanced" }
-  ],
-  "no_code_alternatives": [
-    { "tool": "Bubble / Webflow / etc.", "coverage": "What percent of the idea this covers", "limitations": "What it cannot do" }
-  ],
-  "biggest_challenges": ["Challenge 1", "Challenge 2", "Challenge 3"],
-  "technical_summary": "2-3 sentence technical overview for a ${skillLevel}"
+  "tech_stack": {"frontend":"","backend":"","database":"","hosting":""},
+  "required_apis": [{"name":"","url":"","cost":""}]
 }`,
 
-  opportunity: (idea) => `
-Evaluate the market opportunity for this product idea. Search for market size data, trends, investor activity, and revenue potential.
+  opportunity: (idea) => `Assess the market opportunity for: "${idea}"
 
-Product: "${idea}"
-
-Return ONLY a valid JSON object:
+Return JSON with this exact structure (no other text):
 {
-  "opportunity_score": <integer 1-10>,
-  "opportunity_grade": "A+" | "A" | "A-" | "B+" | "B" | "B-" | "C+" | "C" | "D",
-  "opportunity_type": "niche_product" | "growing_market" | "mass_market" | "enterprise_b2b" | "consumer_app" | "developer_tool" | "marketplace" | "platform",
-  "market_size": "Estimated TAM with source or reasoning",
-  "trend": "rapidly_growing" | "growing" | "stable" | "declining" | "emerging",
-  "trend_evidence": "Brief evidence or data point supporting trend",
-  "monetization_strategies": [
-    {
-      "model": "SaaS Subscription / One-time Purchase / Freemium / Usage-based / Marketplace / Ads",
-      "description": "How this would work in practice",
-      "revenue_potential": "Low (<$10k MRR) / Medium ($10-100k MRR) / High (>$100k MRR)",
-      "difficulty": "easy" | "medium" | "hard"
-    }
-  ],
+  "opportunity_grade": "A|B|C|D|F",
+  "opportunity_score": 1-10,
+  "opportunity_summary": "One strong compelling sentence",
+  "opportunity_type": "blue_ocean|niche_product|competitive_market|emerging_market|saturated_market",
+  "trend": "rapidly_growing|growing|stable|declining|emerging",
+  "market_size": "One sentence with specific market size and growth rate data",
   "target_audiences": [
-    { "segment": "Audience description", "size": "Large / Medium / Niche", "willingness_to_pay": "High / Medium / Low" }
+    {"segment":"","size":"small|medium|large","willingness_to_pay":"low|medium|high"}
+  ],
+  "monetization_strategies": [
+    {"model":"","description":"","revenue_potential":"Low (<$10k MRR)|Medium ($10-100k MRR)|High (>$100k MRR)"}
   ],
   "improvement_suggestions": [
-    {
-      "suggestion": "Specific feature, angle, or pivot to improve the idea",
-      "reasoning": "Why this would increase value or reduce competition",
-      "priority": "high" | "medium" | "low",
-      "effort": "low" | "medium" | "high"
-    }
-  ],
-  "opportunity_summary": "2-3 sentence executive summary of the opportunity"
+    {"suggestion":"","reasoning":"","priority":"high|medium|low","effort":"low|medium|high"}
+  ]
 }`,
 
-  deployment: (idea) => `
-Determine the optimal deployment platform(s) for this product idea. Consider user behavior, monetization, discoverability, and technical tradeoffs.
+  deployment: (idea) => `Recommend deployment platforms for: "${idea}"
 
-Product: "${idea}"
-
-Return ONLY a valid JSON object:
+Return JSON with this exact structure (no other text):
 {
-  "primary_recommendation": "web_app" | "mobile_ios" | "mobile_android" | "mobile_cross_platform" | "chrome_extension" | "shopify_app" | "wordpress_plugin" | "desktop_mac" | "desktop_windows" | "desktop_cross_platform" | "api_service" | "slack_app" | "vs_code_extension" | "notion_integration",
-  "confidence_score": <integer 1-10>,
+  "primary_recommendation": "web_app|mobile_ios|mobile_android|mobile_cross_platform|chrome_extension|shopify_app|desktop_cross_platform|api_service",
+  "quick_win_approach": "One sentence on fastest path to first users",
+  "reasoning": "Why this platform wins for this idea",
   "deployment_options": [
+    {"platform":"","recommendation_level":"highly_recommended|recommended|possible|not_recommended","time_to_market":"","reasoning":""}
+  ]
+}`,
+
+  sentiment: (idea) => `Search forums like Reddit (r/entrepreneur, r/startups, product-specific subreddits), Hacker News, Product Hunt comments, and app store reviews for real user opinions about existing products similar to: "${idea}"
+
+Find authentic quotes or close paraphrases of what real people say. Focus on:
+1. Pain points — what frustrates users about current solutions
+2. Loved features — what users genuinely praise about existing products
+3. Wish list — features people are asking for that don't exist yet
+
+Return JSON with this exact structure (no other text):
+{
+  "community_insights": [
     {
-      "platform": "Platform Name",
-      "recommendation_level": "highly_recommended" | "recommended" | "possible" | "not_recommended",
-      "pros": ["pro1", "pro2"],
-      "cons": ["con1", "con2"],
-      "build_complexity": "low" | "medium" | "high",
-      "monetization_potential": "low" | "medium" | "high",
-      "time_to_market": "Fast (1-4 weeks) / Medium (1-3 months) / Slow (3+ months)"
+      "quote": "Direct or close paraphrase of real user comment",
+      "sentiment": "pain_point|loved_feature|wish",
+      "theme": "Short theme (3-5 words)",
+      "source": "e.g. r/entrepreneur, Hacker News, Product Hunt"
     }
-  ],
-  "go_to_market_strategy": "2-3 sentence GTM recommendation",
-  "quick_win_approach": "The single fastest path to a usable v1",
-  "reasoning": "Why the primary recommendation is best for this specific product"
-}`
+  ]
+}
+
+Include 6-9 diverse insights spread across all three sentiment types. Make quotes feel specific and authentic.`,
 };
 
-// ─────────────────────────────────────────────
-// MAIN ANALYSIS ENDPOINT (SSE streaming)
-// ─────────────────────────────────────────────
+// ── SSE ENDPOINT ────────────────────────────────
 app.post('/api/analyze', async (req, res) => {
-  const { idea, skillLevel } = req.body;
-
-  if (!idea?.trim()) return res.status(400).json({ error: 'No idea provided' });
+  const { idea, skillLevel = 'beginner' } = req.body;
+  if (!idea?.trim()) return res.status(400).json({ error: 'idea is required' });
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  const send = (event, data) => {
-    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
-  };
+  const send = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 
   try {
-    send('status', { phase: 'market', message: 'Researching existing solutions across the web...' });
-    const market = parseJSON(await callPerplexity(PROMPTS.market(idea)));
-    send('market', market);
+    send('status', { phase: 'market', message: 'Researching market landscape...' });
+    const marketData = parseJSON(await callPerplexity(PROMPTS.market(idea)));
+    send('market', marketData);
 
-    send('status', { phase: 'technical', message: 'Analyzing technical requirements and stack...' });
-    const technical = parseJSON(await callPerplexity(PROMPTS.technical(idea, skillLevel)));
-    send('technical', technical);
+    send('status', { phase: 'technical', message: 'Analyzing technical complexity...' });
+    const techData = parseJSON(await callPerplexity(PROMPTS.technical(idea, skillLevel)));
+    send('technical', techData);
 
-    send('status', { phase: 'opportunity', message: 'Evaluating market size and opportunity...' });
-    const opportunity = parseJSON(await callPerplexity(PROMPTS.opportunity(idea)));
-    send('opportunity', opportunity);
+    send('status', { phase: 'opportunity', message: 'Scoring the opportunity...' });
+    const oppData = parseJSON(await callPerplexity(PROMPTS.opportunity(idea)));
+    send('opportunity', oppData);
 
-    send('status', { phase: 'deployment', message: 'Identifying optimal deployment strategy...' });
-    const deployment = parseJSON(await callPerplexity(PROMPTS.deployment(idea)));
-    send('deployment', deployment);
+    send('status', { phase: 'deployment', message: 'Finding best deployment options...' });
+    const deployData = parseJSON(await callPerplexity(PROMPTS.deployment(idea)));
+    send('deployment', deployData);
 
-    send('status', { phase: 'sentiment', message: 'Gathering public sentiment from Reddit...' });
-    const competitors = market.competitors || [];
-    const sentimentData = [];
-    for (const competitor of competitors.slice(0, 3)) {
-      const posts = await searchReddit(`${competitor.name} review alternative`);
-      if (posts.length > 0) sentimentData.push({ competitor: competitor.name, posts: posts.slice(0, 3) });
-    }
-    const topicPosts = await searchReddit(idea.substring(0, 60));
-    if (topicPosts.length > 0) sentimentData.push({ competitor: 'General Buzz', posts: topicPosts.slice(0, 3) });
-    send('sentiment', { results: sentimentData });
+    send('status', { phase: 'sentiment', message: 'Scanning community discussions...' });
+    const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea)));
+    send('sentiment', sentimentData);
 
-    send('complete', { idea, skillLevel, timestamp: new Date().toISOString() });
+    // Store full result for shareable links
+    const resultId = randomUUID();
+    resultStore.set(resultId, {
+      idea, skillLevel,
+      market: marketData,
+      technical: techData,
+      opportunity: oppData,
+      deployment: deployData,
+      sentiment: sentimentData,
+      createdAt: new Date().toISOString(),
+    });
+
+    send('complete', { resultId });
   } catch (err) {
+    console.error('Analysis error:', err);
     send('error', { message: err.message });
   } finally {
     res.end();
   }
 });
 
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', version: '1.0.0' }));
+// ── SHARED RESULT ENDPOINT ──────────────────────
+app.get('/api/result/:id', (req, res) => {
+  const result = resultStore.get(req.params.id);
+  if (!result) return res.status(404).json({ error: 'Result not found or expired' });
+  res.json(result);
+});
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`\n✨  Vibe Check is live!`);
-  console.log(`🚀  Open → http://localhost:${PORT}\n`);
-});
+app.listen(PORT, () => console.log(`Vibe Check server running on port ${PORT}`));
