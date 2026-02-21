@@ -137,9 +137,10 @@ npm run dev          # node --watch server.js
 - Railway auto-deploys within ~60–90 seconds of a push to `main`
 
 ### Version Convention
-- One changelog entry per day maximum
-- Same-day changes are collapsed into a single version entry
-- Current version: **v1.6**
+- **One version number per day maximum** — never create a new version on the same calendar day
+- All changes made on the same day are collapsed into a single entry under one version number
+- The version badge and changelog popover in `index.html` must always stay in sync
+- Current version: **v1.6** (Feb 20, 2026)
 
 ---
 
