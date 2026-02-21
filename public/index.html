@@ -5,664 +5,1014 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vibe Check — Is Your Idea Worth Building?</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #0d0d0f;
-      --surface: #16161a;
-      --surface2: #1e1e24;
-      --border: #2a2a35;
-      --text: #e8e8f0;
-      --muted: #8888a0;
-      --accent: #7c6ff7;
-      --accent2: #a78bfa;
-      --green: #34d399;
+      --bg-deep:     #050505;
+      --bg-surface:  #0f0f11;
+      --bg-card:     #141416;
+
+      --accent-cyan:     #00e5ff;
+      --accent-cyan-dim: rgba(0, 229, 255, 0.12);
+      --accent-glow:     rgba(0, 229, 255, 0.08);
+
+      --green:  #34d399;
       --yellow: #fbbf24;
-      --red: #f87171;
-      --blue: #60a5fa;
-      --pink: #f472b6;
+      --red:    #f87171;
+
+      --text-main:  #e0e0e0;
+      --text-muted: #888888;
+      --text-dark:  #000000;
+
+      --border:           #262626;
+      --border-highlight: #404040;
+
+      --font-display: 'Oswald', sans-serif;
+      --font-body:    'Inter', sans-serif;
+
+      --sidebar-width: 200px;
+      --sidebar-collapsed: 48px;
     }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
       min-height: 100vh;
+      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── LANDING ──────────────────────────────────── */
+    /* ── VERSION CORNER (shared, always fixed) ─── */
+    .version-corner {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 500;
+    }
+    .version-badge {
+      cursor: pointer;
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0,229,255,0.25);
+      padding: 3px 8px;
+      font-size: 11px;
+      font-family: var(--font-body);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      user-select: none;
+      display: inline-block;
+    }
+    .version-badge:hover {
+      background: rgba(0,229,255,0.08);
+      border-color: rgba(0,229,255,0.5);
+    }
+    .changelog-popover {
+      display: none;
+      position: fixed;
+      bottom: calc(32px + 1.8em + 16px);
+      right: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--accent-cyan);
+      min-width: 280px;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      z-index: 501;
+    }
+    .changelog-popover.open { display: block; }
+    .changelog-header {
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      margin-bottom: 16px;
+    }
+    .changelog-entry { margin-bottom: 12px; }
+    .changelog-version {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+    .changelog-date {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+    .changelog-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .changelog-list li {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding-left: 14px;
+      position: relative;
+      line-height: 1.5;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .changelog-list li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent-cyan);
+      opacity: 0.5;
+    }
+
+    /* ══════════════════════════════════════════════
+       LANDING PAGE
+    ══════════════════════════════════════════════ */
     #landing {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 40px 20px;
+      padding: 0 20px 100px;
+      position: relative;
+    }
+    #landing::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top center, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     .landing-inner {
       width: 100%;
-      max-width: 600px;
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
+      max-width: 800px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
-    .landing-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(124,111,247,0.12);
-      border: 1px solid rgba(124,111,247,0.3);
-      border-radius: 100px;
-      padding: 4px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent2);
-      letter-spacing: 0.05em;
+    .landing-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(60px, 10vw, 84px);
+      line-height: 0.95;
       text-transform: uppercase;
-      width: fit-content;
-    }
-
-    .landing-title {
-      font-size: clamp(36px, 6vw, 52px);
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      color: var(--text);
-    }
-
-    .landing-title span {
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--pink) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-weight: 700;
+      margin-bottom: 24px;
+      letter-spacing: -1px;
+      color: var(--text-main);
     }
 
     .landing-sub {
-      font-size: 16px;
-      color: var(--muted);
+      color: var(--text-muted);
+      font-size: 18px;
+      max-width: 540px;
+      margin: 0 auto 64px;
       line-height: 1.6;
-      margin-top: -12px;
     }
 
     .form-card {
-      background: var(--surface);
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+      padding: 40px;
+      width: 100%;
+      text-align: left;
+      position: relative;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+    }
+    .form-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 2px;
+      height: 100%;
+      background: var(--accent-cyan);
     }
 
-    /* Skill section */
-    .skill-section {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .skill-question {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
+    .field-label {
+      display: block;
+      font-family: var(--font-display);
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .segmented {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      background: var(--surface2);
-      border-radius: 10px;
-      padding: 4px;
-      gap: 4px;
-    }
-
-    .seg-btn {
-      padding: 9px 8px;
-      border: none;
-      border-radius: 7px;
-      background: transparent;
-      color: var(--muted);
       font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
-      font-family: inherit;
-      white-space: nowrap;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
     }
 
-    .seg-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
-
-    .seg-btn.active {
-      background: var(--accent);
-      color: #fff;
-      font-weight: 600;
-      box-shadow: 0 0 12px rgba(124,111,247,0.4);
-    }
-
-    /* Textarea */
-    .idea-section {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .idea-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
+    .textarea-wrapper { position: relative; margin-bottom: 32px; }
 
     textarea {
       width: 100%;
-      background: var(--surface2);
+      height: 180px;
+      background: rgba(0,0,0,0.2);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-family: inherit;
+      padding: 20px;
+      color: var(--text-main);
+      font-family: var(--font-body);
       font-size: 15px;
-      line-height: 1.6;
-      padding: 14px 16px;
-      resize: vertical;
-      min-height: 110px;
-      transition: border-color 0.2s;
+      resize: none;
       outline: none;
+      transition: border-color 0.3s ease;
     }
+    textarea::placeholder { color: #444; }
+    textarea:focus { border-color: var(--accent-cyan); }
 
-    textarea::placeholder { color: #4a4a60; }
-    textarea:focus { border-color: var(--accent); }
-
-    /* Analyze button - Web3 style */
-    .analyze-btn {
+    .cta-button {
       width: 100%;
-      padding: 18px 24px;
-      background: linear-gradient(135deg, var(--accent) 0%, #9b7fe8 50%, var(--pink) 100%);
+      background: var(--accent-cyan);
+      color: var(--text-dark);
       border: none;
-      border-radius: 14px;
-      color: #fff;
-      font-family: inherit;
-      font-size: 16px;
+      padding: 20px;
+      font-family: var(--font-display);
+      font-size: 18px;
       font-weight: 700;
-      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      letter-spacing: 2px;
       cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 0 30px rgba(124,111,247,0.35), 0 4px 20px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,229,255,0.3);
+    }
+    .cta-button:active { transform: translateY(0); }
+    .cta-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ══════════════════════════════════════════════
+       RESULTS PAGE
+    ══════════════════════════════════════════════ */
+    #results {
+      display: none;
+      min-height: 100vh;
     }
 
-    .analyze-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 40px rgba(124,111,247,0.5), 0 8px 30px rgba(0,0,0,0.4);
+    /* Glow overlay for results */
+    #results::before {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: 20%;
+      width: 80%;
+      height: 80%;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
     }
 
-    .analyze-btn:active { transform: translateY(0); }
-    .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    /* ── RESULTS PAGE ─────────────────────────────── */
-    #results { display: none; min-height: 100vh; }
-
-    .results-layout {
-      display: grid;
-      grid-template-columns: 160px 1fr;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      gap: 40px;
-      align-items: start;
-    }
-
-    /* Sidebar nav */
-    .results-nav {
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-collapsed);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      height: 100vh;
       position: sticky;
-      top: 40px;
+      top: 0;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      padding: 24px 0;
+      z-index: 100;
+      flex-shrink: 0;
+      overflow: hidden;
+      transition: width 0.22s ease;
+    }
+    .sidebar:hover {
+      width: var(--sidebar-width);
     }
 
-    .nav-item {
+    /* Brand link — shows "VC" in cyan when collapsed, full name when expanded */
+    .brand-link {
+      padding: 0 0 24px;
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-main);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      text-decoration: none;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      color: var(--muted);
+      justify-content: center;
+      transition: color 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      position: relative;
+    }
+    /* Monogram shown when collapsed */
+    .brand-link .brand-mono {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      transition: opacity 0.15s ease;
+    }
+    /* Full name shown when expanded */
+    .brand-link .brand-full {
+      position: absolute;
+      left: 16px;
+      opacity: 0;
+      transition: opacity 0.15s ease 0.05s;
+      pointer-events: none;
+      color: var(--text-main);
+    }
+    .sidebar:hover .brand-link .brand-mono { opacity: 0; }
+    .sidebar:hover .brand-link .brand-full { opacity: 1; }
+    .sidebar:hover .brand-link { justify-content: flex-start; padding-left: 16px; }
+    .brand-link:hover { color: var(--accent-cyan); }
+    .sidebar:hover .brand-link:hover .brand-full { color: var(--accent-cyan); }
+
+    .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .nav-item {
+      padding: 10px 16px;
       font-size: 13px;
       font-weight: 500;
+      color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.15s;
-      border: none;
-      background: transparent;
-      font-family: inherit;
-      text-align: left;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 2px solid transparent;
+      white-space: nowrap;
+      overflow: hidden;
     }
-
-    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
-
+    .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
     .nav-item.active {
-      color: var(--accent2);
-      background: rgba(124,111,247,0.1);
-      font-weight: 600;
+      color: var(--accent-cyan);
+      border-left-color: var(--accent-cyan);
+      background: linear-gradient(90deg, var(--accent-cyan-dim), transparent);
+    }
+    /* Nav label text — hidden when collapsed, visible when sidebar is hovered */
+    .nav-label {
+      opacity: 0;
+      transition: opacity 0.15s ease 0.05s;
+      pointer-events: none;
+    }
+    .sidebar:hover .nav-label { opacity: 1; }
+    /* No dot indicators — clean when collapsed */
+    .nav-item::before { display: none; }
+
+    /* Hamburger button — mobile only */
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 200;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: color 0.2s ease;
+    }
+    .sidebar-toggle:hover { color: var(--accent-cyan); }
+
+    /* Overlay behind mobile sidebar */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 150;
     }
 
-    .nav-dot {
-      width: 6px;
-      height: 6px;
+    @media (max-width: 768px) {
+      .sidebar-toggle { display: flex; }
+      .sidebar-overlay.visible { display: block; }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: var(--sidebar-width) !important;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        z-index: 160;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-view {
+        padding: 40px 20px 40px 20px;
+      }
+    }
+
+    /* Main dashboard */
+    .main-view {
+      flex: 1;
+      padding: 40px;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Results header / status */
+    .results-header {
+      margin-bottom: 24px;
+    }
+    .results-idea-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .results-idea-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .status-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .status-dot {
+      width: 7px; height: 7px;
       border-radius: 50%;
-      background: currentColor;
+      background: var(--accent-cyan);
+      animation: pulse 1.2s infinite;
       flex-shrink: 0;
     }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.8); }
+    }
+    .status-text { font-size: 13px; color: var(--text-muted); }
 
-    @media (max-width: 900px) {
-      .results-layout { grid-template-columns: 1fr; }
-      .results-nav { display: none; }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+      grid-auto-rows: minmax(min-content, auto);
     }
 
-    /* Results content */
-    .results-content { min-width: 0; }
-
-    .results-header {
-      margin-bottom: 32px;
-    }
-
-    .results-title {
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: 4px;
-    }
-
-    .results-idea-label {
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    /* Cards grid */
-    .cards-grid {
+    /* Cards */
+    .section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 20px;
     }
-
-    .card-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    @media (max-width: 680px) { .card-row { grid-template-columns: 1fr; } }
-
-    .result-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      scroll-margin-top: 40px;
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    .card-title {
-      font-size: 12px;
-      font-weight: 700;
+    .section-header {
+      font-family: var(--font-display);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-    }
-
-    .card-badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: var(--surface2);
-    }
-
-    .card-body { display: flex; flex-direction: column; gap: 12px; }
-
-    /* Vibe Score hero */
-    #sec-score {
-      background: linear-gradient(135deg, rgba(124,111,247,0.08) 0%, rgba(244,114,182,0.06) 100%);
-      border-color: rgba(124,111,247,0.25);
-    }
-
-    .vibe-hero { text-align: center; padding: 8px 0 4px; }
-
-    .vibe-grade {
-      font-size: 80px;
-      font-weight: 800;
-      line-height: 1;
-      background: linear-gradient(135deg, var(--accent) 0%, var(--pink) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .vibe-summary-text {
-      font-size: 16px;
-      color: var(--muted);
-      margin: 8px 0 16px;
-    }
-
-    .vibe-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 8px;
-    }
-
-    .vibe-detail {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 4px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
-      border-radius: 100px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .pill-green  { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
-    .pill-yellow { background: rgba(251,191,36,0.12); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
-    .pill-red    { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
-    .pill-blue   { background: rgba(96,165,250,0.12); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
-    .pill-purple { background: rgba(124,111,247,0.12); color: var(--accent2); border: 1px solid rgba(124,111,247,0.2); }
-    .pill-muted  { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
-
-    /* Summary text */
-    .summary-text {
-      font-size: 14px;
-      line-height: 1.65;
-      color: #c0c0d8;
-    }
-
-    /* Section label */
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    /* Competitor cards */
-    .competitor-list { display: flex; flex-direction: column; gap: 12px; }
-
-    .competitor-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 16px;
-    }
-
-    .competitor-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
-    .competitor-name {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .competitor-url {
-      font-size: 12px;
-      color: var(--accent2);
-      text-decoration: none;
-    }
-    .competitor-url:hover { text-decoration: underline; }
-
-    .competitor-desc {
+      letter-spacing: 1px;
       font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 8px;
-      line-height: 1.5;
-    }
-
-    .competitor-meta {
+      color: var(--text-muted);
+      margin-bottom: 16px;
       display: flex;
-      gap: 16px;
-      font-size: 12px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-badge {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border: 1px solid var(--border-highlight);
+      color: var(--text-muted);
+      text-transform: none;
+      letter-spacing: 0;
     }
 
-    .competitor-meta-item { display: flex; flex-direction: column; gap: 2px; }
-    .meta-label { color: #555570; font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; }
-    .meta-val { color: var(--muted); }
+    /* Skeleton loader */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-surface) 25%, #1a1a1e 50%, var(--bg-surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skel-block { height: 20px; margin-bottom: 8px; border-radius: 2px; }
 
-    /* Strengths/weaknesses tags */
-    .sw-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-    .sw-tag {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 6px;
+    /* ── Score card ── */
+    .card-score {
+      grid-column: span 12;
+      background: linear-gradient(180deg, var(--bg-card) 0%, #0a0a0a 100%);
+      padding: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: center;
+      border-top: 2px solid var(--accent-cyan);
+      scroll-margin-top: 24px;
+    }
+    .score-left { grid-column: 1; }
+    .score-left h2 {
+      font-family: var(--font-display);
+      font-size: 36px;
+      line-height: 1.1;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+    .score-left p { color: var(--text-muted); max-width: 240px; font-size: 13px; line-height: 1.6; }
+
+    .score-visual {
+      grid-column: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .grade-ring {
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 0 60px rgba(0,229,255,0.08);
+    }
+    .grade-ring::after {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--accent-cyan);
+      border-right-color: var(--accent-cyan);
+      transform: rotate(-45deg);
+    }
+    .grade-value {
+      font-family: var(--font-display);
+      font-size: 120px;
+      line-height: 1;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .score-meta {
+      text-align: center;
+      margin-top: 16px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent-cyan);
+      font-size: 13px;
+    }
+    .score-stats {
+      grid-column: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding-left: 40px;
+      border-left: 1px solid var(--border);
+    }
+    .stat-row label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .stat-row .value {
+      font-family: var(--font-display);
+      font-size: 24px;
+      color: var(--text-main);
       font-weight: 500;
     }
-    .sw-strength { background: rgba(52,211,153,0.1); color: var(--green); }
-    .sw-weakness { background: rgba(248,113,113,0.1); color: var(--red); }
+    .value-cyan  { color: var(--accent-cyan) !important; }
+    .value-green { color: var(--green) !important; }
+    .value-yellow{ color: var(--yellow) !important; }
+    .value-red   { color: var(--yellow) !important; }
 
-    /* Audience / monetization */
-    .segment-list { display: flex; flex-direction: column; gap: 8px; }
-
-    .segment-item {
-      background: var(--surface2);
-      border-radius: 10px;
-      padding: 12px 14px;
+    /* ── Market card ── */
+    .card-market {
+      grid-column: span 8;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 28px;
+      scroll-margin-top: 24px;
+    }
+    /* Left column: vertical saturation meter */
+    .market-visual-col {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-    }
-
-    .segment-name { font-size: 13px; font-weight: 600; color: var(--text); }
-
-    .segment-meta {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    /* Monetization */
-    .mono-item {
-      background: var(--surface2);
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 8px;
-    }
-
-    .mono-header {
-      display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 12px;
+    }
+    .market-status-label {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+      text-align: center;
+      line-height: 1.2;
+    }
+    .market-status-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      text-align: center;
+      margin-top: -6px;
       margin-bottom: 4px;
     }
-
-    .mono-model { font-size: 13px; font-weight: 700; color: var(--text); }
-    .mono-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
-
-    /* Tech stack */
-    .stack-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    .sat-meter {
+      flex: 1;
+      width: 36px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      position: relative;
+      min-height: 100px;
     }
-
-    .stack-item {
-      background: var(--surface2);
-      border-radius: 10px;
-      padding: 10px 12px;
+    .sat-meter-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--accent-cyan);
+      transition: height 0.8s ease;
     }
-
-    .stack-layer { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #555570; margin-bottom: 3px; }
-    .stack-val { font-size: 13px; color: var(--muted); }
-
-    /* Build time */
-    .build-time-big {
-      text-align: center;
-      padding: 16px 0;
+    .sat-score-row {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
     }
-    .build-time-num {
-      font-size: 36px;
-      font-weight: 800;
-      color: var(--text);
+    .sat-score-num {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent-cyan);
       line-height: 1;
     }
-    .build-time-label {
+    .sat-score-denom {
       font-size: 13px;
-      color: var(--muted);
-      margin-top: 4px;
+      color: var(--text-muted);
+    }
+    .sat-score-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
     }
 
-    /* Deployment options */
-    .deploy-list { display: flex; flex-direction: column; gap: 8px; }
+    /* Right column: data */
+    .market-data-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      justify-content: center;
+    }
+    .data-point { border-left: 1px solid var(--border-highlight); padding-left: 16px; }
+    .data-point h4 { font-family: var(--font-display); font-size: 20px; margin-bottom: 4px; color: var(--text-main); }
+    .data-point p  { font-size: 12px; color: var(--text-muted); }
 
+    /* Saturation bar (legacy — kept for reset compatibility) */
+    .sat-bar-wrap { display: none; }
+    .sat-bar-bg { flex: 1; height: 3px; background: rgba(0,0,0,0.3); }
+    .sat-bar-fill { height: 100%; background: var(--accent-cyan); transition: width 0.6s ease; }
+    .sat-bar-label { font-size: 11px; color: rgba(0,0,0,0.6); white-space: nowrap; font-weight: 600; }
+
+    /* Differentiator tags */
+    .diff-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .diff-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      border: 1px solid var(--border-highlight);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Audience card ── */
+    .card-audience {
+      grid-column: span 4;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-margin-top: 24px;
+    }
+    .segment-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.03);
+      padding: 12px;
+      border-left: 2px solid var(--border-highlight);
+    }
+    .segment-block.primary {
+      border-left-color: var(--accent-cyan);
+      background: linear-gradient(90deg, var(--accent-cyan-dim), transparent);
+    }
+    .segment-name { font-family: var(--font-display); text-transform: uppercase; font-size: 14px; letter-spacing: 0.5px; }
+    .segment-val  { font-size: 12px; color: var(--text-muted); }
+
+    /* Monetization inside audience */
+    .mono-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .mono-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+    }
+    .mono-model { font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 2px; }
+    .mono-potential { font-size: 10px; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── Competitors card ── */
+    .card-competitors {
+      grid-column: span 12;
+      padding: 24px;
+      scroll-margin-top: 24px;
+    }
+    .comp-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .comp-tile {
+      background: #000;
+      border: 1px solid var(--border);
+      padding: 16px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+    .comp-tile:hover { border-color: var(--accent-cyan); }
+    .comp-logo-hidden {
+      display: none;
+    }
+    .comp-logo {
+      width: 32px; height: 32px;
+      background: #1a1a1a;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .comp-name { font-family: var(--font-display); font-size: 22px; text-transform: uppercase; margin-bottom: 8px; color: var(--text-main); text-decoration: none; display: block; transition: color 0.2s ease; }
+    a.comp-name:hover { color: var(--accent-cyan); }
+    .comp-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; }
+    .comp-meta { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .comp-meta span:first-child { text-transform: uppercase; letter-spacing: 0.5px; }
+    .strength-bar { height: 2px; background: #222; width: 100%; margin-top: 8px; }
+    .strength-fill { height: 100%; background: var(--accent-cyan); transition: width 0.6s ease; }
+    .sw-row { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+    .sw-tag { font-size: 12px; padding: 2px 6px; }
+    .sw-strength { background: rgba(52,211,153,0.1); color: var(--green); }
+    .sw-weakness { background: rgba(251,191,36,0.1); color: var(--yellow); }
+
+    /* ── Build card ── */
+    .card-build {
+      grid-column: span 6;
+      padding: 24px;
+      scroll-margin-top: 24px;
+    }
+    .time-lockup {
+      font-family: var(--font-display);
+      font-size: 56px;
+      line-height: 1;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+    .time-lockup span {
+      display: block;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--accent-cyan);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .build-summary { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
+    .tech-stack { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .tech-badge {
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Ship It card ── */
+    .card-ship {
+      grid-column: span 6;
+      padding: 24px;
+      scroll-margin-top: 24px;
+    }
+    .deploy-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
     .deploy-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--surface2);
-      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
       padding: 10px 14px;
     }
-
-    .deploy-platform { font-size: 13px; font-weight: 600; color: var(--text); }
-    .deploy-time { font-size: 12px; color: var(--muted); }
-    .deploy-reason { font-size: 12px; color: var(--muted); margin-top: 3px; }
-
-    /* Community pulse / sentiment */
-    .sentiment-list { display: flex; flex-direction: column; gap: 10px; }
-
-    .sentiment-item {
-      background: var(--surface2);
-      border-radius: 12px;
-      padding: 14px 16px;
-      border-left: 3px solid transparent;
+    .deploy-platform { font-size: 13px; font-weight: 600; color: var(--text-main); }
+    .deploy-reason { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .deploy-time { font-size: 11px; color: var(--text-muted); white-space: nowrap; margin-left: 12px; flex-shrink: 0; }
+    .rec-pill {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border: 1px solid;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
     }
+    .rec-green  { color: var(--green);  border-color: rgba(52,211,153,0.3);  background: rgba(52,211,153,0.08); }
+    .rec-cyan   { color: var(--accent-cyan); border-color: rgba(0,229,255,0.3); background: rgba(0,229,255,0.06); }
+    .rec-yellow { color: var(--yellow); border-color: rgba(251,191,36,0.3);  background: rgba(251,191,36,0.06); }
+    .rec-red    { color: var(--yellow); border-color: rgba(251,191,36,0.3);  background: rgba(251,191,36,0.06); }
 
-    .sentiment-item.pain_point { border-left-color: var(--red); }
-    .sentiment-item.loved_feature { border-left-color: var(--green); }
-    .sentiment-item.wish { border-left-color: var(--yellow); }
+    /* ── Community Pulse card ── */
+    .card-community {
+      grid-column: span 12;
+      padding: 24px;
+      scroll-margin-top: 24px;
+    }
+    .pulse-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 16px;
+    }
+    .pulse-col-header {
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .pulse-col-header.pain   { color: var(--accent-cyan); border-color: var(--accent-cyan); }
+    .pulse-col-header.love   { color: var(--green);  border-color: var(--green); }
+    .pulse-col-header.wish   { color: var(--yellow); border-color: var(--yellow); }
 
-    .sentiment-quote {
-      font-size: 13px;
-      line-height: 1.6;
-      color: #c0c0d8;
+    .pulse-items { display: flex; flex-direction: column; gap: 12px; }
+    .pulse-item {
+      border-left: 3px solid var(--border-highlight);
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.02);
+    }
+    .pulse-item.pain { border-left-color: var(--accent-cyan); }
+    .pulse-item.love { border-left-color: var(--green); }
+    .pulse-item.wish { border-left-color: var(--yellow); }
+
+    .pulse-quote {
+      font-size: 14px;
+      color: var(--text-main);
       font-style: italic;
-      margin-bottom: 8px;
+      line-height: 1.6;
+      margin-bottom: 10px;
     }
-
-    .sentiment-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .sentiment-theme {
+    .pulse-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+    .pulse-theme {
       font-size: 11px;
       font-weight: 600;
-      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
     }
-
-    .sentiment-source {
+    .pulse-source {
       font-size: 11px;
-      color: #444460;
+      color: var(--border-highlight);
+    }
+    .pulse-source a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+    .pulse-source a:hover { text-decoration: underline; }
+    .pulse-competitor {
+      font-size: 11px;
+      padding: 1px 6px;
+      border: 1px solid var(--border-highlight);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
-    /* How to win */
-    .win-list { display: flex; flex-direction: column; gap: 8px; }
-
-    .win-item {
-      background: var(--surface2);
-      border-radius: 10px;
-      padding: 14px 16px;
+    /* ── Strategy / How to Win card ── */
+    .card-strategy {
+      grid-column: span 12;
+      padding: 32px;
+      scroll-margin-top: 24px;
     }
-
-    .win-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 4px;
+    .strategy-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      margin-top: 8px;
     }
-
-    .win-suggestion { font-size: 13px; font-weight: 600; color: var(--text); }
-    .win-reasoning { font-size: 13px; color: var(--muted); line-height: 1.5; }
-
-    /* APIs */
-    .api-list { display: flex; flex-direction: column; gap: 6px; }
-
-    .api-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--surface2);
-      border-radius: 8px;
-      padding: 8px 12px;
+    .strategy-item { position: relative; }
+    .strat-num {
+      font-family: var(--font-display);
+      font-size: 48px;
+      color: var(--border-highlight);
+      line-height: 1;
+      margin-bottom: 12px;
+      opacity: 0.5;
+      transition: color 0.2s, opacity 0.2s;
     }
+    .strategy-item:hover .strat-num { color: var(--accent-cyan); opacity: 1; }
+    .strat-head {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .strat-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+    .strat-priority {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 1px 5px;
+      margin-bottom: 6px;
+    }
+    .strat-priority.high   { color: var(--accent-cyan); background: rgba(0,229,255,0.08); }
+    .strat-priority.medium { color: var(--yellow);  background: rgba(251,191,36,0.08); }
+    .strat-priority.low    { color: var(--text-muted); background: rgba(255,255,255,0.04); }
 
-    .api-name { font-size: 13px; color: var(--text); font-weight: 500; }
-    .api-name a { color: var(--accent2); text-decoration: none; }
-    .api-name a:hover { text-decoration: underline; }
-    .api-cost { font-size: 12px; color: var(--muted); }
-
-    /* Status bar */
-    .status-bar {
-      background: var(--surface);
+    /* ── Build Your Prompt card ── */
+    .card-prompt {
+      grid-column: span 12;
+      padding: 32px;
+      scroll-margin-top: 24px;
+    }
+    .prompt-block {
+      background: var(--bg-deep);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      padding: 20px 24px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-muted);
+      white-space: pre-wrap;
+      margin-bottom: 16px;
+      min-height: 120px;
     }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
-      animation: pulse 1.2s infinite;
-      flex-shrink: 0;
+    .prompt-copy-btn {
+      padding: 10px 24px;
+      background: var(--accent-cyan);
+      color: #000;
+      border: none;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: opacity 0.15s;
     }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
-    }
-
-    .status-text { font-size: 14px; color: var(--muted); }
-
-    /* Skeleton loaders */
-    .skeleton {
-      background: linear-gradient(90deg, var(--surface2) 25%, #22222e 50%, var(--surface2) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 8px;
-    }
-
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .prompt-copy-btn:hover { opacity: 0.85; }
+    .prompt-copy-btn:disabled { opacity: 0.5; cursor: default; }
 
     /* Action row */
     .action-row {
@@ -671,106 +1021,48 @@
       gap: 12px;
       padding-top: 24px;
       border-top: 1px solid var(--border);
-      margin-top: 8px;
+      margin-top: 24px;
       flex-wrap: wrap;
     }
-
     .action-row.visible { display: flex; }
-
     .btn-secondary {
-      padding: 10px 18px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-family: inherit;
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid var(--border-highlight);
+      color: var(--text-main);
+      font-family: var(--font-body);
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s;
-    }
-
-    .btn-secondary:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); }
-
-    .btn-accent {
-      padding: 10px 18px;
-      background: rgba(124,111,247,0.15);
-      border: 1px solid rgba(124,111,247,0.3);
-      border-radius: 10px;
-      color: var(--accent2);
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .btn-accent:hover { background: rgba(124,111,247,0.25); }
-
-    /* Loading card placeholder */
-    .card-loading {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    /* Divider label for win sections */
-    .win-divider {
-      font-size: 10px;
-      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #444460;
-      margin: 4px 0 2px;
+      letter-spacing: 0.5px;
     }
+    .btn-secondary:hover { border-color: var(--text-muted); }
+    .btn-accent {
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid rgba(0,229,255,0.3);
+      color: var(--accent-cyan);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-accent:hover { background: rgba(0,229,255,0.06); }
 
-    /* Saturation bar */
-    .sat-bar-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .sat-bar-bg {
-      flex: 1;
-      height: 6px;
-      background: var(--surface2);
-      border-radius: 100px;
-      overflow: hidden;
-    }
-    .sat-bar-fill {
-      height: 100%;
-      border-radius: 100px;
-      background: linear-gradient(90deg, var(--green), var(--yellow), var(--red));
-      transition: width 0.6s ease;
-    }
-    .sat-bar-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
-
-    /* Score bar */
-    .score-bars { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-    .score-row { display: flex; align-items: center; gap: 10px; }
-    .score-row-label { font-size: 12px; color: var(--muted); width: 100px; flex-shrink: 0; }
-    .score-bar-bg { flex: 1; height: 6px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
-    .score-bar-fill { height: 100%; border-radius: 100px; background: var(--accent); }
-    .score-row-val { font-size: 12px; color: var(--muted); width: 24px; text-align: right; flex-shrink: 0; }
-
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 24px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    /* Tooltip copy feedback */
+    /* Copy toast */
     .copy-feedback {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: var(--surface);
+      bottom: 80px;
+      right: 32px;
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 18px;
-      font-size: 14px;
+      padding: 10px 16px;
+      font-size: 13px;
       color: var(--green);
       font-weight: 600;
       opacity: 0;
@@ -780,240 +1072,334 @@
       z-index: 999;
     }
     .copy-feedback.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ── */
+    #results-inner {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+      .card-score, .card-competitors, .card-community, .card-strategy, .card-prompt { grid-column: span 2; }
+      .card-market, .card-audience, .card-build, .card-ship { grid-column: span 2; }
+      .card-market { grid-template-columns: 120px 1fr; gap: 20px; }
+      .pulse-grid { grid-template-columns: 1fr; }
+      .comp-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      #results-inner { flex-direction: column; }
+      .sidebar {
+        width: 100%; height: auto;
+        position: relative;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 16px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .brand-link { border-bottom: none; margin-bottom: 0; margin-right: 24px; white-space: nowrap; padding: 0 16px 0 0; }
+      .nav-menu { flex-direction: row; }
+      .nav-item { padding: 8px 16px; white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; }
+      .nav-item.active { border-left: none; border-bottom-color: var(--accent-cyan); background: none; }
+      .main-view { padding: 16px; }
+      .dashboard-grid { grid-template-columns: 1fr; gap: 16px; }
+      .card-score, .card-market, .card-audience, .card-competitors,
+      .card-build, .card-ship, .card-community, .card-strategy, .card-prompt { grid-column: span 1; }
+      .card-score { grid-template-columns: 1fr; text-align: center; gap: 24px; }
+      .score-stats { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 20px; }
+      .comp-grid { grid-template-columns: 1fr; }
+      .strategy-list { grid-template-columns: 1fr; }
+      .pulse-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
 
-<!-- ── LANDING ───────────────────────────────────── -->
+<!-- ══════════════════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════════════════ -->
 <section id="landing">
   <div class="landing-inner">
-    <div>
-      <div class="landing-badge">⚡ AI-Powered</div>
-    </div>
-
-    <div>
-      <h1 class="landing-title">Is your idea<br/><span>worth building?</span></h1>
-      <p class="landing-sub">Drop your idea. Get a real market analysis, technical breakdown, and opportunity score in under 60 seconds.</p>
-    </div>
+    <h1 class="landing-h1">Is your idea<br>worth building?</h1>
+    <p class="landing-sub">Stop guessing. Run your concept through our multi-vector validation engine to analyze market saturation, technical feasibility, and trend velocity.</p>
 
     <div class="form-card">
-      <!-- Skill level selector -->
-      <div class="skill-section">
-        <div class="skill-question">What's your vibe coding experience?</div>
-        <div class="segmented">
-          <button class="seg-btn active" onclick="selectSkill(0)">First project</button>
-          <button class="seg-btn" onclick="selectSkill(1)">Done a few</button>
-          <button class="seg-btn" onclick="selectSkill(2)">Build regularly</button>
-        </div>
+      <label class="field-label" for="idea-input">Describe your startup idea</label>
+      <div class="textarea-wrapper">
+        <textarea id="idea-input" placeholder="e.g. A mobile app that lets friends split restaurant bills by scanning the receipt with their camera..."></textarea>
       </div>
-
-      <!-- Idea textarea -->
-      <div class="idea-section">
-        <div class="idea-label">Your idea</div>
-        <textarea
-          id="idea-input"
-          placeholder="e.g. A mobile app that lets friends split restaurant bills by scanning the receipt with their camera..."
-          rows="4"
-        ></textarea>
-      </div>
-
-      <!-- Analyze button -->
-      <button class="analyze-btn" id="analyze-btn" onclick="analyze()">Analyze Idea</button>
+      <button class="cta-button" id="analyze-btn" onclick="analyze()">Vibe Check</button>
     </div>
   </div>
 </section>
 
-<!-- ── RESULTS ────────────────────────────────────── -->
-<section id="results">
-  <div class="results-layout">
+<!-- ══════════════════════════════════════════════
+     RESULTS PAGE
+══════════════════════════════════════════════ -->
+<button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">☰</button>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
-    <!-- Sidebar nav -->
-    <nav class="results-nav" id="results-nav">
-      <button class="nav-item active" onclick="jumpTo('sec-score')">
-        <span class="nav-dot"></span> Vibe Score
-      </button>
-      <button class="nav-item" onclick="jumpTo('sec-market')">
-        <span class="nav-dot"></span> Market
-      </button>
-      <button class="nav-item" onclick="jumpTo('sec-competitors')">
-        <span class="nav-dot"></span> Competitors
-      </button>
-      <button class="nav-item" onclick="jumpTo('sec-audience')">
-        <span class="nav-dot"></span> Audience
-      </button>
-      <button class="nav-item" onclick="jumpTo('sec-build')">
-        <span class="nav-dot"></span> Build It
-      </button>
-      <button class="nav-item" onclick="jumpTo('sec-ship')">
-        <span class="nav-dot"></span> Ship It
-      </button>
-      <button class="nav-item" onclick="jumpTo('sec-pulse')">
-        <span class="nav-dot"></span> Community
-      </button>
-      <button class="nav-item" onclick="jumpTo('sec-win')">
-        <span class="nav-dot"></span> How to Win
-      </button>
+<section id="results">
+  <div id="results-inner">
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <a class="brand-link" onclick="goHome()">
+        <span class="brand-mono">VC</span>
+        <span class="brand-full">Vibe Check</span>
+      </a>
+      <ul class="nav-menu" id="results-nav">
+        <li class="nav-item active" onclick="jumpTo('sec-score')"><span class="nav-label">Overview</span></li>
+        <li class="nav-item" onclick="jumpTo('sec-market')"><span class="nav-label">Market Signal</span></li>
+        <li class="nav-item" onclick="jumpTo('sec-competitors')"><span class="nav-label">Competitors</span></li>
+        <li class="nav-item" onclick="jumpTo('sec-community')"><span class="nav-label">Community</span></li>
+        <li class="nav-item" onclick="jumpTo('sec-strategy')"><span class="nav-label">How to Win</span></li>
+        <li class="nav-item" onclick="jumpTo('sec-build')"><span class="nav-label">Build + Ship</span></li>
+        <li class="nav-item" onclick="jumpTo('sec-prompt')"><span class="nav-label">Build Your Prompt</span></li>
+      </ul>
     </nav>
 
     <!-- Main content -->
-    <div class="results-content">
+    <main class="main-view">
+
       <div class="results-header">
-        <div class="results-title" id="results-title">Analyzing your idea...</div>
-        <div class="results-idea-label" id="results-idea-label"></div>
+        <div class="results-idea-title" id="results-title">Analyzing your idea...</div>
       </div>
 
-      <!-- Status bar -->
       <div class="status-bar" id="status-bar">
         <div class="status-dot"></div>
         <div class="status-text" id="status-text">Getting started...</div>
       </div>
 
-      <div class="cards-grid">
-        <!-- Vibe Score -->
-        <div class="result-card" id="sec-score">
-          <div class="card-header">
-            <div class="card-title">Vibe Score</div>
+      <div class="dashboard-grid">
+
+        <!-- Score -->
+        <div class="section-card card-score" id="sec-score">
+          <div class="score-left">
+            <div class="section-header">Vibe Check Result</div>
+            <h2 id="score-headline">Analyzing...</h2>
+            <p id="score-summary"></p>
           </div>
-          <div id="score-body" class="card-body">
-            <div class="card-loading">
-              <div class="skeleton" style="height:80px; border-radius:12px;"></div>
-              <div class="skeleton" style="height:20px; width:60%;"></div>
+          <div class="score-visual">
+            <div class="grade-ring">
+              <div class="grade-value" id="grade-value">—</div>
             </div>
+            <div class="score-meta" id="score-meta"></div>
+          </div>
+          <div class="score-stats" id="score-stats">
+            <div class="skel-block skeleton" style="height:60px"></div>
+            <div class="skel-block skeleton" style="height:60px"></div>
+            <div class="skel-block skeleton" style="height:60px"></div>
           </div>
         </div>
 
-        <!-- Market Overview -->
-        <div class="result-card" id="sec-market">
-          <div class="card-header">
-            <div class="card-title">Market Overview</div>
-            <div class="card-badge" id="market-badge">—</div>
-          </div>
-          <div id="market-body" class="card-body">
-            <div class="card-loading">
-              <div class="skeleton" style="height:60px; border-radius:8px;"></div>
-              <div class="skeleton" style="height:8px; width:80%;"></div>
+        <!-- Market -->
+        <div class="section-card card-market" id="sec-market">
+          <div class="market-visual-col" id="market-visual">
+            <div class="market-status-label" id="market-condition">—</div>
+            <div class="market-status-sub">Market Status</div>
+            <div class="sat-meter" id="sat-meter">
+              <div class="sat-meter-fill" id="sat-meter-fill" style="height:0%"></div>
             </div>
+            <div class="sat-score-row">
+              <span class="sat-score-num" id="sat-score-num">—</span>
+              <span class="sat-score-denom">/10</span>
+            </div>
+            <div class="sat-score-label">Saturation</div>
+          </div>
+          <div class="market-data-col" id="market-data">
+            <div class="data-point skeleton" style="height:60px"></div>
+            <div class="data-point skeleton" style="height:60px"></div>
+          </div>
+        </div>
+
+        <!-- Audience -->
+        <div class="section-card card-audience" id="sec-audience">
+          <div class="section-header">Target Audience</div>
+          <div id="audience-body">
+            <div class="skeleton skel-block" style="height:48px"></div>
+            <div class="skeleton skel-block" style="height:48px"></div>
+            <div class="skeleton skel-block" style="height:48px"></div>
           </div>
         </div>
 
         <!-- Competitors -->
-        <div class="result-card" id="sec-competitors">
-          <div class="card-header">
-            <div class="card-title">Competitors</div>
+        <div class="section-card card-competitors" id="sec-competitors">
+          <div class="section-header">
+            Competitive Landscape
+            <span class="section-badge" id="comp-count"></span>
           </div>
-          <div id="competitors-body" class="card-body">
-            <div class="card-loading">
-              <div class="skeleton" style="height:80px; border-radius:10px;"></div>
-              <div class="skeleton" style="height:80px; border-radius:10px;"></div>
-            </div>
+          <div class="comp-grid" id="comp-grid">
+            <div class="comp-tile skeleton" style="height:120px"></div>
+            <div class="comp-tile skeleton" style="height:120px"></div>
+            <div class="comp-tile skeleton" style="height:120px"></div>
+            <div class="comp-tile skeleton" style="height:120px"></div>
           </div>
         </div>
 
-        <!-- Audience + Build It row -->
-        <div class="card-row">
-          <!-- Audience -->
-          <div class="result-card" id="sec-audience">
-            <div class="card-header">
-              <div class="card-title">Audience</div>
-            </div>
-            <div id="audience-body" class="card-body">
-              <div class="skeleton" style="height:120px; border-radius:10px;"></div>
-            </div>
+        <!-- Build It -->
+        <div class="section-card card-build" id="sec-build">
+          <div class="section-header">
+            Build Velocity
+            <span class="section-badge" id="diff-badge"></span>
           </div>
-
-          <!-- Build It -->
-          <div class="result-card" id="sec-build">
-            <div class="card-header">
-              <div class="card-title">Build It</div>
-              <div class="card-badge" id="diff-badge">—</div>
-            </div>
-            <div id="build-body" class="card-body">
-              <div class="skeleton" style="height:120px; border-radius:10px;"></div>
-            </div>
+          <div id="build-body">
+            <div class="skeleton skel-block" style="height:80px"></div>
+            <div class="skeleton skel-block" style="height:40px"></div>
           </div>
         </div>
 
         <!-- Ship It -->
-        <div class="result-card" id="sec-ship">
-          <div class="card-header">
-            <div class="card-title">Ship It</div>
-            <div class="card-badge" id="ship-badge">—</div>
+        <div class="section-card card-ship" id="sec-ship">
+          <div class="section-header">
+            Ship It
+            <span class="section-badge" id="ship-badge"></span>
           </div>
-          <div id="ship-body" class="card-body">
-            <div class="skeleton" style="height:80px; border-radius:10px;"></div>
+          <div id="ship-body">
+            <div class="skeleton skel-block" style="height:40px"></div>
+            <div class="skeleton skel-block" style="height:40px"></div>
+            <div class="skeleton skel-block" style="height:40px"></div>
           </div>
         </div>
 
         <!-- Community Pulse -->
-        <div class="result-card" id="sec-pulse">
-          <div class="card-header">
-            <div class="card-title">Community Pulse</div>
-          </div>
-          <div id="pulse-body" class="card-body">
-            <div class="card-loading">
-              <div class="skeleton" style="height:70px; border-radius:10px;"></div>
-              <div class="skeleton" style="height:70px; border-radius:10px;"></div>
-              <div class="skeleton" style="height:70px; border-radius:10px;"></div>
+        <div class="section-card card-community" id="sec-community">
+          <div class="section-header">Community Pulse</div>
+          <div class="pulse-grid" id="pulse-grid">
+            <div>
+              <div class="pulse-col-header pain">Pain Points</div>
+              <div class="pulse-items" id="pulse-pain">
+                <div class="skeleton skel-block" style="height:80px"></div>
+              </div>
+            </div>
+            <div>
+              <div class="pulse-col-header love">What People Love</div>
+              <div class="pulse-items" id="pulse-love">
+                <div class="skeleton skel-block" style="height:80px"></div>
+              </div>
+            </div>
+            <div>
+              <div class="pulse-col-header wish">Wish List</div>
+              <div class="pulse-items" id="pulse-wish">
+                <div class="skeleton skel-block" style="height:80px"></div>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- How to Win -->
-        <div class="result-card" id="sec-win">
-          <div class="card-header">
-            <div class="card-title">How to Win</div>
-          </div>
-          <div id="win-body" class="card-body">
-            <div class="card-loading">
-              <div class="skeleton" style="height:70px; border-radius:10px;"></div>
-              <div class="skeleton" style="height:70px; border-radius:10px;"></div>
-            </div>
+        <div class="section-card card-strategy" id="sec-strategy">
+          <div class="section-header">How to Win</div>
+          <div class="strategy-list" id="strategy-list">
+            <div class="skeleton skel-block" style="height:100px"></div>
+            <div class="skeleton skel-block" style="height:100px"></div>
+            <div class="skeleton skel-block" style="height:100px"></div>
           </div>
         </div>
 
-      </div><!-- /cards-grid -->
+        <!-- Build Your Prompt -->
+        <div class="section-card card-prompt" id="sec-prompt">
+          <div class="section-header">
+            Build Your Prompt
+            <span class="section-badge">Claude Code Ready</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">Copy this prompt into Claude Code, Cursor, or any AI coding assistant to start building your validated idea.</p>
+          <div class="prompt-block" id="prompt-block">
+            <div class="skeleton skel-block" style="height:160px"></div>
+          </div>
+          <button class="prompt-copy-btn" id="prompt-copy-btn" onclick="copyPrompt()">Copy Prompt</button>
+        </div>
 
-      <!-- Action row (shows after complete) -->
+      </div><!-- /dashboard-grid -->
+
       <div class="action-row" id="action-row">
-        <button class="btn-secondary" onclick="newAnalysis()">New Analysis</button>
-        <button class="btn-accent" id="share-btn" onclick="shareResult()">Share Result ↗</button>
+        <button class="btn-secondary" onclick="goHome()">New Analysis</button>
+        <button class="btn-accent" onclick="shareResult()">Share Result</button>
       </div>
 
-    </div><!-- /results-content -->
-  </div><!-- /results-layout -->
+    </main>
+  </div>
 </section>
 
-<!-- Copy feedback toast -->
+<!-- Version corner (always visible) -->
+<div class="version-corner">
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.6</span>
+  <div class="changelog-popover" id="changelog-popover">
+    <div class="changelog-header">Release Notes</div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.6 <span class="changelog-date">— Feb 20, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Collapsible sidebar — VC monogram when collapsed, full nav on hover</li>
+        <li>Market Signal redesigned: vertical saturation meter, no duplicate data</li>
+        <li>Community Pulse now targets specific named competitors</li>
+        <li>New Build Your Prompt card with one-click copy</li>
+        <li>Competitor names hyperlinked, abbreviation tiles removed</li>
+        <li>Sidebar reordered: Audience removed, Build + Ship above prompt</li>
+        <li>Font sizes increased across output page</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.5 <span class="changelog-date">— Feb 20, 2026</span></div>
+      <ul class="changelog-list">
+        <li>New high-design output page with cyan color scheme</li>
+        <li>Community Pulse expanded: up to 6 insights across 3 categories</li>
+        <li>Source links and competitor references in Community Pulse</li>
+        <li>Added Ship It card with deployment options</li>
+        <li>Added monetization strategies to Audience card</li>
+        <li>How to Win wired to live API data</li>
+        <li>Merged landing and output into single app</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.4 <span class="changelog-date">— Feb 20, 2026</span></div>
+      <ul class="changelog-list">
+        <li>New high-design landing page</li>
+        <li>Sidebar nav, share links, Community Pulse section</li>
+        <li>Segmented skill control</li>
+        <li>Consolidated cards and cleaner layout</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Copy toast -->
 <div class="copy-feedback" id="copy-feedback">Link copied!</div>
 
 <script>
-  // ── STATE ──────────────────────────────────────────
-  const SKILLS = [
-    { key: 'first_project',   label: 'First project' },
-    { key: 'done_a_few',      label: 'Done a few' },
-    { key: 'build_regularly', label: 'Build regularly' },
-  ];
+  // ── STATE ──────────────────────────────────────
+  let currentResultId = null;
+  let navObserver     = null;
+  let _cachedIdea   = '';
+  let _cachedOpp    = null;
+  let _cachedTech   = null;
+  let _cachedDeploy = null;
 
-  let selectedSkillIdx = 0;
-  let currentResultId  = null;
-  let navObserver      = null;
-
-  // ── SKILL SELECTOR ────────────────────────────────
-  function selectSkill(i) {
-    selectedSkillIdx = i;
-    document.querySelectorAll('.seg-btn').forEach((b, j) => b.classList.toggle('active', i === j));
+  function _tryRenderPrompt() {
+    if (_cachedIdea && _cachedOpp && _cachedTech && _cachedDeploy) {
+      renderPrompt(_cachedIdea, _cachedOpp, _cachedTech, _cachedDeploy);
+    }
   }
 
-  // ── NAVIGATION ────────────────────────────────────
+  // ── NAV & ROUTING ─────────────────────────────
+  function goHome() {
+    if (navObserver) navObserver.disconnect();
+    currentResultId = null;
+    history.replaceState(null, '', '/');
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('landing').style.display = 'flex';
+    window.scrollTo(0, 0);
+  }
+
   function jumpTo(id) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function setupNavObserver() {
     if (navObserver) navObserver.disconnect();
-    const sections = ['sec-score','sec-market','sec-competitors','sec-audience','sec-build','sec-ship','sec-pulse','sec-win'];
+    const sections = ['sec-score','sec-market','sec-competitors','sec-community','sec-strategy','sec-build','sec-ship','sec-prompt'];
     const navItems = document.querySelectorAll('.nav-item');
-
     navObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -1022,348 +1408,306 @@
         }
       });
     }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
-
-    sections.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) navObserver.observe(el);
-    });
+    sections.forEach(id => { const el = document.getElementById(id); if (el) navObserver.observe(el); });
   }
 
-  // ── PILL HELPERS ──────────────────────────────────
-  function gradeColor(g) {
-    return { A: 'green', B: 'blue', C: 'yellow', D: 'red', F: 'red' }[g] || 'muted';
-  }
-
-  function existsColor(e) {
-    const m = { fully_exists:'red', mostly_exists:'red', partially_exists:'yellow', significant_gap:'green', blue_ocean:'green' };
-    return m[e] || 'muted';
-  }
-
-  function trendColor(t) {
-    return { rapidly_growing:'green', growing:'green', stable:'blue', declining:'red', emerging:'yellow' }[t] || 'muted';
-  }
-
-  function diffColor(d) {
-    const m = { no_code:'green', beginner:'green', intermediate:'yellow', advanced:'red', expert:'red' };
-    return m[d] || 'muted';
-  }
-
-  function recColor(r) {
-    const m = { highly_recommended:'green', recommended:'blue', possible:'yellow', not_recommended:'red' };
-    return m[r] || 'muted';
-  }
-
-  function priorityColor(p) {
-    return { high:'red', medium:'yellow', low:'muted' }[p] || 'muted';
-  }
-
-  function sentimentColor(s) {
-    return { pain_point:'red', loved_feature:'green', wish:'yellow' }[s] || 'muted';
-  }
-
-  function sentimentEmoji(s) {
-    return { pain_point:'😤', loved_feature:'❤️', wish:'✨' }[s] || '';
-  }
-
-  function pill(text, color) {
-    return `<span class="pill pill-${color}">${text}</span>`;
-  }
-
+  // ── HELPERS ───────────────────────────────────
   function humanize(str) {
     return (str || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
-  // ── RENDERERS ─────────────────────────────────────
+  function gradeColor(g) {
+    return { A: 'value-green', B: 'value-cyan', C: 'value-yellow', D: 'value-red', F: 'value-red' }[g] || '';
+  }
 
-  function renderOpportunity(d) {
-    const g = d.opportunity_grade || '?';
-    const gc = gradeColor(g);
-    const score = d.opportunity_score || 0;
-    const tc = trendColor(d.trend);
+  function recClass(r) {
+    const m = { highly_recommended: 'rec-green', recommended: 'rec-cyan', possible: 'rec-yellow', not_recommended: 'rec-red' };
+    return m[r] || 'rec-yellow';
+  }
 
-    document.getElementById('score-body').innerHTML = `
-      <div class="vibe-hero">
-        <div class="vibe-grade">${g}</div>
-        <div class="vibe-summary-text">${d.opportunity_summary || ''}</div>
-        <div class="vibe-pills">
-          ${pill(humanize(d.trend || ''), tc)}
-          ${pill(humanize(d.opportunity_type || ''), 'purple')}
-        </div>
-        <div class="vibe-detail">${d.market_size || ''}</div>
+  function diffColor(d) {
+    const m = { no_code: 'value-green', beginner: 'value-green', intermediate: 'value-yellow', advanced: 'value-red', expert: 'value-red' };
+    return m[d] || '';
+  }
+
+  // ── RENDERERS ─────────────────────────────────
+
+  function renderScore(opp) {
+    const g = opp.opportunity_grade || '?';
+    document.getElementById('grade-value').textContent = g;
+    document.getElementById('grade-value').className = 'grade-value ' + gradeColor(g);
+    document.getElementById('score-meta').textContent = humanize(opp.opportunity_type || '');
+    document.getElementById('score-headline').textContent = humanize(opp.trend || '') + ' Market';
+    document.getElementById('score-summary').textContent = opp.opportunity_summary || '';
+
+    document.getElementById('score-stats').innerHTML = `
+      <div class="stat-row">
+        <label>Opportunity Score</label>
+        <div class="value">${opp.opportunity_score || '—'}<span style="font-size:16px;color:var(--text-muted)">/10</span></div>
       </div>
-      <div class="score-bars">
-        <div class="score-row">
-          <div class="score-row-label">Opportunity</div>
-          <div class="score-bar-bg"><div class="score-bar-fill" style="width:${score*10}%; background: var(--${gc === 'green' ? 'green' : gc === 'yellow' ? 'yellow' : 'red'})"></div></div>
-          <div class="score-row-val">${score}</div>
-        </div>
+      <div class="stat-row">
+        <label>Market Size</label>
+        <div class="value" style="font-size:16px;line-height:1.4">${opp.market_size || '—'}</div>
+      </div>
+      <div class="stat-row">
+        <label>Trend</label>
+        <div class="value ${gradeColor(g)}">${humanize(opp.trend || '')}</div>
       </div>
     `;
   }
 
   function renderMarket(d) {
-    const color = existsColor(d.exists);
-    document.getElementById('market-badge').textContent = humanize(d.exists || '');
-    document.getElementById('market-badge').className = `card-badge pill pill-${color}`;
+    const sat = d.saturation_score || 0;
+    const existsLabel = humanize(d.exists || '');
 
-    const satScore = d.saturation_score || 0;
-    document.getElementById('market-body').innerHTML = `
-      <p class="summary-text">${d.market_summary || ''}</p>
-      <div>
-        <div class="section-label">Market Saturation</div>
-        <div class="sat-bar-wrap">
-          <div class="sat-bar-bg">
-            <div class="sat-bar-fill" style="width:${satScore * 10}%"></div>
-          </div>
-          <div class="sat-bar-label">${satScore}/10</div>
-        </div>
+    // Left column: vertical meter
+    document.getElementById('market-condition').textContent = existsLabel;
+    document.getElementById('sat-score-num').textContent = sat;
+    // Animate fill height after a short delay so transition plays
+    setTimeout(() => {
+      const fill = document.getElementById('sat-meter-fill');
+      if (fill) fill.style.height = (sat * 10) + '%';
+    }, 100);
+
+    // Right column: differentiators + consolidated summary (no Market Status repeat)
+    const diffs = (d.key_differentiators_needed || []).map(k => `<span class="diff-tag">${k}</span>`).join('');
+    document.getElementById('market-data').innerHTML = `
+      <div class="data-point">
+        <p style="font-size:15px;color:var(--text-main);line-height:1.6;margin-bottom:12px">${d.market_summary || ''}</p>
+        ${diffs ? `<p style="margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted)">Differentiators Needed</p>
+        <div class="diff-tags">${diffs}</div>` : ''}
       </div>
-      ${d.key_differentiators_needed?.length ? `
-        <div>
-          <div class="section-label">Differentiators Needed</div>
-          <div style="display:flex; flex-wrap:wrap; gap:6px;">
-            ${d.key_differentiators_needed.map(k => pill(k, 'purple')).join('')}
-          </div>
-        </div>
-      ` : ''}
     `;
+  }
+
+  function renderAudience(opp) {
+    const segments = (opp.target_audiences || []).slice(0, 4);
+    const segsHTML = segments.map((a, i) => `
+      <div class="segment-block ${i === 0 ? 'primary' : ''}">
+        <span class="segment-name">${a.segment || ''}</span>
+        <span class="segment-val">${humanize(a.size || '')} · ${humanize(a.willingness_to_pay || '')} WTP</span>
+      </div>
+    `).join('');
+
+    const monos = (opp.monetization_strategies || []).slice(0, 2);
+    const monoHTML = monos.length ? `
+      <div class="mono-row">
+        <div class="section-header" style="margin-bottom:8px">Monetization</div>
+        ${monos.map(m => `
+          <div class="mono-item">
+            <div class="mono-model">${m.model || ''}</div>
+            <div class="mono-potential">${m.revenue_potential || ''}</div>
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    document.getElementById('audience-body').innerHTML = segsHTML + monoHTML;
   }
 
   function renderCompetitors(d) {
-    if (!d.competitors?.length) {
-      document.getElementById('competitors-body').innerHTML = '<div class="empty-state">No competitors found.</div>';
+    const comps = d.competitors || [];
+    document.getElementById('comp-count').textContent = comps.length ? `${comps.length} found` : '';
+    if (!comps.length) {
+      document.getElementById('comp-grid').innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:16px 0">No competitors identified.</p>';
       return;
     }
-    document.getElementById('competitors-body').innerHTML = `
-      <div class="competitor-list">
-        ${d.competitors.map(c => `
-          <div class="competitor-card">
-            <div class="competitor-header">
-              <div class="competitor-name">${c.name || ''}</div>
-              ${c.url ? `<a class="competitor-url" href="${c.url}" target="_blank" rel="noopener">${new URL(c.url.startsWith('http') ? c.url : 'https://'+c.url).hostname}</a>` : ''}
-            </div>
-            <div class="competitor-desc">${c.description || ''}</div>
-            <div class="competitor-meta">
-              ${c.pricing ? `<div class="competitor-meta-item"><div class="meta-label">Pricing</div><div class="meta-val">${c.pricing}</div></div>` : ''}
-            </div>
-            ${(c.strengths?.length || c.weaknesses?.length) ? `
-              <div class="sw-row">
-                ${(c.strengths||[]).map(s => `<span class="sw-tag sw-strength">✓ ${s}</span>`).join('')}
-                ${(c.weaknesses||[]).map(w => `<span class="sw-tag sw-weakness">✗ ${w}</span>`).join('')}
-              </div>
-            ` : ''}
+    // Dynamic column count based on number of competitors
+    const cols = Math.min(comps.length, 4);
+    const grid = document.getElementById('comp-grid');
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    grid.innerHTML = comps.map((c, i) => {
+      const strengths = (c.strengths || []).slice(0, 2).map(s => `<span class="sw-tag sw-strength">${s}</span>`).join('');
+      const weaknesses = (c.weaknesses || []).slice(0, 2).map(w => `<span class="sw-tag sw-weakness">${w}</span>`).join('');
+      const nameEl = c.url
+        ? `<a class="comp-name" href="${c.url.startsWith('http') ? c.url : 'https://'+c.url}" target="_blank" rel="noopener">${c.name || ''}</a>`
+        : `<div class="comp-name">${c.name || ''}</div>`;
+      return `
+        <div class="comp-tile">
+          ${nameEl}
+          ${c.description ? `<div class="comp-desc">${c.description}</div>` : ''}
+          <div class="comp-meta">
+            <span>Market Share</span>
+            <span>${c.pricing || '—'}</span>
           </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  function renderAudience(d) {
-    if (!d.target_audiences?.length) {
-      document.getElementById('audience-body').innerHTML = '<div class="empty-state">No data.</div>';
-      return;
-    }
-    document.getElementById('audience-body').innerHTML = `
-      <div class="segment-list">
-        ${d.target_audiences.map(a => `
-          <div class="segment-item">
-            <div class="segment-name">${a.segment || ''}</div>
-            <div class="segment-meta">
-              ${pill(a.size + ' audience', a.size === 'large' ? 'green' : a.size === 'medium' ? 'yellow' : 'muted')}
-              ${pill(a.willingness_to_pay + ' WTP', a.willingness_to_pay === 'high' ? 'green' : a.willingness_to_pay === 'medium' ? 'yellow' : 'red')}
-            </div>
-          </div>
-        `).join('')}
-      </div>
-      ${d.monetization_strategies?.length ? `
-        <div style="margin-top:4px">
-          <div class="section-label" style="margin-bottom:8px">Monetization</div>
-          ${d.monetization_strategies.slice(0,2).map(m => `
-            <div class="mono-item">
-              <div class="mono-header">
-                <div class="mono-model">${m.model || ''}</div>
-                ${pill(m.revenue_potential || '', m.revenue_potential?.includes('High') ? 'green' : m.revenue_potential?.includes('Medium') ? 'yellow' : 'muted')}
-              </div>
-              <div class="mono-desc">${m.description || ''}</div>
-            </div>
-          `).join('')}
+          <div class="strength-bar"><div class="strength-fill" style="width:${70 - i * 12}%"></div></div>
+          <div class="sw-row">${strengths}${weaknesses}</div>
         </div>
-      ` : ''}
-    `;
+      `;
+    }).join('');
   }
 
   function renderBuild(d) {
-    const diffLabel = humanize(d.difficulty || '');
-    const diffC = diffColor(d.difficulty);
-    const diffScore = d.difficulty_score || 0;
-    document.getElementById('diff-badge').textContent = diffLabel;
-    document.getElementById('diff-badge').className = `card-badge pill pill-${diffC}`;
+    const diff = humanize(d.difficulty || '');
+    document.getElementById('diff-badge').textContent = diff;
+    document.getElementById('diff-badge').className = 'section-badge ' + diffColor(d.difficulty);
 
-    // Show time for the selected skill level
-    const skillKey = SKILLS[selectedSkillIdx].key;
-    const timeEstimate = d.time_estimates?.[skillKey] || 'Varies';
-
+    const timeEst = d.time_estimates?.done_a_few || d.time_estimates?.first_project || 'Varies';
     const stack = d.tech_stack || {};
-    const apis = d.required_apis || [];
+    const apis  = d.required_apis || [];
+
+    const stackBadges = Object.entries(stack).filter(([,v]) => v).map(([k, v]) => `<div class="tech-badge" title="${k}">${v}</div>`).join('');
+    const apiList = apis.slice(0, 4).map(a => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--text-main)">${a.url ? `<a href="${a.url}" target="_blank" rel="noopener" style="color:var(--accent-cyan);text-decoration:none">${a.name}</a>` : a.name}</span>
+        <span style="font-size:11px;color:var(--text-muted)">${a.cost || ''}</span>
+      </div>
+    `).join('');
 
     document.getElementById('build-body').innerHTML = `
-      <div class="build-time-big">
-        <div class="build-time-num">${timeEstimate}</div>
-        <div class="build-time-label">for your experience level</div>
+      <div class="time-lockup">
+        <span>Est. Time to MVP</span>
+        ${timeEst}
       </div>
-      <p class="summary-text">${d.technical_summary || ''}</p>
-      ${Object.keys(stack).length ? `
-        <div>
-          <div class="section-label">Tech Stack</div>
-          <div class="stack-grid">
-            ${Object.entries(stack).map(([k,v]) => v ? `
-              <div class="stack-item">
-                <div class="stack-layer">${k}</div>
-                <div class="stack-val">${v}</div>
-              </div>
-            ` : '').join('')}
-          </div>
-        </div>
-      ` : ''}
-      ${apis.length ? `
-        <div>
-          <div class="section-label">Key APIs</div>
-          <div class="api-list">
-            ${apis.slice(0,4).map(a => `
-              <div class="api-item">
-                <div class="api-name">
-                  ${a.url ? `<a href="${a.url}" target="_blank" rel="noopener">${a.name}</a>` : a.name}
-                </div>
-                <div class="api-cost">${a.cost || ''}</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
+      <p class="build-summary">${d.technical_summary || ''}</p>
+      ${stackBadges ? `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:8px">Recommended Stack</div><div class="tech-stack">${stackBadges}</div>` : ''}
+      ${apiList ? `<div style="margin-top:16px"><div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:8px">Key APIs</div>${apiList}</div>` : ''}
     `;
   }
 
   function renderDeploy(d) {
-    const rec = d.primary_recommendation || '';
-    document.getElementById('ship-badge').textContent = humanize(rec);
-    document.getElementById('ship-badge').className = 'card-badge pill pill-blue';
+    const rec = humanize(d.primary_recommendation || '');
+    document.getElementById('ship-badge').textContent = rec;
 
-    const options = d.deployment_options || [];
+    const options = (d.deployment_options || []).slice(0, 4);
     document.getElementById('ship-body').innerHTML = `
-      ${d.quick_win_approach ? `<p class="summary-text" style="margin-bottom:4px">${d.quick_win_approach}</p>` : ''}
+      ${d.quick_win_approach ? `<p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">${d.quick_win_approach}</p>` : ''}
       <div class="deploy-list">
-        ${options.slice(0,4).map(o => {
-          const rc = recColor(o.recommendation_level);
-          return `
-            <div class="deploy-item">
-              <div>
-                <div class="deploy-platform">${o.platform || ''}</div>
-                ${o.reasoning ? `<div class="deploy-reason">${o.reasoning}</div>` : ''}
-              </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:12px">
-                ${pill(humanize(o.recommendation_level || ''), rc)}
-                ${o.time_to_market ? `<div class="deploy-time">${o.time_to_market}</div>` : ''}
-              </div>
+        ${options.map(o => `
+          <div class="deploy-item">
+            <div>
+              <div class="deploy-platform">${o.platform || ''}</div>
+              ${o.reasoning ? `<div class="deploy-reason">${o.reasoning}</div>` : ''}
             </div>
-          `;
-        }).join('')}
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:12px">
+              <span class="rec-pill ${recClass(o.recommendation_level)}">${humanize(o.recommendation_level || '')}</span>
+              ${o.time_to_market ? `<span class="deploy-time">${o.time_to_market}</span>` : ''}
+            </div>
+          </div>
+        `).join('')}
       </div>
     `;
   }
 
   function renderSentiment(d) {
     const insights = d.community_insights || [];
-    if (!insights.length) {
-      document.getElementById('pulse-body').innerHTML = '<div class="empty-state">No community data found.</div>';
+    const pain = insights.filter(i => i.sentiment === 'pain_point').slice(0, 2);
+    const love = insights.filter(i => i.sentiment === 'loved_feature').slice(0, 2);
+    const wish = insights.filter(i => i.sentiment === 'wish').slice(0, 2);
+
+    function renderItems(items, cls) {
+      if (!items.length) return '<p style="font-size:12px;color:var(--text-muted);padding:8px 0">No data found.</p>';
+      return items.map(s => {
+        const sourceLink = s.source_url
+          ? `<a href="${s.source_url}" target="_blank" rel="noopener">${s.source || 'Source'}</a>`
+          : (s.source || '');
+        const compBadge = s.competitor_reference
+          ? `<span class="pulse-competitor">re: ${s.competitor_reference}</span>`
+          : `<span class="pulse-competitor" style="opacity:0.5">general space</span>`;
+        return `
+          <div class="pulse-item ${cls}">
+            <div class="pulse-quote">"${s.quote || ''}"</div>
+            <div class="pulse-meta">
+              <span class="pulse-theme">${s.theme || ''}</span>
+              <span class="pulse-source">${sourceLink}</span>
+              ${compBadge}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('pulse-pain').innerHTML = renderItems(pain, 'pain');
+    document.getElementById('pulse-love').innerHTML = renderItems(love, 'love');
+    document.getElementById('pulse-wish').innerHTML = renderItems(wish, 'wish');
+  }
+
+  function renderStrategy(opp) {
+    const suggestions = (opp.improvement_suggestions || []).slice(0, 6);
+    if (!suggestions.length) {
+      document.getElementById('strategy-list').innerHTML = '<p style="color:var(--text-muted);font-size:13px">No strategy data available.</p>';
       return;
     }
-    document.getElementById('pulse-body').innerHTML = `
-      <div class="sentiment-list">
-        ${insights.map(s => `
-          <div class="sentiment-item ${s.sentiment}">
-            <div class="sentiment-quote">"${s.quote || ''}"</div>
-            <div class="sentiment-meta">
-              ${pill(sentimentEmoji(s.sentiment) + ' ' + humanize(s.sentiment || ''), sentimentColor(s.sentiment))}
-              <span class="sentiment-theme">${s.theme || ''}</span>
-              ${s.source ? `<span class="sentiment-source">— ${s.source}</span>` : ''}
-            </div>
-          </div>
-        `).join('')}
+    // Up to 6 items in a 3-col grid
+    const cols = Math.min(suggestions.length, 3);
+    document.getElementById('strategy-list').style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    document.getElementById('strategy-list').innerHTML = suggestions.map((s, i) => `
+      <div class="strategy-item">
+        <div class="strat-num">0${i + 1}</div>
+        <div class="strat-priority ${s.priority || 'medium'}">${(s.priority || '').toUpperCase()}</div>
+        <div class="strat-head">${s.suggestion || ''}</div>
+        <div class="strat-desc">${s.reasoning || ''}</div>
       </div>
-    `;
+    `).join('');
   }
 
-  function renderWin(d) {
-    const all = d.improvement_suggestions || [];
+  // ── BUILD YOUR PROMPT ─────────────────────────
+  let _promptText = '';
 
-    // Cap to: top 2 differentiators (any priority labeled "differentiator" or first 2 high), then 2 high, 2 medium
-    const diffs    = all.filter(s => s.priority === 'high').slice(0, 2);
-    const highs    = all.filter(s => s.priority === 'high').slice(2, 4);
-    const mediums  = all.filter(s => s.priority === 'medium').slice(0, 2);
+  function renderPrompt(idea, opp, tech, deploy) {
+    const audience = (opp.target_audiences || [])[0];
+    const differentiator = (opp.improvement_suggestions || [])[0];
+    const stack = tech.tech_stack || {};
+    const stackSummary = [stack.frontend, stack.backend, stack.database, stack.hosting].filter(Boolean).join(', ');
+    const platform = deploy.primary_recommendation ? deploy.primary_recommendation.replace(/_/g, ' ') : 'web app';
+    const audienceLine = audience ? `- Primary audience: ${audience.segment} (${audience.size} market, ${audience.willingness_to_pay} willingness to pay)` : '';
+    const diffLine = differentiator ? `- Key differentiator to build toward: ${differentiator.suggestion}` : '';
+    const stackLine = stackSummary ? `- Recommended stack: ${stackSummary}` : '';
 
-    const renderItems = (items, label) => {
-      if (!items.length) return '';
-      return `
-        <div class="win-divider">${label}</div>
-        ${items.map(s => `
-          <div class="win-item">
-            <div class="win-header">
-              <div class="win-suggestion">${s.suggestion || ''}</div>
-              ${pill(s.priority, priorityColor(s.priority))}
-            </div>
-            <div class="win-reasoning">${s.reasoning || ''}</div>
-          </div>
-        `).join('')}
-      `;
-    };
+    _promptText = `Build a ${idea}.
 
-    // Simpler: just show top 6 with priority pill
-    const shown = all.slice(0, 6);
-    document.getElementById('win-body').innerHTML = `
-      <div class="win-list">
-        ${shown.map(s => `
-          <div class="win-item">
-            <div class="win-header">
-              <div class="win-suggestion">${s.suggestion || ''}</div>
-              ${pill(s.priority, priorityColor(s.priority))}
-            </div>
-            <div class="win-reasoning">${s.reasoning || ''}</div>
-          </div>
-        `).join('')}
-      </div>
-    `;
+Context from market research:
+${audienceLine}
+${diffLine}
+${stackLine}
+- Deploy as: ${platform}
+- Est. time to MVP: ${tech.time_estimates?.done_a_few || 'a few weeks'}
+
+Start by setting up the project structure, then implement the core user flow end-to-end. Keep the MVP tight — focus on the single most important feature that addresses the primary audience's top pain point. Ask me before adding anything beyond the core scope.`.trim();
+
+    const block = document.getElementById('prompt-block');
+    if (block) block.textContent = _promptText;
+    const btn = document.getElementById('prompt-copy-btn');
+    if (btn) btn.disabled = false;
   }
 
-  // ── MAIN ANALYZE FLOW ─────────────────────────────
+  function copyPrompt() {
+    if (!_promptText) return;
+    navigator.clipboard.writeText(_promptText).then(() => {
+      const btn = document.getElementById('prompt-copy-btn');
+      if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy Prompt'; }, 2000); }
+    });
+  }
+
+  // ── ANALYZE ───────────────────────────────────
   async function analyze() {
     const idea = document.getElementById('idea-input').value.trim();
     if (!idea) { alert('Please describe your idea first.'); return; }
 
-    const skillKey = SKILLS[selectedSkillIdx].key;
-
-    // Switch to results page
     document.getElementById('landing').style.display = 'none';
     document.getElementById('results').style.display = 'block';
     document.getElementById('results-title').textContent = 'Analyzing your idea...';
-    document.getElementById('results-idea-label').textContent = idea;
     document.getElementById('status-bar').style.display = 'flex';
     document.getElementById('action-row').classList.remove('visible');
+    document.getElementById('analyze-btn').disabled = true;
 
-    // Reset all card bodies to skeleton
     resetSkeletons();
     setupNavObserver();
     window.scrollTo(0, 0);
-
     currentResultId = null;
+    _cachedIdea = idea;
+    _cachedOpp = null;
+    _cachedTech = null;
+    _cachedDeploy = null;
 
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idea, skillLevel: skillKey }),
+        body: JSON.stringify({ idea, skillLevel: 'done_a_few' }),
       });
 
-      const reader = response.body.getReader();
+      const reader  = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
 
@@ -1371,10 +1715,8 @@
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-
         const parts = buffer.split('\n\n');
         buffer = parts.pop();
-
         for (const part of parts) {
           const lines = part.split('\n');
           let event = '', data = '';
@@ -1383,15 +1725,13 @@
             if (line.startsWith('data: '))  data  = line.slice(6);
           }
           if (!event || !data) continue;
-
-          try {
-            const parsed = JSON.parse(data);
-            handleEvent(event, parsed, idea);
-          } catch {}
+          try { handleEvent(event, JSON.parse(data), idea); } catch {}
         }
       }
     } catch (err) {
       document.getElementById('status-text').textContent = 'Error: ' + err.message;
+    } finally {
+      document.getElementById('analyze-btn').disabled = false;
     }
   }
 
@@ -1405,13 +1745,21 @@
         renderCompetitors(data);
         break;
       case 'technical':
+        _cachedTech = data;
         renderBuild(data);
+        _tryRenderPrompt();
         break;
       case 'opportunity':
-        renderOpportunity(data);
+        _cachedOpp = data;
+        renderScore(data);
+        renderAudience(data);
+        renderStrategy(data);
+        _tryRenderPrompt();
         break;
       case 'deployment':
+        _cachedDeploy = data;
         renderDeploy(data);
+        _tryRenderPrompt();
         break;
       case 'sentiment':
         renderSentiment(data);
@@ -1419,39 +1767,75 @@
       case 'complete':
         currentResultId = data.resultId;
         document.getElementById('status-bar').style.display = 'none';
-        document.getElementById('results-title').textContent = `Analyzed: ${idea}`;
+        document.getElementById('results-title').textContent = idea;
         document.getElementById('action-row').classList.add('visible');
-        if (data.resultId) {
-          history.replaceState(null, '', `?r=${data.resultId}`);
-        }
+        if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
         break;
       case 'error':
-        document.getElementById('status-text').textContent = '⚠ ' + (data.message || 'Something went wrong');
+        document.getElementById('status-text').textContent = 'Something went wrong: ' + (data.message || '');
         break;
     }
   }
 
   function resetSkeletons() {
-    document.getElementById('score-body').innerHTML = `<div class="card-loading"><div class="skeleton" style="height:80px;border-radius:12px;"></div><div class="skeleton" style="height:20px;width:60%;"></div></div>`;
-    document.getElementById('market-body').innerHTML = `<div class="card-loading"><div class="skeleton" style="height:60px;border-radius:8px;"></div><div class="skeleton" style="height:8px;width:80%;"></div></div>`;
-    document.getElementById('competitors-body').innerHTML = `<div class="card-loading"><div class="skeleton" style="height:80px;border-radius:10px;"></div><div class="skeleton" style="height:80px;border-radius:10px;"></div></div>`;
-    document.getElementById('audience-body').innerHTML = `<div class="skeleton" style="height:120px;border-radius:10px;"></div>`;
-    document.getElementById('build-body').innerHTML = `<div class="skeleton" style="height:120px;border-radius:10px;"></div>`;
-    document.getElementById('ship-body').innerHTML = `<div class="skeleton" style="height:80px;border-radius:10px;"></div>`;
-    document.getElementById('pulse-body').innerHTML = `<div class="card-loading"><div class="skeleton" style="height:70px;border-radius:10px;"></div><div class="skeleton" style="height:70px;border-radius:10px;"></div><div class="skeleton" style="height:70px;border-radius:10px;"></div></div>`;
-    document.getElementById('win-body').innerHTML = `<div class="card-loading"><div class="skeleton" style="height:70px;border-radius:10px;"></div><div class="skeleton" style="height:70px;border-radius:10px;"></div></div>`;
-    document.getElementById('market-badge').textContent = '—';
-    document.getElementById('market-badge').className = 'card-badge';
-    document.getElementById('diff-badge').textContent = '—';
-    document.getElementById('diff-badge').className = 'card-badge';
-    document.getElementById('ship-badge').textContent = '—';
-    document.getElementById('ship-badge').className = 'card-badge';
+    document.getElementById('grade-value').textContent = '—';
+    document.getElementById('grade-value').className = 'grade-value';
+    document.getElementById('score-meta').textContent = '';
+    document.getElementById('score-headline').textContent = 'Analyzing...';
+    document.getElementById('score-summary').textContent = '';
+    document.getElementById('score-stats').innerHTML = `
+      <div class="skel-block skeleton" style="height:60px"></div>
+      <div class="skel-block skeleton" style="height:60px"></div>
+      <div class="skel-block skeleton" style="height:60px"></div>
+    `;
+    document.getElementById('market-condition').textContent = '—';
+    document.getElementById('sat-score-num').textContent = '—';
+    const mf = document.getElementById('sat-meter-fill');
+    if (mf) mf.style.height = '0%';
+    document.getElementById('market-data').innerHTML = `
+      <div class="data-point skeleton" style="height:80px"></div>
+      <div class="data-point skeleton" style="height:40px"></div>
+    `;
+    document.getElementById('audience-body').innerHTML = `
+      <div class="skeleton skel-block" style="height:48px"></div>
+      <div class="skeleton skel-block" style="height:48px"></div>
+      <div class="skeleton skel-block" style="height:48px"></div>
+    `;
+    document.getElementById('comp-grid').innerHTML = `
+      <div class="comp-tile skeleton" style="height:120px"></div>
+      <div class="comp-tile skeleton" style="height:120px"></div>
+      <div class="comp-tile skeleton" style="height:120px"></div>
+      <div class="comp-tile skeleton" style="height:120px"></div>
+    `;
+    document.getElementById('build-body').innerHTML = `
+      <div class="skeleton skel-block" style="height:80px"></div>
+      <div class="skeleton skel-block" style="height:40px"></div>
+    `;
+    document.getElementById('ship-body').innerHTML = `
+      <div class="skeleton skel-block" style="height:40px"></div>
+      <div class="skeleton skel-block" style="height:40px"></div>
+      <div class="skeleton skel-block" style="height:40px"></div>
+    `;
+    document.getElementById('pulse-pain').innerHTML = '<div class="skeleton skel-block" style="height:80px"></div>';
+    document.getElementById('pulse-love').innerHTML = '<div class="skeleton skel-block" style="height:80px"></div>';
+    document.getElementById('pulse-wish').innerHTML = '<div class="skeleton skel-block" style="height:80px"></div>';
+    document.getElementById('strategy-list').innerHTML = `
+      <div class="skeleton skel-block" style="height:100px"></div>
+      <div class="skeleton skel-block" style="height:100px"></div>
+      <div class="skeleton skel-block" style="height:100px"></div>
+    `;
+    document.getElementById('diff-badge').textContent = '';
+    document.getElementById('ship-badge').textContent = '';
+    document.getElementById('comp-count').textContent = '';
+    const pb = document.getElementById('prompt-block');
+    if (pb) pb.innerHTML = '<div class="skeleton skel-block" style="height:160px"></div>';
+    const cpb = document.getElementById('prompt-copy-btn');
+    if (cpb) cpb.disabled = true;
   }
 
-  // ── SHARE / LOAD ──────────────────────────────────
+  // ── SHARE / LOAD ──────────────────────────────
   function shareResult() {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
       const el = document.getElementById('copy-feedback');
       el.classList.add('show');
       setTimeout(() => el.classList.remove('show'), 2500);
@@ -1463,55 +1847,55 @@
     document.getElementById('results').style.display = 'block';
     document.getElementById('status-text').textContent = 'Loading shared result...';
     window.scrollTo(0, 0);
-
     try {
       const r = await fetch(`/api/result/${id}`);
       if (!r.ok) throw new Error('Result not found or expired');
       const d = await r.json();
-
-      document.getElementById('results-title').textContent = `Analyzed: ${d.idea}`;
-      document.getElementById('results-idea-label').textContent = d.idea;
-
-      // Restore selected skill for time display
-      const skillIdx = SKILLS.findIndex(s => s.key === d.skillLevel);
-      if (skillIdx >= 0) selectedSkillIdx = skillIdx;
-
+      document.getElementById('results-title').textContent = d.idea;
       renderMarket(d.market);
       renderCompetitors(d.market);
-      renderOpportunity(d.opportunity);
+      renderScore(d.opportunity);
+      renderAudience(d.opportunity);
+      renderStrategy(d.opportunity);
       renderBuild(d.technical);
       renderDeploy(d.deployment);
       renderSentiment(d.sentiment);
-      renderWin(d.opportunity);
-      renderAudience(d.opportunity);
-
+      renderPrompt(d.idea, d.opportunity, d.technical, d.deployment);
       document.getElementById('status-bar').style.display = 'none';
       document.getElementById('action-row').classList.add('visible');
       currentResultId = id;
       setupNavObserver();
     } catch (err) {
-      document.getElementById('status-text').textContent = '⚠ ' + err.message;
+      document.getElementById('status-text').textContent = 'Error: ' + err.message;
     }
   }
 
-  // ── NEW ANALYSIS ──────────────────────────────────
-  function newAnalysis() {
-    if (navObserver) navObserver.disconnect();
-    currentResultId = null;
-    history.replaceState(null, '', '/');
-    document.getElementById('results').style.display = 'none';
-    document.getElementById('landing').style.display = 'flex';
-    document.getElementById('idea-input').value = '';
-    window.scrollTo(0, 0);
+  // ── SIDEBAR TOGGLE (MOBILE) ───────────────────
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('visible');
+  }
+  function closeSidebar() {
+    document.querySelector('.sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('visible');
   }
 
-  // ── INIT: check for shared result ─────────────────
+  // ── VERSION POPOVER ───────────────────────────
+  function toggleChangelog(e) {
+    e.stopPropagation();
+    document.getElementById('changelog-popover').classList.toggle('open');
+  }
+  document.addEventListener('click', () => {
+    const p = document.getElementById('changelog-popover');
+    if (p) p.classList.remove('open');
+  });
+
+  // ── INIT ──────────────────────────────────────
   (function init() {
-    const params = new URLSearchParams(window.location.search);
-    const rid = params.get('r');
-    if (rid) {
-      loadSharedResult(rid);
-    }
+    const rid = new URLSearchParams(window.location.search).get('r');
+    if (rid) loadSharedResult(rid);
   })();
 </script>
 </body>

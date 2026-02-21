@@ -129,11 +129,17 @@ Return JSON with this exact structure (no other text):
   ]
 }`,
 
-  sentiment: (idea) => `Search Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, and app store reviews for real user opinions about existing apps and products that are direct competitors to: "${idea}"
+  sentiment: (idea, competitorNames = []) => {
+    const competitorList = competitorNames.length > 0
+      ? `Focus specifically on these known competitors: ${competitorNames.join(', ')}. Search for real user comments, reviews, and discussions about these specific products.`
+      : `Search for real user opinions about existing apps and products that are direct competitors to the idea.`;
+    return `Search Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, and app store reviews for real user opinions about this product space: "${idea}"
 
-Find specific quotes where users discuss their experience with competing products — what frustrates them, what they love, what they wish existed.
+${competitorList}
 
-IMPORTANT: Only include quotes that are specifically about product experiences with competing apps, NOT generic topic discussions.
+Find specific quotes where users discuss their experience with these competing products — what frustrates them, what they love, what they wish existed. Aim to include a variety of different competitors across your findings (ideally no single competitor mentioned more than twice).
+
+IMPORTANT: Only include quotes that are specifically about product experiences with real competing apps, NOT generic topic discussions.
 
 Return JSON with this exact structure (no other text):
 {
@@ -142,12 +148,15 @@ Return JSON with this exact structure (no other text):
       "quote": "Direct or close paraphrase of a real user comment about a specific competing product",
       "sentiment": "pain_point|loved_feature|wish",
       "theme": "Short theme label (3-5 words)",
-      "source": "e.g. r/entrepreneur, Hacker News, App Store"
+      "source": "e.g. r/entrepreneur, Hacker News, App Store",
+      "source_url": "Direct URL to the post or thread if available, otherwise null",
+      "competitor_reference": "Name of the specific competitor app being discussed, or null if this is a general observation about the space"
     }
   ]
 }
 
-Include 6-9 insights spread across all three sentiment types. Quotes must be about real competing products, not general topics.`,
+Include 6-9 insights spread across all three sentiment types (at least 2 pain_point, 2 loved_feature, 2 wish). Quotes must be about real competing products, not general topics.`;
+  },
 };
 
 // ── SSE ENDPOINT ────────────────────────────────
@@ -166,6 +175,7 @@ app.post('/api/analyze', async (req, res) => {
     send('status', { phase: 'market', message: 'Researching market landscape...' });
     const marketData = parseJSON(await callPerplexity(PROMPTS.market(idea)));
     send('market', marketData);
+    const competitorNames = (marketData.competitors || []).map(c => c.name).filter(Boolean);
 
     send('status', { phase: 'technical', message: 'Analyzing technical complexity...' });
     const techData = parseJSON(await callPerplexity(PROMPTS.technical(idea, skillLevel)));
@@ -180,7 +190,7 @@ app.post('/api/analyze', async (req, res) => {
     send('deployment', deployData);
 
     send('status', { phase: 'sentiment', message: 'Scanning community discussions...' });
-    const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea)));
+    const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea, competitorNames)));
     send('sentiment', sentimentData);
 
     // Store full result for shareable links
