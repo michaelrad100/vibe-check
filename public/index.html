@@ -251,6 +251,47 @@
     .cta-button:active { transform: translateY(0); }
     .cta-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
+    /* Skill selector */
+    .skill-selector-row {
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .skill-selector-label {
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .skill-selector {
+      display: flex;
+      gap: 8px;
+    }
+    .skill-btn {
+      flex: 1;
+      padding: 10px 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .skill-btn:hover {
+      border-color: var(--border-highlight);
+      color: var(--text-main);
+    }
+    .skill-btn.active {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      background: var(--accent-cyan-dim);
+    }
+
     /* ══════════════════════════════════════════════
        RESULTS PAGE
     ══════════════════════════════════════════════ */
@@ -1126,9 +1167,17 @@
     <p class="landing-sub">Stop guessing. Run your concept through our multi-vector validation engine to analyze market saturation, technical feasibility, and trend velocity.</p>
 
     <div class="form-card">
-      <label class="field-label" for="idea-input">Describe your startup idea</label>
+      <label class="field-label" for="idea-input">Your idea.</label>
       <div class="textarea-wrapper">
         <textarea id="idea-input" placeholder="e.g. A mobile app that lets friends split restaurant bills by scanning the receipt with their camera..."></textarea>
+      </div>
+      <div class="skill-selector-row">
+        <span class="skill-selector-label">Experience.</span>
+        <div class="skill-selector">
+          <button class="skill-btn" data-value="first_project" onclick="setSkill(this)">First project</button>
+          <button class="skill-btn active" data-value="done_a_few" onclick="setSkill(this)">A few projects</button>
+          <button class="skill-btn" data-value="build_regularly" onclick="setSkill(this)">Building regularly</button>
+        </div>
       </div>
       <button class="cta-button" id="analyze-btn" onclick="analyze()">Vibe Check</button>
     </div>
@@ -1350,12 +1399,19 @@
 
 <script>
   // ── STATE ──────────────────────────────────────
-  let currentResultId = null;
-  let navObserver     = null;
+  let currentResultId      = null;
+  let navObserver          = null;
+  let _selectedSkillLevel  = 'done_a_few';
   let _cachedIdea   = '';
   let _cachedOpp    = null;
   let _cachedTech   = null;
   let _cachedDeploy = null;
+
+  function setSkill(btn) {
+    document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _selectedSkillLevel = btn.dataset.value;
+  }
 
   function _tryRenderPrompt() {
     if (_cachedIdea && _cachedOpp && _cachedTech && _cachedDeploy) {
@@ -1523,7 +1579,7 @@
     document.getElementById('diff-badge').textContent = diff;
     document.getElementById('diff-badge').className = 'section-badge ' + diffColor(d.difficulty);
 
-    const timeEst = d.time_estimates?.done_a_few || d.time_estimates?.first_project || 'Varies';
+    const timeEst = d.time_estimates?.[_selectedSkillLevel] || d.time_estimates?.done_a_few || d.time_estimates?.first_project || 'Varies';
     const stack = d.tech_stack || {};
     const apis  = d.required_apis || [];
 
@@ -1642,7 +1698,7 @@ ${audienceLine}
 ${diffLine}
 ${stackLine}
 - Deploy as: ${platform}
-- Est. time to MVP: ${tech.time_estimates?.done_a_few || 'a few weeks'}
+- Est. time to MVP: ${tech.time_estimates?.[_selectedSkillLevel] || tech.time_estimates?.done_a_few || 'a few weeks'}
 
 Start by setting up the project structure, then implement the core user flow end-to-end. Keep the MVP tight — focus on the single most important feature that addresses the primary audience's top pain point. Ask me before adding anything beyond the core scope.`.trim();
 
@@ -1685,7 +1741,7 @@ Start by setting up the project structure, then implement the core user flow end
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idea, skillLevel: 'done_a_few' }),
+        body: JSON.stringify({ idea, skillLevel: _selectedSkillLevel }),
       });
 
       const reader  = response.body.getReader();

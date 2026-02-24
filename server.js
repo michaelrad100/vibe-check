@@ -62,13 +62,6 @@ function parseJSON(text) {
   throw new Error('Could not parse JSON from Perplexity response');
 }
 
-// ── SKILL LEVEL DESCRIPTIONS ────────────────────
-const SKILL_DESCRIPTIONS = {
-  first_project:    'a complete beginner on their very first vibe coding project, using AI tools like Cursor or Replit to build without deep coding knowledge',
-  done_a_few:       'someone who has completed a few vibe coding projects and is comfortable with AI-assisted development tools',
-  build_regularly:  'an experienced vibe coder who builds and ships projects regularly using AI development tools',
-};
-
 // ── PROMPTS ─────────────────────────────────────
 const PROMPTS = {
 
@@ -87,25 +80,21 @@ Return JSON with this exact structure (no other text):
 
 Include 4-6 real competitors with actual URLs. Be specific and data-driven.`,
 
-  technical: (idea, skillLevel) => {
-    const levelDesc = SKILL_DESCRIPTIONS[skillLevel] || SKILL_DESCRIPTIONS.first_project;
-    return `Analyze the technical complexity of building: "${idea}"
-The developer is: ${levelDesc}
+  technical: (idea) => `Analyze the technical complexity of building: "${idea}"
 
 Return JSON with this exact structure (no other text):
 {
   "difficulty": "no_code|beginner|intermediate|advanced|expert",
   "difficulty_score": 1-10,
-  "technical_summary": "2-3 sentence overview written specifically for this developer's experience level",
+  "technical_summary": "2-3 sentence objective overview of the technical challenges and what building this actually involves",
   "time_estimates": {
-    "first_project": "X weeks/months with AI tools",
-    "done_a_few": "X weeks/months",
-    "build_regularly": "X weeks"
+    "first_project": "X weeks/months using AI coding tools like Cursor or Replit",
+    "done_a_few": "X weeks/months with some prior project experience",
+    "build_regularly": "X weeks for someone who ships regularly"
   },
   "tech_stack": {"frontend":"","backend":"","database":"","hosting":""},
   "required_apis": [{"name":"","url":"","cost":""}]
-}`;
-  },
+}`,
 
   opportunity: (idea) => `Assess the market opportunity for: "${idea}"
 
@@ -189,7 +178,7 @@ app.post('/api/analyze', async (req, res) => {
     const competitorNames = (marketData.competitors || []).map(c => c.name).filter(Boolean);
 
     send('status', { phase: 'technical', message: 'Analyzing technical complexity...' });
-    const techData = parseJSON(await callPerplexity(PROMPTS.technical(idea, skillLevel)));
+    const techData = parseJSON(await callPerplexity(PROMPTS.technical(idea)));
     send('technical', techData);
 
     send('status', { phase: 'opportunity', message: 'Scoring the opportunity...' });
