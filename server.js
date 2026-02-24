@@ -3,6 +3,7 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { randomUUID } from 'crypto';
+import { createClient } from '@supabase/supabase-js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
@@ -11,7 +12,17 @@ const app = express();
 app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
 
-// In-memory result store for shareable links
+// ── SUPABASE ─────────────────────────────────────
+const supabase = (process.env.SUPABASE_URL && process.env.SUPABASE_SECRET_KEY)
+  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
+  : null;
+if (supabase) {
+  console.log('Supabase connected — results will persist across restarts');
+} else {
+  console.warn('Supabase not configured — falling back to in-memory store');
+}
+
+// In-memory fallback store (used if Supabase is not configured)
 const resultStore = new Map();
 
 const PERPLEXITY_KEY = process.env.PERPLEXITY_KEY;
@@ -195,15 +206,23 @@ app.post('/api/analyze', async (req, res) => {
 
     // Store full result for shareable links
     const resultId = randomUUID();
-    resultStore.set(resultId, {
-      idea, skillLevel,
+    const resultPayload = {
+      id: resultId,
+      idea,
+      skill_level: skillLevel,
       market: marketData,
       technical: techData,
       opportunity: oppData,
       deployment: deployData,
       sentiment: sentimentData,
-      createdAt: new Date().toISOString(),
-    });
+    };
+
+    if (supabase) {
+      const { error } = await supabase.from('results').insert(resultPayload);
+      if (error) console.error('Supabase insert error:', error.message);
+    } else {
+      resultStore.set(resultId, { ...resultPayload, createdAt: new Date().toISOString() });
+    }
 
     send('complete', { resultId });
   } catch (err) {
@@ -215,7 +234,26 @@ app.post('/api/analyze', async (req, res) => {
 });
 
 // ── SHARED RESULT ENDPOINT ──────────────────────
-app.get('/api/result/:id', (req, res) => {
+app.get('/api/result/:id', async (req, res) => {
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('results')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
+    if (error || !data) return res.status(404).json({ error: 'Result not found or expired' });
+    // Normalise field names to match what the frontend expects
+    return res.json({
+      idea: data.idea,
+      skillLevel: data.skill_level,
+      market: data.market,
+      technical: data.technical,
+      opportunity: data.opportunity,
+      deployment: data.deployment,
+      sentiment: data.sentiment,
+    });
+  }
+  // Fallback to in-memory store
   const result = resultStore.get(req.params.id);
   if (!result) return res.status(404).json({ error: 'Result not found or expired' });
   res.json(result);
