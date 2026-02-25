@@ -212,7 +212,22 @@
       margin-bottom: 12px;
     }
 
-    .textarea-wrapper { position: relative; margin-bottom: 32px; }
+    .textarea-wrapper { position: relative; margin-bottom: 8px; }
+
+    .textarea-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 24px;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.25s ease, max-height 0.25s ease;
+    }
+    .textarea-wrapper:focus-within ~ .textarea-hint {
+      opacity: 1;
+      max-height: 40px;
+    }
 
     textarea {
       width: 100%;
@@ -1184,6 +1199,7 @@
       <div class="textarea-wrapper">
         <textarea id="idea-input" placeholder="e.g. A mobile app that lets friends split restaurant bills by scanning the receipt with their camera..."></textarea>
       </div>
+      <p class="textarea-hint">More detail = sharper analysis. Include who it's for, the problem it solves, and any key features you have in mind.</p>
       <button class="cta-button" id="analyze-btn" onclick="analyze()">Vibe Check</button>
     </div>
   </div>
