@@ -65,7 +65,24 @@ function parseJSON(text) {
 // ── PROMPTS ─────────────────────────────────────
 const PROMPTS = {
 
-  market: (idea) => `Analyze the market for this product idea: "${idea}"
+  market: (idea, mode = 'market') => mode === 'personal'
+    ? `Analyze what tools, apps, or services already exist for someone who wants to build "${idea}" for their own personal use.
+
+Return JSON with this exact structure (no other text):
+{
+  "exists": "fully_exists|mostly_exists|partially_exists|significant_gap|blue_ocean",
+  "saturation_score": 1-10,
+  "market_summary": "2-3 sentences on how well existing tools cover this personal need. Be direct about the gaps.",
+  "competitors": [
+    {"name":"","url":"","description":"","pricing":"","strengths":["",""],"weaknesses":["",""]}
+  ],
+  "key_differentiators_needed": ["gap1","gap2","gap3"]
+}
+
+saturation_score = coverage score: 10 means existing tools fully cover this need (little reason to build your own); 1 means nothing good exists (strong reason to build).
+key_differentiators_needed = specific things missing from existing alternatives that would justify building your own.
+Include 3-6 real alternatives with actual URLs. Be specific about their limitations.`
+    : `Analyze the market for this product idea: "${idea}"
 
 Return JSON with this exact structure (no other text):
 {
@@ -96,7 +113,31 @@ Return JSON with this exact structure (no other text):
   "required_apis": [{"name":"","url":"","cost":""}]
 }`,
 
-  opportunity: (idea) => `Assess the market opportunity for: "${idea}"
+  opportunity: (idea, mode = 'market') => mode === 'personal'
+    ? `Help someone decide: should they build "${idea}" for personal use, or just use an existing tool?
+
+Return JSON with this exact structure (no other text):
+{
+  "opportunity_grade": "A|B|C|D|F",
+  "opportunity_score": 1-10,
+  "opportunity_summary": "One direct verdict sentence — should they build it or use what already exists?",
+  "opportunity_type": "blue_ocean|niche_product|competitive_market|emerging_market|saturated_market",
+  "trend": "rapidly_growing|growing|stable|declining|emerging",
+  "market_size": "One sentence: how widespread is this personal need?",
+  "target_audiences": [
+    {"segment":"","size":"small|medium|large","willingness_to_pay":"low|medium|high"}
+  ],
+  "monetization_strategies": [],
+  "improvement_suggestions": [
+    {"suggestion":"","reasoning":"","priority":"high|medium|low","effort":"low|medium|high"}
+  ]
+}
+
+opportunity_grade: A = existing tools have critical gaps (build it); B = good reasons to build; C = borderline; D = existing tools mostly work; F = existing tools cover this well (just use them).
+opportunity_score = gap score: how big is the gap between what exists and this specific need (10 = huge gap, 1 = fully covered).
+improvement_suggestions = specific reasons building your own is better than using alternatives. Each one is a concrete gap in existing tools.
+monetization_strategies MUST be an empty array [].`
+    : `Assess the market opportunity for: "${idea}"
 
 Return JSON with this exact structure (no other text):
 {
@@ -129,10 +170,39 @@ Return JSON with this exact structure (no other text):
   ]
 }`,
 
-  sentiment: (idea, competitorNames = []) => {
+  sentiment: (idea, competitorNames = [], mode = 'market') => {
+    const toolList = competitorNames.length > 0
+      ? competitorNames.join(', ')
+      : 'existing tools in this space';
+
+    if (mode === 'personal') {
+      return `Search Reddit, Hacker News, Product Hunt comments, and app store reviews for real user feedback about: ${toolList} — existing alternatives to "${idea}".
+
+Focus on what frustrates people about these tools: missing features, limitations, things that are broken or clunky. Also capture what they love and what they wish existed. This helps someone decide if building their own version is worth the effort.
+
+IMPORTANT: Only include quotes that are specifically about product experiences with real tools, NOT generic topic discussions.
+
+Return JSON with this exact structure (no other text):
+{
+  "community_insights": [
+    {
+      "quote": "Direct or close paraphrase of a real user comment about a specific existing tool",
+      "sentiment": "pain_point|loved_feature|wish",
+      "theme": "Short theme label (3-5 words)",
+      "source": "e.g. r/entrepreneur, Hacker News, App Store",
+      "source_url": "Direct URL to the post or thread if available, otherwise null",
+      "competitor_reference": "Name of the specific tool being discussed, or null"
+    }
+  ]
+}
+
+Include 6-9 insights. Weight toward pain_point and wish (at least 3 pain_point, 2 wish, 1-2 loved_feature). Quotes must be about real tools, not general topics.`;
+    }
+
     const competitorList = competitorNames.length > 0
-      ? `Focus specifically on these known competitors: ${competitorNames.join(', ')}. Search for real user comments, reviews, and discussions about these specific products.`
+      ? `Focus specifically on these known competitors: ${toolList}. Search for real user comments, reviews, and discussions about these specific products.`
       : `Search for real user opinions about existing apps and products that are direct competitors to the idea.`;
+
     return `Search Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, and app store reviews for real user opinions about this product space: "${idea}"
 
 ${competitorList}
@@ -161,7 +231,7 @@ Include 6-9 insights spread across all three sentiment types (at least 2 pain_po
 
 // ── SSE ENDPOINT ────────────────────────────────
 app.post('/api/analyze', async (req, res) => {
-  const { idea, skillLevel = 'first_project' } = req.body;
+  const { idea, skillLevel = 'first_project', mode = 'market' } = req.body;
   if (!idea?.trim()) return res.status(400).json({ error: 'idea is required' });
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -172,8 +242,8 @@ app.post('/api/analyze', async (req, res) => {
   const send = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 
   try {
-    send('status', { phase: 'market', message: 'Researching market landscape...' });
-    const marketData = parseJSON(await callPerplexity(PROMPTS.market(idea)));
+    send('status', { phase: 'market', message: mode === 'personal' ? 'Researching what already exists...' : 'Researching market landscape...' });
+    const marketData = parseJSON(await callPerplexity(PROMPTS.market(idea, mode)));
     send('market', marketData);
     const competitorNames = (marketData.competitors || []).map(c => c.name).filter(Boolean);
 
@@ -181,16 +251,16 @@ app.post('/api/analyze', async (req, res) => {
     const techData = parseJSON(await callPerplexity(PROMPTS.technical(idea)));
     send('technical', techData);
 
-    send('status', { phase: 'opportunity', message: 'Scoring the opportunity...' });
-    const oppData = parseJSON(await callPerplexity(PROMPTS.opportunity(idea)));
+    send('status', { phase: 'opportunity', message: mode === 'personal' ? 'Assessing build vs. use verdict...' : 'Scoring the opportunity...' });
+    const oppData = parseJSON(await callPerplexity(PROMPTS.opportunity(idea, mode)));
     send('opportunity', oppData);
 
     send('status', { phase: 'deployment', message: 'Finding best deployment options...' });
     const deployData = parseJSON(await callPerplexity(PROMPTS.deployment(idea)));
     send('deployment', deployData);
 
-    send('status', { phase: 'sentiment', message: 'Scanning community discussions...' });
-    const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea, competitorNames)));
+    send('status', { phase: 'sentiment', message: mode === 'personal' ? 'Finding complaints about existing tools...' : 'Scanning community discussions...' });
+    const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea, competitorNames, mode)));
     send('sentiment', sentimentData);
 
     // Store full result for shareable links
@@ -199,6 +269,7 @@ app.post('/api/analyze', async (req, res) => {
       id: resultId,
       idea,
       skill_level: skillLevel,
+      mode,
       market: marketData,
       technical: techData,
       opportunity: oppData,
@@ -235,6 +306,7 @@ app.get('/api/result/:id', async (req, res) => {
     return res.json({
       idea: data.idea,
       skillLevel: data.skill_level,
+      mode: data.mode || 'market',
       market: data.market,
       technical: data.technical,
       opportunity: data.opportunity,

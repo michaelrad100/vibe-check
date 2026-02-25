@@ -292,6 +292,46 @@
       background: var(--accent-cyan-dim);
     }
 
+    /* Mode selector */
+    .mode-selector-row {
+      margin-bottom: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .mode-selector-label {
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .mode-selector { display: flex; gap: 8px; }
+    .mode-btn {
+      flex: 1;
+      padding: 14px 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .mode-btn:hover { border-color: var(--border-highlight); color: var(--text-main); }
+    .mode-btn.active { border-color: var(--accent-cyan); color: var(--accent-cyan); background: var(--accent-cyan-dim); }
+    .mode-btn .mode-sub {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-weight: 400;
+    }
+    .mode-btn.active .mode-sub { color: rgba(0,229,255,0.65); }
+
     /* ══════════════════════════════════════════════
        RESULTS PAGE
     ══════════════════════════════════════════════ */
@@ -1167,6 +1207,19 @@
     <p class="landing-sub">Stop guessing. Run your concept through our multi-vector validation engine to analyze market saturation, technical feasibility, and trend velocity.</p>
 
     <div class="form-card">
+      <div class="mode-selector-row">
+        <span class="mode-selector-label">What are you building for?</span>
+        <div class="mode-selector">
+          <button class="mode-btn active" data-value="market" onclick="setMode(this)">
+            Build to Market
+            <span class="mode-sub">Viability, competitors, opportunity</span>
+          </button>
+          <button class="mode-btn" data-value="personal" onclick="setMode(this)">
+            Build for Myself
+            <span class="mode-sub">Do existing options cover my need?</span>
+          </button>
+        </div>
+      </div>
       <label class="field-label" for="idea-input">Your idea.</label>
       <div class="textarea-wrapper">
         <textarea id="idea-input" placeholder="e.g. A mobile app that lets friends split restaurant bills by scanning the receipt with their camera..."></textarea>
@@ -1374,9 +1427,19 @@
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
-  <span class="version-badge" onclick="toggleChangelog(event)">v1.6</span>
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.7</span>
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.7 <span class="changelog-date">— Feb 24, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Mode toggle: Build to Market vs Build for Myself</li>
+        <li>Personal mode: gap analysis against existing alternatives</li>
+        <li>Build-or-use verdict replaces opportunity grade in personal mode</li>
+        <li>Personal mode hides monetization, relabels nav and sections</li>
+        <li>Skill level selector — Your idea. / Experience. labels</li>
+      </ul>
+    </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.6 <span class="changelog-date">— Feb 20, 2026</span></div>
       <ul class="changelog-list">
@@ -1402,6 +1465,8 @@
   let currentResultId      = null;
   let navObserver          = null;
   let _selectedSkillLevel  = 'done_a_few';
+  let _selectedMode        = 'market';
+  let _cachedMode          = 'market';
   let _cachedIdea   = '';
   let _cachedOpp    = null;
   let _cachedTech   = null;
@@ -1411,6 +1476,51 @@
     document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     _selectedSkillLevel = btn.dataset.value;
+  }
+
+  function setMode(btn) {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _selectedMode = btn.dataset.value;
+  }
+
+  function applyModeLabels(mode) {
+    const p = mode === 'personal';
+
+    // Sidebar nav labels
+    const nav = document.querySelectorAll('#results-nav .nav-label');
+    if (nav[1]) nav[1].textContent = p ? 'What Exists'  : 'Market Signal';
+    if (nav[2]) nav[2].textContent = p ? 'Alternatives' : 'Competitors';
+    if (nav[4]) nav[4].textContent = p ? 'Why Build It' : 'How to Win';
+
+    // Section headers (use textContent carefully to preserve badge child nodes)
+    const scoreHeader = document.querySelector('#sec-score .section-header');
+    if (scoreHeader) scoreHeader.textContent = p ? 'Build or Use?' : 'Vibe Check Result';
+
+    const compHeader = document.querySelector('#sec-competitors .section-header');
+    if (compHeader && compHeader.childNodes[0]) {
+      compHeader.childNodes[0].nodeValue = p ? 'Alternatives ' : 'Competitive Landscape ';
+    }
+
+    const stratHeader = document.querySelector('#sec-strategy .section-header');
+    if (stratHeader) stratHeader.textContent = p ? 'Why Build It' : 'How to Win';
+
+    // Saturation meter label
+    const satLabel = document.querySelector('.sat-score-label');
+    if (satLabel) satLabel.textContent = p ? 'Coverage' : 'Saturation';
+
+    // Grade ring hint (only in personal mode)
+    const existing = document.getElementById('grade-hint');
+    if (p && !existing) {
+      const hint = document.createElement('div');
+      hint.id = 'grade-hint';
+      hint.style.cssText = 'font-size:11px;color:var(--text-muted);text-align:center;margin-top:6px;letter-spacing:0.5px';
+      hint.textContent = 'A\u2013C  Build It  \u00b7  D\u2013F  Use What Exists';
+      const scoreMeta = document.getElementById('score-meta');
+      if (scoreMeta) scoreMeta.insertAdjacentElement('afterend', hint);
+    } else if (!p && existing) {
+      existing.remove();
+    }
   }
 
   function _tryRenderPrompt() {
@@ -1427,6 +1537,11 @@
     document.getElementById('results').style.display = 'none';
     document.getElementById('landing').style.display = 'flex';
     window.scrollTo(0, 0);
+    // Reset mode to market default
+    _cachedMode = 'market';
+    _selectedMode = 'market';
+    applyModeLabels('market');
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.value === 'market'));
   }
 
   function jumpTo(id) {
@@ -1526,7 +1641,7 @@
       </div>
     `).join('');
 
-    const monos = (opp.monetization_strategies || []).slice(0, 2);
+    const monos = _cachedMode !== 'personal' ? (opp.monetization_strategies || []).slice(0, 2) : [];
     const monoHTML = monos.length ? `
       <div class="mono-row">
         <div class="section-header" style="margin-bottom:8px">Monetization</div>
@@ -1691,16 +1806,23 @@
     const diffLine = differentiator ? `- Key differentiator to build toward: ${differentiator.suggestion}` : '';
     const stackLine = stackSummary ? `- Recommended stack: ${stackSummary}` : '';
 
-    _promptText = `Build a ${idea}.
+    const isPersonal = _cachedMode === 'personal';
+    const promptIntro   = isPersonal ? `Build ${idea} for personal use.`      : `Build a ${idea}.`;
+    const promptContext = isPersonal ? `Context from research on existing alternatives:` : `Context from market research:`;
+    const promptClosing = isPersonal
+      ? `Start with the core feature that existing tools get wrong. Keep scope minimal — only what you actually need for yourself. Skip multi-user support, billing, and onboarding unless asked. Ask me before adding anything beyond the core scope.`
+      : `Start by setting up the project structure, then implement the core user flow end-to-end. Keep the MVP tight — focus on the single most important feature that addresses the primary audience's top pain point. Ask me before adding anything beyond the core scope.`;
 
-Context from market research:
+    _promptText = `${promptIntro}
+
+${promptContext}
 ${audienceLine}
 ${diffLine}
 ${stackLine}
 - Deploy as: ${platform}
 - Est. time to MVP: ${tech.time_estimates?.[_selectedSkillLevel] || tech.time_estimates?.done_a_few || 'a few weeks'}
 
-Start by setting up the project structure, then implement the core user flow end-to-end. Keep the MVP tight — focus on the single most important feature that addresses the primary audience's top pain point. Ask me before adding anything beyond the core scope.`.trim();
+${promptClosing}`.trim();
 
     const block = document.getElementById('prompt-block');
     if (block) block.textContent = _promptText;
@@ -1728,6 +1850,8 @@ Start by setting up the project structure, then implement the core user flow end
     document.getElementById('action-row').classList.remove('visible');
     document.getElementById('analyze-btn').disabled = true;
 
+    _cachedMode = _selectedMode;
+    applyModeLabels(_selectedMode);
     resetSkeletons();
     setupNavObserver();
     window.scrollTo(0, 0);
@@ -1741,7 +1865,7 @@ Start by setting up the project structure, then implement the core user flow end
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idea, skillLevel: _selectedSkillLevel }),
+        body: JSON.stringify({ idea, skillLevel: _selectedSkillLevel, mode: _selectedMode }),
       });
 
       const reader  = response.body.getReader();
@@ -1888,6 +2012,8 @@ Start by setting up the project structure, then implement the core user flow end
       const r = await fetch(`/api/result/${id}`);
       if (!r.ok) throw new Error('Result not found or expired');
       const d = await r.json();
+      _cachedMode = d.mode || 'market';
+      applyModeLabels(_cachedMode);
       document.getElementById('results-title').textContent = d.idea;
       renderMarket(d.market);
       renderCompetitors(d.market);
