@@ -227,6 +227,40 @@ Return JSON with this exact structure (no other text):
 
 Include 6-9 insights spread across all three sentiment types (at least 2 pain_point, 2 loved_feature, 2 wish). Quotes must be about real competing products, not general topics.`;
   },
+
+  launchIntel: (idea, mode = 'market') => mode === 'personal'
+    ? `Someone wants to build "${idea}" for personal use. Answer three questions to help them decide if it's worth starting.
+
+Return JSON with this exact structure (no other text):
+{
+  "first_users": [
+    {"channel": "specific name", "type": "subreddit|discord|slack|newsletter|forum|platform", "url": "https://...", "why": "one sentence — why people here would want to see/use this"}
+  ],
+  "fatal_flaw": "One to two sentences — the most likely reason they abandon this project before it's useful to them.",
+  "mvp_features": [
+    {"feature": "Feature name", "description": "What it does and why it's needed for personal use", "priority": "must_have|nice_to_have"}
+  ]
+}
+
+first_users: 4-6 communities where people discuss this problem or build similar personal projects. These are people who'd want to hear about their build.
+fatal_flaw: Think about: underestimating complexity, losing motivation mid-build, an existing free tool they haven't found, or a fundamental issue with the core assumption.
+mvp_features: Absolute minimum 3-4 features to make this useful for personal use. must_have first.`
+    : `You're helping a developer decide whether "${idea}" is worth building. Answer three critical questions honestly.
+
+Return JSON with this exact structure (no other text):
+{
+  "first_users": [
+    {"channel": "specific name", "type": "subreddit|discord|slack|newsletter|forum|platform", "url": "https://...", "why": "one sentence on why this audience fits"}
+  ],
+  "fatal_flaw": "One to two sentences — the most likely specific reason this fails. Name the actual risk, not generic advice.",
+  "mvp_features": [
+    {"feature": "Feature name", "description": "What it does and why it belongs in the MVP", "priority": "must_have|nice_to_have"}
+  ]
+}
+
+first_users: 4-6 specific named communities where target users actively hang out. Real subreddit names, Discord server names, newsletters — not vague categories. Include URLs where possible.
+fatal_flaw: Be direct. Consider: wrong pricing model, a free/open-source alternative nobody mentions, cold start problem, regulatory risk, a key assumption that's probably wrong. One specific thing, not a list.
+mvp_features: Exactly 3-5 features that define the minimum viable product. must_have items first. Everything else is scope creep.`,
 };
 
 // ── SSE ENDPOINT ────────────────────────────────
@@ -263,6 +297,10 @@ app.post('/api/analyze', async (req, res) => {
     const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea, competitorNames, mode)));
     send('sentiment', sentimentData);
 
+    send('status', { phase: 'launch_intel', message: mode === 'personal' ? 'Mapping your first move...' : 'Building your launch playbook...' });
+    const launchData = parseJSON(await callPerplexity(PROMPTS.launchIntel(idea, mode)));
+    send('launch_intel', launchData);
+
     // Store full result for shareable links
     const resultId = randomUUID();
     const resultPayload = {
@@ -275,6 +313,7 @@ app.post('/api/analyze', async (req, res) => {
       opportunity: oppData,
       deployment: deployData,
       sentiment: sentimentData,
+      launch_intel: launchData,
     };
 
     if (supabase) {
@@ -312,6 +351,7 @@ app.get('/api/result/:id', async (req, res) => {
       opportunity: data.opportunity,
       deployment: data.deployment,
       sentiment: data.sentiment,
+      launch_intel: data.launch_intel,
     });
   }
   // Fallback to in-memory store

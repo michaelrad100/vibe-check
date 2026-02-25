@@ -1036,6 +1036,101 @@
     .strat-priority.medium { color: var(--yellow);  background: rgba(251,191,36,0.08); }
     .strat-priority.low    { color: var(--text-muted); background: rgba(255,255,255,0.04); }
 
+    /* ── Launch Intel card ── */
+    .card-launch-intel {
+      grid-column: span 12;
+      padding: 32px;
+      scroll-margin-top: 24px;
+    }
+    .launch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 32px;
+    }
+    .fatal-flaw-box {
+      border-left: 3px solid var(--yellow);
+      padding: 16px 20px;
+      background: rgba(251,191,36,0.04);
+    }
+    .fatal-flaw-label {
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 10px;
+    }
+    .fatal-flaw-text {
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.7;
+    }
+    .launch-col-label {
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .user-channel {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .user-channel:last-child { border-bottom: none; }
+    .channel-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+    .channel-name:hover { text-decoration: underline; }
+    .channel-type {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      margin-bottom: 2px;
+      width: fit-content;
+    }
+    .channel-why { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .mvp-feature {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .mvp-feature:last-child { border-bottom: none; }
+    .mvp-feature-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .mvp-feature-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .mvp-priority {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 1px 5px;
+    }
+    .mvp-priority.must_have { color: var(--green); background: rgba(52,211,153,0.08); }
+    .mvp-priority.nice_to_have { color: var(--text-muted); background: rgba(255,255,255,0.04); }
+    .mvp-feature-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    @media (max-width: 1024px) {
+      .launch-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── Build Your Prompt card ── */
     .card-prompt {
       grid-column: span 12;
@@ -1226,6 +1321,7 @@
         <li class="nav-item" onclick="jumpTo('sec-competitors')"><span class="nav-label">Competitors</span></li>
         <li class="nav-item" onclick="jumpTo('sec-community')"><span class="nav-label">Community</span></li>
         <li class="nav-item" onclick="jumpTo('sec-strategy')"><span class="nav-label">How to Win</span></li>
+        <li class="nav-item" onclick="jumpTo('sec-launch-intel')"><span class="nav-label">Launch Intel</span></li>
         <li class="nav-item" onclick="jumpTo('sec-build')"><span class="nav-label">Build + Ship</span></li>
         <li class="nav-item" onclick="jumpTo('sec-prompt')"><span class="nav-label">Build Your Prompt</span></li>
       </ul>
@@ -1369,6 +1465,18 @@
           </div>
         </div>
 
+        <!-- Launch Intel -->
+        <div class="section-card card-launch-intel" id="sec-launch-intel">
+          <div class="section-header">Launch Intel</div>
+          <div id="launch-intel-body">
+            <div class="launch-grid">
+              <div class="skeleton skel-block" style="height:80px"></div>
+              <div class="skeleton skel-block" style="height:80px"></div>
+              <div class="skeleton skel-block" style="height:80px"></div>
+            </div>
+          </div>
+        </div>
+
         <!-- Build Your Prompt -->
         <div class="section-card card-prompt" id="sec-prompt">
           <div class="section-header">
@@ -1395,9 +1503,16 @@
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
-  <span class="version-badge" onclick="toggleChangelog(event)">v1.7</span>
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.8</span>
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.8 <span class="changelog-date">— Feb 25, 2026</span></div>
+      <ul class="changelog-list">
+        <li>New Launch Intel card: fatal flaw, first-user channels, MVP feature list</li>
+        <li>6th Perplexity call — mode-aware (market vs personal framing)</li>
+      </ul>
+    </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.7 <span class="changelog-date">— Feb 24, 2026</span></div>
       <ul class="changelog-list">
@@ -1434,10 +1549,11 @@
   let navObserver          = null;
   let _selectedMode        = 'market';
   let _cachedMode          = 'market';
-  let _cachedIdea   = '';
-  let _cachedOpp    = null;
-  let _cachedTech   = null;
-  let _cachedDeploy = null;
+  let _cachedIdea        = '';
+  let _cachedOpp         = null;
+  let _cachedTech        = null;
+  let _cachedDeploy      = null;
+  let _cachedLaunchIntel = null;
 
 
   function setMode(btn) {
@@ -1499,6 +1615,8 @@
     document.getElementById('results').style.display = 'none';
     document.getElementById('landing').style.display = 'flex';
     window.scrollTo(0, 0);
+    // Reset cached data
+    _cachedLaunchIntel = null;
     // Reset mode to market default
     _cachedMode = 'market';
     _selectedMode = 'market';
@@ -1512,7 +1630,7 @@
 
   function setupNavObserver() {
     if (navObserver) navObserver.disconnect();
-    const sections = ['sec-score','sec-market','sec-competitors','sec-community','sec-strategy','sec-build','sec-ship','sec-prompt'];
+    const sections = ['sec-score','sec-market','sec-competitors','sec-community','sec-strategy','sec-launch-intel','sec-build','sec-ship','sec-prompt'];
     const navItems = document.querySelectorAll('.nav-item');
     navObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -1755,6 +1873,53 @@
     `).join('');
   }
 
+  // ── LAUNCH INTEL ──────────────────────────────
+  function renderLaunchIntel(d) {
+    const flaw  = d.fatal_flaw || '';
+    const users = (d.first_users  || []).slice(0, 6);
+    const feats = (d.mvp_features || []).slice(0, 5);
+    const isPersonal = _cachedMode === 'personal';
+
+    const flawHTML = `
+      <div class="fatal-flaw-box">
+        <div class="fatal-flaw-label">${isPersonal ? 'Biggest Risk' : 'Fatal Flaw'}</div>
+        <div class="fatal-flaw-text">${flaw}</div>
+      </div>`;
+
+    const usersHTML = `
+      <div>
+        <div class="launch-col-label">${isPersonal ? 'Who Else Has This Need' : 'Where to Find First Users'}</div>
+        ${users.map(u => `
+          <div class="user-channel">
+            <span class="channel-type">${u.type || ''}</span>
+            ${u.url ? `<a class="channel-name" href="${u.url}" target="_blank" rel="noopener">${u.channel || ''}</a>` : `<span class="channel-name" style="color:var(--text-main)">${u.channel || ''}</span>`}
+            <span class="channel-why">${u.why || ''}</span>
+          </div>
+        `).join('')}
+      </div>`;
+
+    const featsHTML = `
+      <div>
+        <div class="launch-col-label">${isPersonal ? 'Minimum Build' : 'MVP Feature List'}</div>
+        ${feats.map(f => `
+          <div class="mvp-feature">
+            <div class="mvp-feature-header">
+              <span class="mvp-feature-name">${f.feature || ''}</span>
+              <span class="mvp-priority ${f.priority || 'nice_to_have'}">${(f.priority || '').replace('_', ' ')}</span>
+            </div>
+            <div class="mvp-feature-desc">${f.description || ''}</div>
+          </div>
+        `).join('')}
+      </div>`;
+
+    document.getElementById('launch-intel-body').innerHTML = `
+      <div class="launch-grid">
+        ${flawHTML}
+        ${usersHTML}
+        ${featsHTML}
+      </div>`;
+  }
+
   // ── BUILD YOUR PROMPT ─────────────────────────
   let _promptText = '';
 
@@ -1887,6 +2052,10 @@ ${promptClosing}`.trim();
       case 'sentiment':
         renderSentiment(data);
         break;
+      case 'launch_intel':
+        _cachedLaunchIntel = data;
+        renderLaunchIntel(data);
+        break;
       case 'complete':
         currentResultId = data.resultId;
         document.getElementById('status-bar').style.display = 'none';
@@ -1947,6 +2116,13 @@ ${promptClosing}`.trim();
       <div class="skeleton skel-block" style="height:100px"></div>
       <div class="skeleton skel-block" style="height:100px"></div>
     `;
+    document.getElementById('launch-intel-body').innerHTML = `
+      <div class="launch-grid">
+        <div class="skeleton skel-block" style="height:80px"></div>
+        <div class="skeleton skel-block" style="height:80px"></div>
+        <div class="skeleton skel-block" style="height:80px"></div>
+      </div>
+    `;
     document.getElementById('diff-badge').textContent = '';
     document.getElementById('ship-badge').textContent = '';
     document.getElementById('comp-count').textContent = '';
@@ -1985,6 +2161,7 @@ ${promptClosing}`.trim();
       renderBuild(d.technical);
       renderDeploy(d.deployment);
       renderSentiment(d.sentiment);
+      if (d.launch_intel) renderLaunchIntel(d.launch_intel);
       renderPrompt(d.idea, d.opportunity, d.technical, d.deployment);
       document.getElementById('status-bar').style.display = 'none';
       document.getElementById('action-row').classList.add('visible');
