@@ -1264,10 +1264,15 @@
       .sidebar:hover .brand-link .brand-full { opacity: 1; }
       .sidebar:hover .brand-link { padding-left: 20px; justify-content: flex-start; }
 
-      /* Nav items: vertical list */
+      /* Nav items: vertical list — labels must be visible (no hover on touch) */
       .nav-menu { flex-direction: column; gap: 0; }
       .nav-item { padding: 10px 20px; white-space: normal; border-left: 2px solid transparent; border-bottom: none; font-size: 14px; }
       .nav-item.active { border-left-color: var(--accent-cyan); border-bottom: none; background: rgba(0,229,255,0.06); }
+      /* Reveal labels when drawer is open (hover never fires on touch) */
+      .sidebar.open .nav-label { opacity: 1; }
+      /* Also reveal brand-full text when open (desktop shows it via hover) */
+      .sidebar.open .brand-link .brand-mono { opacity: 0; }
+      .sidebar.open .brand-link .brand-full { opacity: 1; position: relative; left: 0; }
 
       /* ── Main content: padding-top to clear the fixed VC toggle ── */
       .main-view { padding: 60px 14px 14px; }
@@ -1316,6 +1321,17 @@
 
       /* ── Version corner: smaller on mobile ── */
       .version-corner { bottom: 14px; right: 14px; }
+
+      /* ── Changelog popover: scrollable on mobile, v1.8 always at top ── */
+      .changelog-popover {
+        right: 10px;
+        bottom: 50px;
+        min-width: 0;
+        width: calc(100vw - 20px);
+        max-height: 55vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
     }
 
     /* ── Small phones (≤480px) ── */
@@ -2262,20 +2278,28 @@ ${promptClosing}`.trim();
   function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    const isOpen = sidebar.classList.toggle('open');
+    const toggle  = document.getElementById('sidebar-toggle');
+    const isOpen  = sidebar.classList.toggle('open');
     overlay.classList.toggle('visible');
     document.body.dataset.sidebar = isOpen ? 'open' : '';
+    // Directly hide the VC toggle when drawer opens so it can't overlap the brand
+    if (toggle) toggle.style.display = isOpen ? 'none' : '';
   }
   function closeSidebar() {
+    const toggle = document.getElementById('sidebar-toggle');
     document.querySelector('.sidebar').classList.remove('open');
     document.getElementById('sidebar-overlay').classList.remove('visible');
     document.body.dataset.sidebar = '';
+    if (toggle) toggle.style.display = '';
   }
 
   // ── VERSION POPOVER ───────────────────────────
   function toggleChangelog(e) {
     e.stopPropagation();
-    document.getElementById('changelog-popover').classList.toggle('open');
+    const p = document.getElementById('changelog-popover');
+    p.classList.toggle('open');
+    // Always scroll to top so the latest version (v1.8) is immediately visible
+    if (p.classList.contains('open')) p.scrollTop = 0;
   }
   document.addEventListener('click', () => {
     const p = document.getElementById('changelog-popover');
