@@ -455,24 +455,7 @@
     }
 
     @media (max-width: 768px) {
-      .sidebar-toggle { display: flex; }
-      .sidebar-overlay.visible { display: block; }
-      .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: var(--sidebar-width) !important;
-        transform: translateX(-100%);
-        transition: transform 0.25s ease;
-        z-index: 160;
-      }
-      .sidebar.open {
-        transform: translateX(0);
-      }
-      .main-view {
-        padding: 40px 20px 40px 20px;
-      }
+      .sidebar-toggle { display: none; }
     }
 
     /* Main dashboard */
@@ -1232,7 +1215,7 @@
 
     @media (max-width: 1024px) {
       .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
-      .card-score, .card-competitors, .card-community, .card-strategy, .card-prompt { grid-column: span 2; }
+      .card-score, .card-competitors, .card-community, .card-strategy, .card-launch-intel, .card-prompt { grid-column: span 2; }
       .card-market, .card-audience, .card-build, .card-ship { grid-column: span 2; }
       .card-market { grid-template-columns: 120px 1fr; gap: 20px; }
       .pulse-grid { grid-template-columns: 1fr; }
@@ -1240,29 +1223,110 @@
     }
 
     @media (max-width: 768px) {
+      /* ── Landing ── */
+      .landing-sub { font-size: 16px; margin-bottom: 40px; }
+      .form-card { padding: 24px 20px; }
+
+      /* ── Results layout ── */
       #results-inner { flex-direction: column; }
+
+      /* Horizontal scrollable nav bar */
       .sidebar {
         width: 100%; height: auto;
         position: relative;
         flex-direction: row;
         overflow-x: auto;
-        padding: 16px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 10px 16px;
         border-right: none;
         border-bottom: 1px solid var(--border);
+        transition: none;
       }
-      .brand-link { border-bottom: none; margin-bottom: 0; margin-right: 24px; white-space: nowrap; padding: 0 16px 0 0; }
-      .nav-menu { flex-direction: row; }
-      .nav-item { padding: 8px 16px; white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; }
+      .sidebar::-webkit-scrollbar { display: none; }
+      /* Disable desktop hover-expand on mobile */
+      .sidebar:hover { width: 100%; }
+
+      .brand-link {
+        border-bottom: none; border-right: 1px solid var(--border);
+        margin-bottom: 0; padding: 0 16px 0 0; margin-right: 0;
+        white-space: nowrap; flex-shrink: 0;
+      }
+      /* Show "VC" monogram only (saves horizontal space) */
+      .brand-link .brand-full { opacity: 0; pointer-events: none; }
+      .brand-link .brand-mono { opacity: 1; }
+      .sidebar:hover .brand-link .brand-mono { opacity: 1; }
+      .sidebar:hover .brand-link .brand-full { opacity: 0; }
+      .sidebar:hover .brand-link { justify-content: center; padding-left: 0; }
+
+      .nav-menu { flex-direction: row; gap: 0; flex-shrink: 0; }
+      .nav-item { padding: 6px 14px; white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; font-size: 13px; }
       .nav-item.active { border-left: none; border-bottom-color: var(--accent-cyan); background: none; }
-      .main-view { padding: 16px; }
-      .dashboard-grid { grid-template-columns: 1fr; gap: 16px; }
+
+      /* ── Main content ── */
+      .main-view { padding: 14px; }
+      .results-idea-title { font-size: 17px; }
+
+      /* ── Dashboard grid ── */
+      .dashboard-grid { grid-template-columns: 1fr; gap: 12px; }
       .card-score, .card-market, .card-audience, .card-competitors,
-      .card-build, .card-ship, .card-community, .card-strategy, .card-prompt { grid-column: span 1; }
-      .card-score { grid-template-columns: 1fr; text-align: center; gap: 24px; }
-      .score-stats { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 20px; }
+      .card-build, .card-ship, .card-community, .card-strategy,
+      .card-launch-intel, .card-prompt { grid-column: span 1; }
+
+      /* ── Card padding ── */
+      .card-score    { padding: 24px; }
+      .card-market   { padding: 20px; }
+      .card-audience { padding: 20px; }
+      .card-competitors { padding: 20px; }
+      .card-build    { padding: 20px; }
+      .card-ship     { padding: 20px; }
+      .card-community   { padding: 20px; }
+      .card-strategy    { padding: 20px; }
+      .card-launch-intel { padding: 20px; }
+      .card-prompt   { padding: 20px; }
+
+      /* ── Score card: switch to flexbox to bypass explicit grid-column on children ── */
+      .card-score { display: flex; flex-direction: column; text-align: center; gap: 20px; }
+      .score-left p { max-width: 100%; }
+      .score-stats { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 16px; }
+      .grade-ring { width: 150px; height: 150px; }
+      .grade-value { font-size: 88px; }
+
+      /* ── Market card: stack meter above data ── */
+      .card-market { grid-template-columns: 1fr; gap: 16px; }
+      .market-visual-col { gap: 8px; }
+      .sat-meter { min-height: 60px; }
+      .market-data-col { gap: 16px; }
+
+      /* ── Grids ── */
       .comp-grid { grid-template-columns: 1fr; }
-      .strategy-list { grid-template-columns: 1fr; }
+      .strategy-list { grid-template-columns: 1fr; gap: 16px; }
       .pulse-grid { grid-template-columns: 1fr; }
+      .launch-grid { grid-template-columns: 1fr; gap: 20px; }
+
+      /* ── Action row ── */
+      .action-row { flex-direction: column; gap: 10px; }
+      .btn-secondary, .btn-accent { width: 100%; text-align: center; }
+
+      /* ── Version corner ── */
+      .version-corner { bottom: 14px; right: 14px; }
+    }
+
+    /* ── Small phones (≤480px) ── */
+    @media (max-width: 480px) {
+      .landing-h1 { font-size: clamp(40px, 12vw, 60px); }
+      .landing-sub { font-size: 15px; }
+      .form-card { padding: 20px 16px; }
+      .mode-btn { padding: 12px 6px; font-size: 13px; }
+      .cta-button { font-size: 15px; padding: 15px; }
+
+      .grade-ring { width: 130px; height: 130px; }
+      .grade-value { font-size: 76px; }
+
+      .main-view { padding: 10px; }
+      .dashboard-grid { gap: 10px; }
+
+      .nav-item { padding: 6px 10px; font-size: 12px; }
     }
   </style>
 </head>
