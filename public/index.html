@@ -54,6 +54,7 @@
       bottom: 32px;
       right: 32px;
       z-index: 500;
+      transition: opacity 0.25s ease;
     }
     .version-badge {
       cursor: pointer;
@@ -459,6 +460,8 @@
 
     @media (max-width: 768px) {
       body[data-page="results"] .sidebar-toggle { display: flex; }
+      /* Hide VC toggle when the drawer is open — brand inside drawer takes over */
+      body[data-sidebar="open"] .sidebar-toggle { display: none !important; }
       .sidebar-overlay.visible { display: block; }
     }
 
@@ -1270,9 +1273,6 @@
       .main-view { padding: 60px 14px 14px; }
       .results-idea-title { font-size: 17px; }
 
-      /* ── Version corner: hide on landing page ── */
-      body[data-page="landing"] .version-corner { display: none; }
-
       /* ── Dashboard grid ── */
       .dashboard-grid { grid-template-columns: 1fr; gap: 12px; }
       .card-score, .card-market, .card-audience, .card-competitors,
@@ -1680,8 +1680,13 @@
 
   // ── NAV & ROUTING ─────────────────────────────
   function handleBrandClick() {
-    closeSidebar();
-    goHome();
+    // On mobile with the drawer open, tapping the brand just closes the drawer
+    if (window.innerWidth <= 768 && document.body.dataset.sidebar === 'open') {
+      closeSidebar();
+    } else {
+      closeSidebar();
+      goHome();
+    }
   }
 
   function goHome() {
@@ -1692,6 +1697,7 @@
     document.getElementById('landing').style.display = 'flex';
     document.body.dataset.page = 'landing';
     window.scrollTo(0, 0);
+    checkVersionBadge();
     // Reset cached data
     _cachedLaunchIntel = null;
     // Reset mode to market default
@@ -2256,12 +2262,14 @@ ${promptClosing}`.trim();
   function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    sidebar.classList.toggle('open');
+    const isOpen = sidebar.classList.toggle('open');
     overlay.classList.toggle('visible');
+    document.body.dataset.sidebar = isOpen ? 'open' : '';
   }
   function closeSidebar() {
     document.querySelector('.sidebar').classList.remove('open');
     document.getElementById('sidebar-overlay').classList.remove('visible');
+    document.body.dataset.sidebar = '';
   }
 
   // ── VERSION POPOVER ───────────────────────────
@@ -2274,10 +2282,33 @@ ${promptClosing}`.trim();
     if (p) p.classList.remove('open');
   });
 
+  // ── VERSION BADGE AUTO-HIDE (landing page) ────
+  // Fades out when the Vibe Check CTA button physically overlaps the badge area.
+  function checkVersionBadge() {
+    const badge = document.querySelector('.version-corner');
+    if (!badge) return;
+    if (document.body.dataset.page !== 'landing') {
+      badge.style.opacity = '';
+      badge.style.pointerEvents = '';
+      return;
+    }
+    const btn = document.getElementById('analyze-btn');
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const vh = window.innerHeight;
+    // Badge sits ~60px from the bottom on mobile. Hide when button's bottom edge enters that zone.
+    const overlapping = rect.bottom > vh - 70;
+    badge.style.opacity = overlapping ? '0' : '';
+    badge.style.pointerEvents = overlapping ? 'none' : '';
+  }
+  window.addEventListener('scroll', checkVersionBadge, { passive: true });
+  window.addEventListener('resize', checkVersionBadge, { passive: true });
+
   // ── INIT ──────────────────────────────────────
   (function init() {
     const rid = new URLSearchParams(window.location.search).get('r');
     if (rid) loadSharedResult(rid);
+    checkVersionBadge();
   })();
 </script>
 </body>
