@@ -139,8 +139,9 @@ npm run dev          # node --watch server.js
 ### Version Convention
 - **One version number per day maximum** — never create a new version on the same calendar day
 - All changes made on the same day are collapsed into a single entry under one version number
-- The version badge and changelog popover in `index.html` must always stay in sync
-- Current version: **v1.6** (Feb 20, 2026)
+- **Always update both** the version badge (`v1.x` span) AND the changelog popover entry in `index.html` — they must stay in sync
+- Every feature or fix session must add a changelog entry under the current version before committing
+- Current version: **v1.8** (Feb 25, 2026)
 
 ---
 
