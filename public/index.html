@@ -299,14 +299,7 @@
     }
     .mode-btn:hover { border-color: var(--border-highlight); color: var(--text-main); }
     .mode-btn.active { border-color: var(--accent-cyan); color: var(--accent-cyan); background: var(--accent-cyan-dim); }
-    .mode-btn .mode-sub {
-      display: block;
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 3px;
-      font-weight: 400;
-    }
-    .mode-btn.active .mode-sub { color: rgba(0,229,255,0.65); }
+    /* .mode-sub removed — subtitle is now dynamic text above the form card */
 
     /* ══════════════════════════════════════════════
        RESULTS PAGE
@@ -1348,6 +1341,49 @@
       .main-view { padding: 52px 10px 10px; }
       .dashboard-grid { gap: 10px; }
     }
+
+    /* ── Minimum readable font size — bumping all sub-13px text ──────────── */
+    /* Version corner */
+    .version-badge        { font-size: 12px; }
+    .changelog-date       { font-size: 12px; }
+    .changelog-list li    { font-size: 13px; }
+    /* Sidebar nav */
+    .nav-item             { font-size: 14px; }
+    /* Status bar */
+    .status-text          { font-size: 14px; }
+    /* Score card */
+    .score-left p         { font-size: 14px; }
+    /* Market card */
+    .data-point p         { font-size: 13px; }
+    .sat-bar-label        { font-size: 12px; }
+    /* Audience / monetization */
+    .segment-val          { font-size: 13px; }
+    .mono-model           { font-size: 13px; }
+    .mono-potential       { font-size: 11px; }  /* uppercase tracking, was 10px */
+    /* Competitors */
+    .comp-desc            { font-size: 14px; }
+    .comp-meta            { font-size: 12px; }
+    .sw-tag               { font-size: 13px; }
+    /* Build + Ship */
+    .build-summary        { font-size: 13px; }
+    .tech-badge           { font-size: 12px; }
+    .api-badge            { font-size: 12px; }
+    /* Deploy */
+    .deploy-platform      { font-size: 14px; }
+    .deploy-reason        { font-size: 13px; }
+    .deploy-time          { font-size: 12px; }
+    .deploy-pill          { font-size: 12px; }
+    /* Community */
+    .pulse-item           { font-size: 13px; }
+    /* Launch Intel */
+    .channel-why          { font-size: 13px; }
+    .mvp-feature-desc     { font-size: 13px; }
+    .channel-type         { font-size: 12px; }
+    .mvp-priority         { font-size: 12px; }
+    /* Strategy */
+    .how-item p           { font-size: 14px; }
+    /* Prompt */
+    .prompt-pre           { font-size: 13px; }
   </style>
 </head>
 <body data-page="landing">
@@ -1357,8 +1393,8 @@
 ══════════════════════════════════════════════ -->
 <section id="landing">
   <div class="landing-inner">
-    <h1 class="landing-h1">Is your idea<br>worth building?</h1>
-    <p class="landing-sub">Stop guessing. Run your concept through our multi-vector validation engine to analyze market saturation, technical feasibility, and trend velocity.</p>
+    <h1 class="landing-h1">Does your idea<br>pass the vibe check?</h1>
+    <p class="landing-sub" id="landing-sub">Get a real-time market analysis of your idea — competitors, saturation, technical complexity, opportunity score, and a step-by-step build plan. All in under 60 seconds.</p>
 
     <div class="form-card">
       <div class="mode-selector-row">
@@ -1366,11 +1402,9 @@
         <div class="mode-selector">
           <button class="mode-btn active" data-value="market" onclick="setMode(this)">
             Build to Market
-            <span class="mode-sub">Viability, competitors, opportunity</span>
           </button>
           <button class="mode-btn" data-value="personal" onclick="setMode(this)">
             Build for Myself
-            <span class="mode-sub">Do existing options cover my need?</span>
           </button>
         </div>
       </div>
@@ -1643,10 +1677,17 @@
   let _cachedLaunchIntel = null;
 
 
+  const _modeSubs = {
+    market:   'Get a real-time market analysis of your idea — competitors, saturation, technical complexity, opportunity score, and a step-by-step build plan. All in under 60 seconds.',
+    personal: 'We\'ll scour the market for what already exists so you don\'t have to. Find out if your need is covered, where the gaps are, and whether it\'s worth building yourself.'
+  };
+
   function setMode(btn) {
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     _selectedMode = btn.dataset.value;
+    const sub = document.getElementById('landing-sub');
+    if (sub) sub.textContent = _modeSubs[_selectedMode] || _modeSubs.market;
   }
 
   function applyModeLabels(mode) {
