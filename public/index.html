@@ -54,7 +54,6 @@
       bottom: 32px;
       right: 32px;
       z-index: 500;
-      transition: opacity 0.25s ease;
     }
     .version-badge {
       cursor: pointer;
@@ -256,7 +255,7 @@
       font-size: 18px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: 4px;
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
@@ -299,7 +298,14 @@
     }
     .mode-btn:hover { border-color: var(--border-highlight); color: var(--text-main); }
     .mode-btn.active { border-color: var(--accent-cyan); color: var(--accent-cyan); background: var(--accent-cyan-dim); }
-    /* .mode-sub removed — subtitle is now dynamic text above the form card */
+    .mode-btn .mode-sub {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-weight: 400;
+    }
+    .mode-btn.active .mode-sub { color: rgba(0,229,255,0.65); }
 
     /* ══════════════════════════════════════════════
        RESULTS PAGE
@@ -423,24 +429,21 @@
     .sidebar-toggle {
       display: none;
       position: fixed;
-      top: 14px;
-      left: 14px;
+      top: 16px;
+      left: 16px;
       z-index: 200;
       background: var(--bg-card);
       border: 1px solid var(--border);
-      color: var(--accent-cyan);
-      width: 40px;
-      height: 40px;
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-family: var(--font-display);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      transition: border-color 0.2s ease;
+      font-size: 18px;
+      transition: color 0.2s ease;
     }
-    .sidebar-toggle:hover { border-color: var(--accent-cyan); }
+    .sidebar-toggle:hover { color: var(--accent-cyan); }
 
     /* Overlay behind mobile sidebar */
     .sidebar-overlay {
@@ -452,10 +455,7 @@
     }
 
     @media (max-width: 768px) {
-      body[data-page="results"] .sidebar-toggle { display: flex; }
-      /* Hide VC toggle when the drawer is open — brand inside drawer takes over */
-      body[data-sidebar="open"] .sidebar-toggle { display: none !important; }
-      .sidebar-overlay.visible { display: block; }
+      .sidebar-toggle { display: none; }
     }
 
     /* Main dashboard */
@@ -1227,48 +1227,44 @@
       .landing-sub { font-size: 16px; margin-bottom: 40px; }
       .form-card { padding: 24px 20px; }
 
-      /* ── Results layout: sidebar is a fixed overlay, main takes full width ── */
+      /* ── Results layout ── */
+      #results-inner { flex-direction: column; }
+
+      /* Horizontal scrollable nav bar */
       .sidebar {
-        position: fixed;
-        top: 0; left: 0;
-        height: 100vh;
-        width: 240px !important;
-        transform: translateX(-100%);
-        transition: transform 0.25s ease;
-        z-index: 160;
-        flex-direction: column;
-        overflow-y: auto;
-        padding: 24px 0;
-      }
-      .sidebar.open { transform: translateX(0); }
-      /* Disable desktop hover-expand — width stays 240px */
-      .sidebar:hover { width: 240px !important; }
-
-      /* Brand in drawer: show full name */
-      .brand-link {
-        padding: 0 20px 20px;
+        width: 100%; height: auto;
+        position: relative;
+        flex-direction: row;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 10px 16px;
+        border-right: none;
         border-bottom: 1px solid var(--border);
-        margin-bottom: 8px;
-        justify-content: flex-start;
+        transition: none;
       }
-      .brand-link .brand-mono { opacity: 0; }
-      .brand-link .brand-full { opacity: 1; position: relative; left: 0; }
-      .sidebar:hover .brand-link .brand-mono { opacity: 0; }
-      .sidebar:hover .brand-link .brand-full { opacity: 1; }
-      .sidebar:hover .brand-link { padding-left: 20px; justify-content: flex-start; }
+      .sidebar::-webkit-scrollbar { display: none; }
+      /* Disable desktop hover-expand on mobile */
+      .sidebar:hover { width: 100%; }
 
-      /* Nav items: vertical list — labels must be visible (no hover on touch) */
-      .nav-menu { flex-direction: column; gap: 0; }
-      .nav-item { padding: 10px 20px; white-space: normal; border-left: 2px solid transparent; border-bottom: none; font-size: 14px; }
-      .nav-item.active { border-left-color: var(--accent-cyan); border-bottom: none; background: rgba(0,229,255,0.06); }
-      /* Reveal labels when drawer is open (hover never fires on touch) */
-      .sidebar.open .nav-label { opacity: 1; }
-      /* Also reveal brand-full text when open (desktop shows it via hover) */
-      .sidebar.open .brand-link .brand-mono { opacity: 0; }
-      .sidebar.open .brand-link .brand-full { opacity: 1; position: relative; left: 0; }
+      .brand-link {
+        border-bottom: none; border-right: 1px solid var(--border);
+        margin-bottom: 0; padding: 0 16px 0 0; margin-right: 0;
+        white-space: nowrap; flex-shrink: 0;
+      }
+      /* Show "VC" monogram only (saves horizontal space) */
+      .brand-link .brand-full { opacity: 0; pointer-events: none; }
+      .brand-link .brand-mono { opacity: 1; }
+      .sidebar:hover .brand-link .brand-mono { opacity: 1; }
+      .sidebar:hover .brand-link .brand-full { opacity: 0; }
+      .sidebar:hover .brand-link { justify-content: center; padding-left: 0; }
 
-      /* ── Main content: padding-top to clear the fixed VC toggle ── */
-      .main-view { padding: 60px 14px 14px; }
+      .nav-menu { flex-direction: row; gap: 0; flex-shrink: 0; }
+      .nav-item { padding: 6px 14px; white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; font-size: 13px; }
+      .nav-item.active { border-left: none; border-bottom-color: var(--accent-cyan); background: none; }
+
+      /* ── Main content ── */
+      .main-view { padding: 14px; }
       .results-idea-title { font-size: 17px; }
 
       /* ── Dashboard grid ── */
@@ -1312,19 +1308,8 @@
       .action-row { flex-direction: column; gap: 10px; }
       .btn-secondary, .btn-accent { width: 100%; text-align: center; }
 
-      /* ── Version corner: smaller on mobile ── */
+      /* ── Version corner ── */
       .version-corner { bottom: 14px; right: 14px; }
-
-      /* ── Changelog popover: scrollable on mobile, v1.8 always at top ── */
-      .changelog-popover {
-        right: 10px;
-        bottom: 50px;
-        min-width: 0;
-        width: calc(100vw - 20px);
-        max-height: 55vh;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
     }
 
     /* ── Small phones (≤480px) ── */
@@ -1338,82 +1323,30 @@
       .grade-ring { width: 130px; height: 130px; }
       .grade-value { font-size: 76px; }
 
-      .main-view { padding: 52px 10px 10px; }
+      .main-view { padding: 10px; }
       .dashboard-grid { gap: 10px; }
-    }
 
-    /* ── Minimum readable font size — bumping all sub-13px text ──────────── */
-    /* Version corner */
-    .version-badge        { font-size: 12px; }
-    .changelog-date       { font-size: 12px; }
-    .changelog-list li    { font-size: 13px; }
-    /* Sidebar nav */
-    .nav-item             { font-size: 14px; }
-    /* Status bar */
-    .status-text          { font-size: 14px; }
-    /* Score card */
-    .score-left p         { font-size: 14px; }
-    /* Market card */
-    .data-point p         { font-size: 13px; }
-    .sat-bar-label        { font-size: 12px; }
-    /* Audience / monetization */
-    .segment-val          { font-size: 13px; }
-    .mono-model           { font-size: 13px; }
-    .mono-potential       { font-size: 11px; }  /* uppercase tracking, was 10px */
-    /* Competitors */
-    .comp-desc            { font-size: 14px; }
-    .comp-meta            { font-size: 12px; }
-    .sw-tag               { font-size: 13px; }
-    /* Build + Ship */
-    .build-summary        { font-size: 13px; }
-    .tech-badge           { font-size: 12px; }
-    .api-badge            { font-size: 12px; }
-    /* Deploy */
-    .deploy-platform      { font-size: 14px; }
-    .deploy-reason        { font-size: 13px; }
-    .deploy-time          { font-size: 12px; }
-    .deploy-pill          { font-size: 12px; }
-    /* Community */
-    .pulse-item           { font-size: 13px; }
-    /* Launch Intel */
-    .channel-why          { font-size: 13px; }
-    .mvp-feature-desc     { font-size: 13px; }
-    .channel-type         { font-size: 12px; }
-    .mvp-priority         { font-size: 12px; }
-    /* Strategy */
-    .how-item p           { font-size: 14px; }
-    /* Prompt */
-    .prompt-pre           { font-size: 13px; }
+      .nav-item { padding: 6px 10px; font-size: 12px; }
+    }
   </style>
 </head>
-<body data-page="landing">
+<body>
 
 <!-- ══════════════════════════════════════════════
      LANDING PAGE
 ══════════════════════════════════════════════ -->
 <section id="landing">
   <div class="landing-inner">
-    <h1 class="landing-h1">Does your idea<br>pass the vibe check?</h1>
-    <p class="landing-sub" id="landing-sub">Get a real-time market analysis of your idea — competitors, saturation, technical complexity, opportunity score, and a step-by-step build plan. All in under 60 seconds.</p>
+    <h1 class="landing-h1">Is your idea<br>worth building?</h1>
+    <p class="landing-sub">Stop guessing. Run your concept through our multi-vector validation engine to analyze market saturation, technical feasibility, and trend velocity.</p>
 
     <div class="form-card">
-      <div class="mode-selector-row">
-
-        <div class="mode-selector">
-          <button class="mode-btn active" data-value="market" onclick="setMode(this)">
-            Build to Market
-          </button>
-          <button class="mode-btn" data-value="personal" onclick="setMode(this)">
-            Build for Myself
-          </button>
-        </div>
-      </div>
       <label class="field-label" for="idea-input">Your idea.</label>
       <div class="textarea-wrapper">
-        <textarea id="idea-input" placeholder="e.g. A mobile app that lets friends split restaurant bills by scanning the receipt with their camera..."></textarea>
+        <textarea id="idea-input" placeholder=""></textarea>
       </div>
       <p class="textarea-hint">More detail = sharper analysis. Include who it's for, the problem it solves, and any key features you have in mind.</p>
-      <button class="cta-button" id="analyze-btn" onclick="analyze()">Vibe Check</button>
+      <button class="cta-button" id="analyze-btn" onclick="analyze()">Start Analysis</button>
     </div>
   </div>
 </section>
@@ -1421,7 +1354,7 @@
 <!-- ══════════════════════════════════════════════
      RESULTS PAGE
 ══════════════════════════════════════════════ -->
-<button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">VC</button>
+<button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">☰</button>
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <section id="results">
@@ -1429,7 +1362,7 @@
 
     <!-- Sidebar -->
     <nav class="sidebar">
-      <a class="brand-link" onclick="handleBrandClick()">
+      <a class="brand-link" onclick="goHome()">
         <span class="brand-mono">VC</span>
         <span class="brand-full">Vibe Check</span>
       </a>
@@ -1629,9 +1562,6 @@
       <ul class="changelog-list">
         <li>New Launch Intel card: fatal flaw, first-user channels, MVP feature list</li>
         <li>6th Perplexity call — mode-aware (market vs personal framing)</li>
-        <li>Mobile overhaul: slide-out nav drawer, full responsive grid</li>
-        <li>VC toggle button — only shows on results page</li>
-        <li>Version badge hidden on landing page</li>
       </ul>
     </div>
     <div class="changelog-entry">
@@ -1676,19 +1606,42 @@
   let _cachedDeploy      = null;
   let _cachedLaunchIntel = null;
 
+  const _placeholderIdeas = [
+    'A mobile app that lets friends split restaurant bills by scanning the receipt with their camera',
+    'An AI tutor that adapts to each student\'s learning style and explains concepts using analogies from their hobbies',
+    'A browser extension that summarizes Terms of Service agreements and flags unusual clauses before you click "agree"',
+    'A neighborhood tool-lending library app where people can borrow power tools, ladders, and camping gear from nearby neighbors',
+    'A platform that matches freelance developers with non-profits who need pro-bono tech help',
+    'A meal planning app that generates weekly grocery lists based on what\'s on sale at your local stores',
+    'A service that turns your old voicemails and audio messages from loved ones into a preserved, searchable memory book',
+    'An app that monitors your houseplants with photos and reminds you when to water, repot, or move them for better light',
+    'A marketplace for retired professionals to offer 1-hour mentorship sessions to early-career workers',
+    'A Chrome extension that detects dark patterns on e-commerce sites and warns you before you accidentally subscribe',
+    'A platform where amateur musicians can find nearby jam session partners filtered by genre, skill level, and instrument',
+    'An AI-powered wardrobe app that suggests outfits from your closet based on the weather and your calendar',
+    'A micro-journaling app that asks you one meaningful question each day and shows you your answers from past years',
+    'A community-driven app that maps and reviews public restrooms, rating cleanliness, accessibility, and baby-changing facilities',
+    'A tool that watches your subscription services and alerts you when you haven\'t used one in 30+ days',
+    'An app that connects dog owners in the same apartment building to coordinate group walks and pet-sitting swaps',
+    'A platform for local restaurants to sell tomorrow\'s surplus ingredients at a discount to home cooks',
+    'A personal finance app specifically for gig workers that tracks income across platforms and estimates quarterly taxes',
+    'An AR app that lets you point your phone at any building and see its history, architect, and fun facts',
+    'A service that pairs solo travelers going to the same destination so they can split Airbnb costs and explore together',
+    'A browser tool that finds the original source of viral claims and rates their accuracy before you share them',
+    'An app that gamifies neighborhood cleanup — scan litter you pick up, earn points, compete on local leaderboards',
+    'A platform where home cooks can sell small-batch specialty items like hot sauce, jam, or granola to their neighbors',
+    'A collaborative playlist app for road trips that lets every passenger in the car queue songs from their own phone',
+    'A tool that analyzes your resume against a job posting and rewrites bullet points to match the role\'s language',
+  ];
 
-  const _modeSubs = {
-    market:   'Get a real-time market analysis of your idea — competitors, saturation, technical complexity, opportunity score, and a step-by-step build plan. All in under 60 seconds.',
-    personal: 'We\'ll scour the market for what already exists so you don\'t have to. Find out if your need is covered, where the gaps are, and whether it\'s worth building yourself.'
-  };
-
-  function setMode(btn) {
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    _selectedMode = btn.dataset.value;
-    const sub = document.getElementById('landing-sub');
-    if (sub) sub.textContent = _modeSubs[_selectedMode] || _modeSubs.market;
-  }
+  // Set a random placeholder on load
+  (function setRandomPlaceholder() {
+    const ta = document.getElementById('idea-input');
+    if (ta) {
+      const idea = _placeholderIdeas[Math.floor(Math.random() * _placeholderIdeas.length)];
+      ta.placeholder = idea + '...';
+    }
+  })();
 
   function applyModeLabels(mode) {
     const p = mode === 'personal';
@@ -1736,25 +1689,13 @@
   }
 
   // ── NAV & ROUTING ─────────────────────────────
-  function handleBrandClick() {
-    // On mobile with the drawer open, tapping the brand just closes the drawer
-    if (window.innerWidth <= 768 && document.body.dataset.sidebar === 'open') {
-      closeSidebar();
-    } else {
-      closeSidebar();
-      goHome();
-    }
-  }
-
   function goHome() {
     if (navObserver) navObserver.disconnect();
     currentResultId = null;
     history.replaceState(null, '', '/');
     document.getElementById('results').style.display = 'none';
     document.getElementById('landing').style.display = 'flex';
-    document.body.dataset.page = 'landing';
     window.scrollTo(0, 0);
-    checkVersionBadge();
     // Reset cached data
     _cachedLaunchIntel = null;
     // Reset mode to market default
@@ -1765,7 +1706,6 @@
   }
 
   function jumpTo(id) {
-    closeSidebar();
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -2113,7 +2053,6 @@ ${promptClosing}`.trim();
 
     document.getElementById('landing').style.display = 'none';
     document.getElementById('results').style.display = 'block';
-    document.body.dataset.page = 'results';
     document.getElementById('results-title').textContent = 'Analyzing your idea...';
     document.getElementById('status-bar').style.display = 'flex';
     document.getElementById('action-row').classList.remove('visible');
@@ -2286,7 +2225,6 @@ ${promptClosing}`.trim();
   async function loadSharedResult(id) {
     document.getElementById('landing').style.display = 'none';
     document.getElementById('results').style.display = 'block';
-    document.body.dataset.page = 'results';
     document.getElementById('status-text').textContent = 'Loading shared result...';
     window.scrollTo(0, 0);
     try {
@@ -2319,61 +2257,28 @@ ${promptClosing}`.trim();
   function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    const toggle  = document.getElementById('sidebar-toggle');
-    const isOpen  = sidebar.classList.toggle('open');
+    sidebar.classList.toggle('open');
     overlay.classList.toggle('visible');
-    document.body.dataset.sidebar = isOpen ? 'open' : '';
-    // Directly hide the VC toggle when drawer opens so it can't overlap the brand
-    if (toggle) toggle.style.display = isOpen ? 'none' : '';
   }
   function closeSidebar() {
-    const toggle = document.getElementById('sidebar-toggle');
     document.querySelector('.sidebar').classList.remove('open');
     document.getElementById('sidebar-overlay').classList.remove('visible');
-    document.body.dataset.sidebar = '';
-    if (toggle) toggle.style.display = '';
   }
 
   // ── VERSION POPOVER ───────────────────────────
   function toggleChangelog(e) {
     e.stopPropagation();
-    const p = document.getElementById('changelog-popover');
-    p.classList.toggle('open');
-    // Always scroll to top so the latest version (v1.8) is immediately visible
-    if (p.classList.contains('open')) p.scrollTop = 0;
+    document.getElementById('changelog-popover').classList.toggle('open');
   }
   document.addEventListener('click', () => {
     const p = document.getElementById('changelog-popover');
     if (p) p.classList.remove('open');
   });
 
-  // ── VERSION BADGE AUTO-HIDE (landing page) ────
-  // Fades out when the Vibe Check CTA button physically overlaps the badge area.
-  function checkVersionBadge() {
-    const badge = document.querySelector('.version-corner');
-    if (!badge) return;
-    if (document.body.dataset.page !== 'landing') {
-      badge.style.opacity = '';
-      badge.style.pointerEvents = '';
-      return;
-    }
-    const btn = document.getElementById('analyze-btn');
-    if (!btn) return;
-    const rect = btn.getBoundingClientRect();
-    const vh = window.innerHeight;
-    // Badge sits ~60px from the bottom on mobile. Hide when button's bottom edge enters that zone.
-    const overlapping = rect.bottom > vh - 70;
-    badge.style.opacity = overlapping ? '0' : '';
-    badge.style.pointerEvents = overlapping ? 'none' : '';
-  }
-  window.addEventListener('scroll', checkVersionBadge, { passive: true });
-  window.addEventListener('resize', checkVersionBadge, { passive: true });
-
   // ── INIT ──────────────────────────────────────
   (function init() {
     const rid = new URLSearchParams(window.location.search).get('r');
     if (rid) loadSharedResult(rid);
-    checkVersionBadge();
   })();
 </script>
 </body>

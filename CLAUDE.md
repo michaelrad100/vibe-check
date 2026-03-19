@@ -5,7 +5,7 @@
 Vibe Check is an AI-powered product idea validator. Users enter a startup or product idea and receive a comprehensive market analysis in under 60 seconds, streamed live to the page. The output covers: opportunity score, market landscape, competitors, target audience, technical complexity, deployment options, community sentiment, strategic differentiation, and a ready-to-use Claude Code prompt.
 
 Live on Railway. The working directory for all active development is:
-`/Users/michaelradparvar/Downloads/vibe-check/.claude/worktrees/sweet-gould/`
+`/Users/michaelradparvar/Documents/claude/code/vibe-check/`
 
 ---
 
@@ -32,7 +32,7 @@ vibe-check/
 - **Frontend:** Vanilla JS, no framework, no build step
 - **Fonts:** Oswald (display/headers) + Inter (body) via Google Fonts
 - **Hosting:** Railway (watches `main` branch, auto-deploys on push)
-- **Result sharing:** In-memory `Map` store with UUID keys — results lost on server restart (known tech debt)
+- **Result sharing:** Supabase for persistent storage, with in-memory `Map` fallback
 
 ---
 
@@ -114,6 +114,8 @@ Each SSE event triggers a `render*` function:
 | Variable | Required | Description |
 |---|---|---|
 | `PERPLEXITY_KEY` | Yes | Perplexity API key (`pplx-...`) |
+| `SUPABASE_URL` | No | Supabase project URL (enables persistent result storage) |
+| `SUPABASE_SECRET_KEY` | No | Supabase service role key |
 | `PORT` | No | Defaults to 3000 |
 
 Set `PERPLEXITY_KEY` in Railway dashboard under service → Variables.
@@ -122,7 +124,7 @@ Set `PERPLEXITY_KEY` in Railway dashboard under service → Variables.
 
 ## Local Dev
 ```bash
-cd /Users/michaelradparvar/Downloads/vibe-check/.claude/worktrees/sweet-gould
+cd /Users/michaelradparvar/Documents/claude/code/vibe-check
 npm install
 npm run dev          # node --watch server.js
 # Open http://localhost:3000
@@ -131,23 +133,21 @@ npm run dev          # node --watch server.js
 ---
 
 ## Git & Deploy Workflow
-- Active branch: `claude/sweet-gould` (worktree)
+- Work directly on `main`
 - Production branch: `main` (Railway watches this)
-- To deploy: merge `claude/sweet-gould` → `main` → `git push origin main`
+- To deploy: `git push origin main`
 - Railway auto-deploys within ~60–90 seconds of a push to `main`
 
 ### Version Convention
 - **One version number per day maximum** — never create a new version on the same calendar day
 - All changes made on the same day are collapsed into a single entry under one version number
-- **Always update both** the version badge (`v1.x` span) AND the changelog popover entry in `index.html` — they must stay in sync
-- Every feature or fix session must add a changelog entry under the current version before committing
-- Current version: **v1.8** (Feb 25, 2026)
+- The version badge and changelog popover in `index.html` must always stay in sync
+- Current version: **v1.8** (Mar 9, 2026)
 
 ---
 
 ## Known Tech Debt / Future Roadmap
-- **In-memory result store** — results lost on server restart. Replace with a real DB (Postgres/SQLite) before adding a public feed
-- **Public feed** — `/feed` page showing recent analyses (needs DB first)
+- **Public feed** — `/feed` page showing recent analyses (Supabase is ready for this)
 - **User auth** — login so users can save/revisit their analyses
 - **Pay-per-report** — Stripe integration for monetization
 - **Skill level selector** — currently hardcoded to `done_a_few` in the frontend `analyze()` call; the server supports `first_project | done_a_few | build_regularly`
