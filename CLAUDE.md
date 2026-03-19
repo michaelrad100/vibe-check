@@ -140,9 +140,11 @@ npm run dev          # node --watch server.js
 
 ### Version Convention
 - **One version number per day maximum** — never create a new version on the same calendar day
-- All changes made on the same day are collapsed into a single entry under one version number
-- The version badge and changelog popover in `index.html` must always stay in sync
-- Current version: **v1.8** (Mar 9, 2026)
+- All changes pushed on the same calendar day are collapsed into a single version/changelog entry
+- If no changes ship for multiple days, the next push gets the next version number (e.g. v1.9 → v1.10)
+- **Always update release notes on every push** — bump the version badge and add/update the changelog entry in `index.html`
+- The version badge and changelog popover in `index.html` must always stay in sync with CLAUDE.md
+- Current version: **v1.9** (Mar 19, 2026)
 
 ---
 
