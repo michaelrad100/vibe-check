@@ -1568,6 +1568,7 @@
         <li>Horizontal scrollable nav bar on mobile replaces slide-out drawer</li>
         <li>Cleaner mobile layout with reduced padding and spacing</li>
         <li>Compact scrollable release notes popover</li>
+        <li>Tab key fills textarea with the sample idea for quick testing</li>
       </ul>
     </div>
     <div class="changelog-entry">
@@ -1653,6 +1654,13 @@
     if (ta) {
       const idea = _placeholderIdeas[Math.floor(Math.random() * _placeholderIdeas.length)];
       ta.placeholder = idea + '...';
+      // Tab fills the textarea with the placeholder idea
+      ta.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab' && !ta.value.trim()) {
+          e.preventDefault();
+          ta.value = ta.placeholder.replace(/\.\.\.$/,'');
+        }
+      });
     }
   })();
 
