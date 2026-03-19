@@ -81,12 +81,18 @@
       border: 1px solid var(--border);
       border-top: 2px solid var(--accent-cyan);
       min-width: 280px;
-      max-height: 240px;
+      max-height: 340px;
       overflow-y: auto;
       padding: 20px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.6);
       z-index: 501;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,229,255,0.3) var(--bg-surface);
     }
+    .changelog-popover::-webkit-scrollbar { width: 6px; }
+    .changelog-popover::-webkit-scrollbar-track { background: var(--bg-surface); }
+    .changelog-popover::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.3); border-radius: 3px; }
+    .changelog-popover::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,0.5); }
     .changelog-popover.open { display: block; }
     .changelog-header {
       font-family: var(--font-display);
@@ -1567,8 +1573,9 @@
         <li>Removed mode selector (Build to Market / Build for Myself)</li>
         <li>Horizontal scrollable nav bar on mobile replaces slide-out drawer</li>
         <li>Cleaner mobile layout with reduced padding and spacing</li>
-        <li>Compact scrollable release notes popover</li>
+        <li>Themed scrollable release notes popover</li>
         <li>Tab key fills textarea with the sample idea for quick testing</li>
+        <li>"Start Analysis" button with wide letter-spacing</li>
       </ul>
     </div>
     <div class="changelog-entry">
