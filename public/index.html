@@ -2049,10 +2049,18 @@
   }
 
   function _tryRenderPrompt() {
+    console.log('[Prompt] tryRender — idea:', !!_cachedIdea, 'opp:', !!_cachedOpp, 'tech:', !!_cachedTech, 'deploy:', !!_cachedDeploy);
     // Render prompt as soon as we have idea + opp + tech (deploy is optional)
     if (_cachedIdea && _cachedOpp && _cachedTech) {
       const deploy = _cachedDeploy || { primary_recommendation: 'web_app', deployment_options: [] };
-      renderPrompt(_cachedIdea, _cachedOpp, _cachedTech, deploy);
+      try {
+        renderPrompt(_cachedIdea, _cachedOpp, _cachedTech, deploy);
+        console.log('[Prompt] rendered successfully');
+      } catch (e) {
+        console.error('[Prompt] renderPrompt error:', e);
+        const pre = document.getElementById('prompt-text');
+        if (pre) pre.textContent = 'Error generating prompt. Please try again.';
+      }
     }
   }
 
@@ -2633,6 +2641,7 @@ ${promptClosing}`.trim();
           }
           const data = dataLines.join('');
           if (!event || !data) continue;
+          console.log(`[SSE] event: ${event}, data length: ${data.length}`);
           try { handleEvent(event, JSON.parse(data), idea); } catch (e) { console.error(`[SSE] Error in ${event}:`, e); }
         }
       }
@@ -2760,8 +2769,8 @@ ${promptClosing}`.trim();
     document.getElementById('diff-badge').textContent = '';
     document.getElementById('ship-badge').textContent = '';
     document.getElementById('comp-count').textContent = '';
-    const pb = document.getElementById('prompt-block');
-    if (pb) pb.innerHTML = '<div class="skeleton skel-block" style="height:160px"></div>';
+    const pt = document.getElementById('prompt-text');
+    if (pt) pt.innerHTML = '<span class="skeleton skel-block" style="height:160px;display:block"></span>';
   }
 
   // ── SHARE / LOAD ──────────────────────────────
