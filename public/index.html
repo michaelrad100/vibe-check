@@ -782,7 +782,7 @@
     .mkt-size-chart {
       display: flex;
       align-items: flex-end;
-      gap: 8px;
+      gap: 12px;
       height: 64px;
     }
     .mkt-bar {
@@ -792,17 +792,16 @@
       align-items: center;
       gap: 3px;
     }
+    .mkt-bar-value {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-align: center;
+    }
     .mkt-bar-fill {
       width: 100%;
       border: 1px solid rgba(0,229,255,0.3);
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 3px 2px;
-      font-family: var(--font-display);
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--accent-cyan);
     }
     .mkt-bar.current .mkt-bar-fill {
       background: rgba(0,229,255,0.12);
@@ -1565,22 +1564,22 @@
           </div>
           <!-- Bottom: 4 Stat Tiles -->
           <div class="score-tiles" id="score-tiles">
-            <div class="stat-tile" id="tile-market-size" onclick="toggleTileInsight(this)">
+            <div class="stat-tile" id="tile-market-size">
               <div class="tile-label">Market Size <span class="tile-info-icon">i</span></div>
               <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
               <div class="tile-insight" id="insight-market-size"></div>
             </div>
-            <div class="stat-tile" id="tile-saturation" onclick="toggleTileInsight(this)">
+            <div class="stat-tile" id="tile-saturation">
               <div class="tile-label">Saturation <span class="tile-info-icon">i</span></div>
               <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
               <div class="tile-insight" id="insight-saturation"></div>
             </div>
-            <div class="stat-tile" id="tile-competition" onclick="toggleTileInsight(this)">
+            <div class="stat-tile" id="tile-competition">
               <div class="tile-label">Competition <span class="tile-info-icon">i</span></div>
               <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
               <div class="tile-insight" id="insight-competition"></div>
             </div>
-            <div class="stat-tile" id="tile-build-time" onclick="toggleTileInsight(this)">
+            <div class="stat-tile" id="tile-build-time">
               <div class="tile-label">Build Time <span class="tile-info-icon">i</span></div>
               <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
               <div class="tile-insight" id="insight-build-time"></div>
@@ -2200,11 +2199,13 @@
       tileMkt.innerHTML = `
         <div class="mkt-size-chart">
           <div class="mkt-bar current">
-            <div class="mkt-bar-fill" style="height:${curH}px">${cur.value}</div>
+            <div class="mkt-bar-value">${cur.value}</div>
+            <div class="mkt-bar-fill" style="height:${curH}px"></div>
             <div class="mkt-bar-year">${cur.year}</div>
           </div>
           <div class="mkt-bar projected">
-            <div class="mkt-bar-fill" style="height:${projH}px">${proj.value}</div>
+            <div class="mkt-bar-value">${proj.value}</div>
+            <div class="mkt-bar-fill" style="height:${projH}px"></div>
             <div class="mkt-bar-year">${proj.year}</div>
           </div>
         </div>`;
@@ -2801,6 +2802,11 @@ ${promptClosing}`.trim();
   document.addEventListener('click', () => {
     const p = document.getElementById('changelog-popover');
     if (p) p.classList.remove('open');
+  });
+
+  // ── TILE INSIGHT CLICK HANDLERS ──────────────
+  document.querySelectorAll('.stat-tile').forEach(tile => {
+    tile.addEventListener('click', () => toggleTileInsight(tile));
   });
 
   // ── INIT ──────────────────────────────────────
