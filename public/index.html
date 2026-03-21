@@ -778,43 +778,47 @@
       display: block;
     }
 
-    /* Market size tile: two bars */
+    /* Market size tile: horizontal bars */
     .mkt-size-chart {
       display: flex;
-      align-items: flex-end;
-      gap: 12px;
-      height: 64px;
-    }
-    .mkt-bar {
-      flex: 1;
-      display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 3px;
+      gap: 8px;
     }
-    .mkt-bar-value {
+    .mkt-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mkt-row-year {
+      font-size: 10px;
+      color: var(--text-muted);
+      min-width: 30px;
+      font-family: var(--font-display);
+      letter-spacing: 0.5px;
+    }
+    .mkt-row-bar {
+      flex: 1;
+      height: 14px;
+      position: relative;
+    }
+    .mkt-row-fill {
+      height: 100%;
+      border: 1px solid rgba(0,229,255,0.3);
+      transition: width 0.6s ease;
+    }
+    .mkt-row.current .mkt-row-fill {
+      background: rgba(0,229,255,0.15);
+    }
+    .mkt-row.projected .mkt-row-fill {
+      background: transparent;
+      border-style: dashed;
+    }
+    .mkt-row-value {
       font-family: var(--font-display);
       font-size: 13px;
       font-weight: 700;
       color: var(--accent-cyan);
-      text-align: center;
-    }
-    .mkt-bar-fill {
-      width: 100%;
-      border: 1px solid rgba(0,229,255,0.3);
-    }
-    .mkt-bar.current .mkt-bar-fill {
-      background: rgba(0,229,255,0.12);
-    }
-    .mkt-bar.projected .mkt-bar-fill {
-      background: transparent;
-      border-style: dashed;
-    }
-    .mkt-bar-year {
-      font-size: 9px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      white-space: nowrap;
     }
 
     /* Saturation tile */
@@ -2196,17 +2200,19 @@
       const maxNum = Math.max(curNum, projNum);
       const curH = Math.max(20, Math.round((curNum / maxNum) * 52));
       const projH = Math.max(20, Math.round((projNum / maxNum) * 52));
+      const curPct = Math.max(15, Math.round((curNum / maxNum) * 100));
+      const projPct = Math.max(15, Math.round((projNum / maxNum) * 100));
       tileMkt.innerHTML = `
         <div class="mkt-size-chart">
-          <div class="mkt-bar current">
-            <div class="mkt-bar-value">${cur.value}</div>
-            <div class="mkt-bar-fill" style="height:${curH}px"></div>
-            <div class="mkt-bar-year">${cur.year}</div>
+          <div class="mkt-row current">
+            <span class="mkt-row-year">${cur.year}</span>
+            <div class="mkt-row-bar"><div class="mkt-row-fill" style="width:${curPct}%"></div></div>
+            <span class="mkt-row-value">${cur.value}</span>
           </div>
-          <div class="mkt-bar projected">
-            <div class="mkt-bar-value">${proj.value}</div>
-            <div class="mkt-bar-fill" style="height:${projH}px"></div>
-            <div class="mkt-bar-year">${proj.year}</div>
+          <div class="mkt-row projected">
+            <span class="mkt-row-year">${proj.year}</span>
+            <div class="mkt-row-bar"><div class="mkt-row-fill" style="width:${projPct}%"></div></div>
+            <span class="mkt-row-value">${proj.value}</span>
           </div>
         </div>`;
     } else if (tileMkt && opp.market_size) {
