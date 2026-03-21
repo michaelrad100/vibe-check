@@ -141,12 +141,16 @@ Return JSON with this exact structure (no other text):
   "competitors": [
     {"name":"","url":"","description":"","pricing":"","strengths":["",""],"weaknesses":["",""],"app_store_rating":null}
   ],
-  "key_differentiators_needed": ["gap1","gap2","gap3"]
+  "key_differentiators_needed": ["gap1","gap2","gap3"],
+  "market_concentration": "monopoly|top_heavy|moderate|fragmented",
+  "top_player": { "name": "CompanyName", "share": 45 }
 }
 
 app_store_rating = the competitor's rating on the App Store or Play Store (e.g. 4.7) if it has a mobile app, otherwise null. Only include real ratings you can verify — do not guess.
 saturation_score = coverage score: 10 means existing tools fully cover this need (little reason to build your own); 1 means nothing good exists (strong reason to build).
 key_differentiators_needed = specific things missing from existing alternatives that would justify building your own.
+market_concentration: monopoly = one player owns 60%+; top_heavy = top 3 own 70%+; moderate = competitive with some leaders; fragmented = no clear winner.
+top_player: the single largest competitor and their estimated market share percentage. Use your best estimate based on available data.
 Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find alternatives. Include 3-6 real alternatives with actual URLs. Be specific about their limitations.
 
 CRITICAL — Competitor relevance rules:
@@ -165,10 +169,14 @@ Return JSON with this exact structure (no other text):
   "competitors": [
     {"name":"","url":"","description":"","pricing":"","strengths":["",""],"weaknesses":["",""],"app_store_rating":null}
   ],
-  "key_differentiators_needed": ["differentiator1","differentiator2","differentiator3"]
+  "key_differentiators_needed": ["differentiator1","differentiator2","differentiator3"],
+  "market_concentration": "monopoly|top_heavy|moderate|fragmented",
+  "top_player": { "name": "CompanyName", "share": 45 }
 }
 
 app_store_rating = the competitor's rating on the App Store or Play Store (e.g. 4.7) if it has a mobile app, otherwise null. Only include real ratings you can verify — do not guess.
+market_concentration: monopoly = one player owns 60%+; top_heavy = top 3 own 70%+; moderate = competitive with some leaders; fragmented = no clear winner.
+top_player: the single largest competitor and their estimated market share percentage. Use your best estimate based on available data.
 Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find competitors. Include 4-6 real competitors with actual URLs. Be specific and data-driven.
 
 CRITICAL — Competitor relevance rules:
@@ -224,7 +232,7 @@ Return JSON with this exact structure (no other text):
 {
   "opportunity_grade": "A|B|C|D|F",
   "opportunity_score": 1-10,
-  "grade_explanation": "3-5 sentences explaining WHY this idea received this grade",
+  "grade_explanation": "1-2 sentences explaining WHY this idea received this grade",
   "opportunity_type": "blue_ocean|niche_product|competitive_market|emerging_market|saturated_market",
   "trend": "rapidly_growing|growing|stable|declining|emerging",
   "market_size": "One sentence with specific market size and growth rate data",
@@ -241,7 +249,7 @@ Return JSON with this exact structure (no other text):
   ]
 }
 
-grade_explanation: 3-5 sentences explaining WHY this idea received this grade. Be specific: name the key challenges, concrete opportunities, competitive dynamics, and give a clear recommendation on whether and how to proceed. This should synthesize the most important findings — do not repeat generic market descriptions.
+grade_explanation: 1-2 concise sentences explaining WHY this idea received this grade. Synthesize the single most important insight — the key opportunity or challenge that defines the verdict. Always refer to the subject as an "idea" or "product", never as a "feature".
 market_size_current: the current market size as a short value string (e.g. "$1.55B") and year. Use real data.
 market_size_projected: the projected future market size and target year. Use real data.
 Do NOT include citation numbers like [1] or [2] in any text fields.`,
@@ -443,7 +451,13 @@ app.post('/api/analyze', async (req, res) => {
     send('opportunity', oppData);
 
     send('status', { phase: 'deployment', message: 'Comparing deployment platforms...' });
-    const deployData = parseJSON(await callPerplexity(PROMPTS.deployment(idea)));
+    let deployData;
+    try {
+      deployData = parseJSON(await callPerplexity(PROMPTS.deployment(idea)));
+    } catch (e) {
+      console.error('Deployment API error:', e.message);
+      deployData = { primary_recommendation: 'web_app', deployment_options: [] };
+    }
     send('status', { phase: 'deployment_done', message: 'Ranking hosting options by fit...' });
     send('deployment', deployData);
 

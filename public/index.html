@@ -500,9 +500,6 @@
       padding: 16px 0;
       margin-bottom: 24px;
       border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
     .results-idea-title {
       font-family: var(--font-display);
@@ -512,27 +509,24 @@
       letter-spacing: -0.5px;
       color: var(--text-main);
       margin-bottom: 0;
-      flex: 1;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
     .share-link-btn {
       background: none;
       border: none;
-      color: var(--text-muted);
+      color: rgba(0, 229, 255, 0.35);
       cursor: pointer;
-      padding: 6px;
-      opacity: 0.4;
-      transition: opacity 0.2s ease, color 0.2s ease;
-      flex-shrink: 0;
+      padding: 2px 4px;
+      margin-left: 6px;
+      transition: color 0.2s ease;
       position: relative;
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
     }
-    .share-link-btn:hover { opacity: 1; color: var(--accent-cyan); }
+    .share-link-btn:hover { color: var(--accent-cyan); }
     .share-link-btn .share-toast {
       position: absolute;
-      top: -28px; left: 50%;
+      bottom: -28px; left: 50%;
       transform: translateX(-50%);
       background: rgba(0,229,255,0.12);
       color: var(--accent-cyan);
@@ -639,14 +633,11 @@
     }
     .skel-block { height: 20px; margin-bottom: 8px; border-radius: 2px; }
 
-    /* ── Score card ── */
+    /* ── Score card (visual scorecard) ── */
     .card-score {
       grid-column: span 12;
       background: linear-gradient(180deg, var(--bg-card) 0%, #0a0a0a 100%);
-      padding: 40px;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      align-items: center;
+      padding: 32px 40px;
       border-top: 2px solid var(--border);
       scroll-margin-top: 24px;
       transition: border-color 0.2s ease;
@@ -657,29 +648,22 @@
     .card-score.loaded {
       border-top-color: var(--accent-cyan);
     }
-    .score-left { grid-column: 1; }
-    .score-left h2 {
-      font-family: var(--font-display);
-      font-size: 36px;
-      line-height: 1.1;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      color: var(--text-main);
-    }
-    .score-left p { color: var(--text-muted); max-width: 380px; font-size: 14px; line-height: 1.6; }
-    #score-differentiators { margin-top: 16px; }
-    #score-differentiators .diff-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    #score-differentiators .diff-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; }
 
+    /* Top row: grade ring + verdict */
+    .score-top {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      margin-bottom: 28px;
+    }
     .score-visual {
-      grid-column: 2;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      flex-shrink: 0;
     }
     .grade-ring {
-      width: 200px; height: 200px;
+      width: 140px; height: 140px;
       border-radius: 50%;
       border: 2px solid var(--border);
       display: flex;
@@ -703,60 +687,75 @@
     }
     .grade-value {
       font-family: var(--font-display);
-      font-size: 120px;
+      font-size: 80px;
       line-height: 1;
       font-weight: 700;
       color: var(--text-main);
     }
     .score-meta {
       text-align: center;
-      margin-top: 16px;
+      margin-top: 10px;
       font-family: var(--font-display);
       text-transform: uppercase;
       letter-spacing: 2px;
       color: var(--accent-cyan);
-      font-size: 13px;
+      font-size: 11px;
     }
-    .score-stats {
-      grid-column: 3;
+    .score-verdict {
+      flex: 1;
+      min-width: 0;
+    }
+    .score-verdict .section-header { margin-bottom: 8px; }
+    .score-verdict p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    #score-differentiators .diff-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    #score-differentiators .diff-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; }
+
+    /* Bottom row: 4 stat tiles */
+    .score-tiles {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .stat-tile {
+      background: var(--bg-card);
+      padding: 16px 20px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      padding-left: 40px;
-      border-left: 1px solid var(--border);
+      gap: 8px;
     }
-    .stat-row label {
-      display: block;
-      font-size: 12px;
+    .tile-label {
+      font-size: 10px;
       text-transform: uppercase;
+      letter-spacing: 1px;
       color: var(--text-muted);
-      margin-bottom: 4px;
     }
-    .stat-row .value {
-      font-family: var(--font-display);
-      font-size: 24px;
-      color: var(--text-main);
-      font-weight: 500;
+    .tile-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
-    .value-cyan  { color: var(--accent-cyan) !important; }
-    .value-green { color: var(--accent-cyan) !important; }
-    .value-yellow{ color: var(--accent-cyan) !important; }
-    .value-red   { color: var(--accent-cyan) !important; }
 
-    /* Market size mini chart */
+    /* Market size tile: two bars */
     .mkt-size-chart {
       display: flex;
       align-items: flex-end;
       gap: 8px;
-      height: 80px;
-      margin-top: 4px;
+      height: 64px;
     }
     .mkt-bar {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
     }
     .mkt-bar-fill {
       width: 100%;
@@ -764,9 +763,9 @@
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      padding: 4px 2px;
+      padding: 3px 2px;
       font-family: var(--font-display);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--accent-cyan);
     }
@@ -778,119 +777,113 @@
       border-style: dashed;
     }
     .mkt-bar-year {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    /* Compact saturation in score-stats */
-    .sat-compact {
+    /* Saturation tile */
+    .sat-tile-meter {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-top: 4px;
     }
-    .sat-compact-bar {
+    .sat-tile-bar {
       flex: 1;
       height: 6px;
       background: rgba(255,255,255,0.05);
       border: 1px solid var(--border);
-      position: relative;
     }
-    .sat-compact-fill {
+    .sat-tile-fill {
       height: 100%;
       background: var(--accent-cyan);
       transition: width 0.8s ease;
     }
-    .sat-compact-num {
+    .sat-tile-num {
       font-family: var(--font-display);
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--accent-cyan);
-      min-width: 36px;
-    }
-    /* Left column: vertical saturation meter */
-    .market-visual-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-    .market-status-label {
-      font-family: var(--font-display);
-      font-size: 15px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-main);
-      text-align: center;
-      line-height: 1.2;
-    }
-    .market-status-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      text-align: center;
-      margin-top: -6px;
-      margin-bottom: 4px;
-    }
-    .sat-meter {
-      flex: 1;
-      width: 36px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      position: relative;
-      min-height: 100px;
-    }
-    .sat-meter-fill {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--accent-cyan);
-      transition: height 0.8s ease;
-    }
-    .sat-score-row {
-      display: flex;
-      align-items: baseline;
-      gap: 2px;
-    }
-    .sat-score-num {
-      font-family: var(--font-display);
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
       color: var(--accent-cyan);
       line-height: 1;
     }
-    .sat-score-denom {
-      font-size: 13px;
+    .sat-tile-label {
+      font-size: 11px;
       color: var(--text-muted);
-    }
-    .sat-score-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--text-muted);
+      margin-top: 4px;
     }
 
-    /* Right column: data */
-    .market-data-col {
+    /* Competition tile: donut arc */
+    .comp-donut {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--accent-cyan) calc(var(--comp-share, 0) * 3.6deg),
+        rgba(255,255,255,0.05) calc(var(--comp-share, 0) * 3.6deg)
+      );
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #fff calc(100% - 5px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #fff calc(100% - 5px));
+      flex-shrink: 0;
+    }
+    .comp-tile-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .comp-tile-info {
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      justify-content: center;
+      gap: 2px;
     }
-    .data-point { border-left: 1px solid var(--border-highlight); padding-left: 16px; }
-    .data-point h4 { font-family: var(--font-display); font-size: 20px; margin-bottom: 4px; color: var(--text-main); }
-    .data-point p  { font-size: 12px; color: var(--text-muted); }
+    .comp-tile-name {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+    .comp-tile-share {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      line-height: 1;
+    }
+    .comp-tile-type {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-    /* Saturation bar (legacy — kept for reset compatibility) */
-    .sat-bar-wrap { display: none; }
-    .sat-bar-bg { flex: 1; height: 3px; background: rgba(0,0,0,0.3); }
-    .sat-bar-fill { height: 100%; background: var(--accent-cyan); transition: width 0.6s ease; }
-    .sat-bar-label { font-size: 11px; color: rgba(0,0,0,0.6); white-space: nowrap; font-weight: 600; }
+    /* Build time tile */
+    .build-tile-value {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .build-tile-difficulty {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .build-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+    }
+    .build-dot.filled {
+      background: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+    }
 
     /* Differentiator tags */
     .diff-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
@@ -905,37 +898,33 @@
 
     /* ── Audience card ── */
     .card-audience {
-      grid-column: span 4;
+      grid-column: span 12;
       padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
       scroll-margin-top: 24px;
     }
+    #audience-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .audience-segments { display: flex; flex-direction: column; gap: 8px; }
+    .audience-monetization { display: flex; flex-direction: column; gap: 8px; }
     .segment-block {
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: rgba(255,255,255,0.03);
-      padding: 12px;
+      padding: 10px 12px;
       border-left: 2px solid var(--border-highlight);
     }
     .segment-block.primary {
       border-left-color: var(--accent-cyan);
       background: linear-gradient(90deg, var(--accent-cyan-dim), transparent);
     }
-    .segment-name { font-family: var(--font-display); text-transform: uppercase; font-size: 14px; letter-spacing: 0.5px; }
-    .segment-val  { font-size: 12px; color: var(--text-muted); }
+    .segment-name { font-family: var(--font-display); text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; }
+    .segment-val  { font-size: 11px; color: var(--text-muted); }
 
     /* Monetization inside audience */
-    .mono-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 4px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
     .mono-item {
       background: rgba(255,255,255,0.02);
       border: 1px solid var(--border);
@@ -1349,6 +1338,7 @@
       .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
       .card-score, .card-competitors, .card-community, .card-strategy, .card-launch-intel, .card-prompt { grid-column: span 2; }
       .card-market, .card-audience, .card-build, .card-ship { grid-column: span 2; }
+      .score-tiles { grid-template-columns: repeat(2, 1fr); }
       .card-market { grid-template-columns: 120px 1fr; gap: 20px; }
       .pulse-grid { grid-template-columns: 1fr; }
       .comp-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1417,12 +1407,12 @@
       .card-launch-intel { padding: 20px; }
       .card-prompt   { padding: 20px; }
 
-      /* ── Score card: switch to flexbox to bypass explicit grid-column on children ── */
-      .card-score { display: flex; flex-direction: column; text-align: center; gap: 20px; }
-      .score-left p { max-width: 100%; }
-      .score-stats { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 16px; }
-      .grade-ring { width: 150px; height: 150px; }
-      .grade-value { font-size: 88px; }
+      /* ── Score card mobile ── */
+      .score-top { flex-direction: column; text-align: center; gap: 20px; }
+      .score-tiles { grid-template-columns: repeat(2, 1fr); }
+      .grade-ring { width: 120px; height: 120px; }
+      .grade-value { font-size: 64px; }
+      #audience-body { grid-template-columns: 1fr; }
 
       /* ── Market card: stack meter above data ── */
       .card-market { grid-template-columns: 1fr; gap: 16px; }
@@ -1511,11 +1501,7 @@
     <main class="main-view">
 
       <div class="results-header">
-        <div class="results-idea-title" id="results-title">Analyzing your idea...</div>
-        <button class="share-link-btn" id="share-link-btn" onclick="shareResult()" title="Copy share link" style="display:none">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          <span class="share-toast" id="share-toast">Link copied</span>
-        </button>
+        <div class="results-idea-title" id="results-title">Analyzing your idea...<button class="share-link-btn" id="share-link-btn" onclick="shareResult()" title="Copy share link" style="display:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="share-toast" id="share-toast">Link copied</span></button></div>
       </div>
 
       <div class="status-bar" id="status-bar">
@@ -1526,27 +1512,44 @@
 
       <div class="dashboard-grid">
 
-        <!-- Overview (merged Score + Market) -->
+        <!-- Overview Scorecard -->
         <div class="section-card card-score" id="sec-score">
-          <div class="score-left">
-            <div class="section-header">Vibe Check Result</div>
-            <h2 id="score-headline">Analyzing...</h2>
-            <p id="score-summary"></p>
-            <div id="score-differentiators"></div>
-          </div>
-          <div class="score-visual">
-            <div class="grade-ring">
-              <div class="grade-value" id="grade-value">—</div>
+          <!-- Top: Grade + Verdict -->
+          <div class="score-top">
+            <div class="score-visual">
+              <div class="grade-ring">
+                <div class="grade-value" id="grade-value">—</div>
+              </div>
+              <div class="score-meta" id="score-meta"></div>
             </div>
-            <div class="score-meta" id="score-meta"></div>
+            <div class="score-verdict">
+              <div class="section-header">Vibe Check Result</div>
+              <p id="score-summary"></p>
+              <div id="score-differentiators"></div>
+            </div>
           </div>
-          <div class="score-stats" id="score-stats">
-            <div class="skel-block skeleton" style="height:60px"></div>
-            <div class="skel-block skeleton" style="height:60px"></div>
+          <!-- Bottom: 4 Stat Tiles -->
+          <div class="score-tiles" id="score-tiles">
+            <div class="stat-tile" id="tile-market-size">
+              <div class="tile-label">Market Size</div>
+              <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
+            </div>
+            <div class="stat-tile" id="tile-saturation">
+              <div class="tile-label">Saturation</div>
+              <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
+            </div>
+            <div class="stat-tile" id="tile-competition">
+              <div class="tile-label">Competition</div>
+              <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
+            </div>
+            <div class="stat-tile" id="tile-build-time">
+              <div class="tile-label">Build Time</div>
+              <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
+            </div>
           </div>
         </div>
 
-        <!-- Audience -->
+        <!-- Audience + Monetization -->
         <div class="section-card card-audience" id="sec-audience">
           <div class="section-header">Target Audience</div>
           <div id="audience-body">
@@ -1693,9 +1696,14 @@
         <li>13-step granular progress updates during analysis</li>
         <li>Competitor app store ratings shown when available</li>
         <li>Merged Overview + Market Signal into one consolidated section</li>
-        <li>Grade explanation: 3-5 sentences on WHY the idea got its score</li>
-        <li>Market size shown as visual chart (current vs projected)</li>
+        <li>Grade explanation: concise 1-2 sentence verdict on WHY the idea got its score</li>
         <li>Removed redundant numeric opportunity score</li>
+        <li>Share link icon now appears inline after the title — faint cyan, brightens on hover</li>
+        <li>Visual scorecard: 4 stat tiles — Market Size, Saturation, Competition, Build Time</li>
+        <li>Market dominance chart: shows top player share as donut visual</li>
+        <li>Build time tile with difficulty dots pulled from technical analysis</li>
+        <li>Target Audience redesigned as full-width 2-column layout with inline monetization</li>
+        <li>Removed redundant "Rapidly Growing Market" headline from overview</li>
       </ul>
     </div>
     <div class="changelog-entry">
@@ -1812,6 +1820,7 @@
   let _cachedOpp         = null;
   let _cachedTech        = null;
   let _cachedDeploy      = null;
+  let _cachedMarket      = null;
   let _cachedLaunchIntel = null;
 
   const _placeholderIdeas = [
@@ -2058,81 +2067,105 @@
     document.getElementById('grade-value').textContent = g;
     document.getElementById('grade-value').className = 'grade-value ' + gradeColor(g);
     document.getElementById('score-meta').textContent = humanize(opp.opportunity_type || '');
-    document.getElementById('score-headline').textContent = humanize(opp.trend || '') + ' Market';
-    // Use grade_explanation (new) or fall back to opportunity_summary (old)
+
+    // Verdict text (1-2 sentences)
     const explanation = (opp.grade_explanation || opp.opportunity_summary || '').replace(/\[\d+\]/g, '');
     document.getElementById('score-summary').textContent = explanation;
+
     // Grade ring fill
     const gradePct = { 'A+': 100, A: 95, 'A-': 90, 'B+': 85, B: 78, 'B-': 72, 'C+': 65, C: 58, 'C-': 52, 'D+': 45, D: 38, 'D-': 32, F: 15 };
     const pct = gradePct[g] || (opp.opportunity_score ? opp.opportunity_score * 10 : 50);
     document.querySelector('.grade-ring').style.setProperty('--ring-pct', pct);
 
-    // Market size visual
+    // --- Tile 1: Market Size ---
     const cur = opp.market_size_current;
     const proj = opp.market_size_projected;
-    let mktHTML = '';
-    if (cur && proj && cur.value && proj.value) {
-      // Extract numeric values for bar heights
-      const parseVal = (v) => parseFloat(v.replace(/[^0-9.]/g, '')) || 1;
+    const tileMkt = document.querySelector('#tile-market-size .tile-body');
+    if (tileMkt && cur && proj && cur.value && proj.value) {
+      const parseVal = (v) => parseFloat(String(v).replace(/[^0-9.]/g, '')) || 1;
       const curNum = parseVal(cur.value);
       const projNum = parseVal(proj.value);
       const maxNum = Math.max(curNum, projNum);
-      const curH = Math.round((curNum / maxNum) * 60);
-      const projH = Math.round((projNum / maxNum) * 60);
-      mktHTML = `
-        <div class="stat-row">
-          <label>Market Size</label>
-          <div class="mkt-size-chart">
-            <div class="mkt-bar current">
-              <div class="mkt-bar-fill" style="height:${curH}px">${cur.value}</div>
-              <div class="mkt-bar-year">${cur.year}</div>
-            </div>
-            <div class="mkt-bar projected">
-              <div class="mkt-bar-fill" style="height:${projH}px">${proj.value}</div>
-              <div class="mkt-bar-year">${proj.year}</div>
-            </div>
+      const curH = Math.max(20, Math.round((curNum / maxNum) * 52));
+      const projH = Math.max(20, Math.round((projNum / maxNum) * 52));
+      tileMkt.innerHTML = `
+        <div class="mkt-size-chart">
+          <div class="mkt-bar current">
+            <div class="mkt-bar-fill" style="height:${curH}px">${cur.value}</div>
+            <div class="mkt-bar-year">${cur.year}</div>
+          </div>
+          <div class="mkt-bar projected">
+            <div class="mkt-bar-fill" style="height:${projH}px">${proj.value}</div>
+            <div class="mkt-bar-year">${proj.year}</div>
           </div>
         </div>`;
-    } else if (opp.market_size) {
-      const cleanSize = (opp.market_size || '').replace(/\[\d+\]/g, '');
-      mktHTML = `
-        <div class="stat-row">
-          <label>Market Size</label>
-          <div class="value" style="font-size:14px;line-height:1.4;font-family:var(--font-body);font-weight:400">${cleanSize}</div>
-        </div>`;
+    } else if (tileMkt && opp.market_size) {
+      tileMkt.innerHTML = `<div style="font-size:13px;color:var(--text-muted);line-height:1.4">${(opp.market_size || '').replace(/\[\d+\]/g, '')}</div>`;
     }
 
-    // Saturation placeholder — renderMarket will fill this
-    document.getElementById('score-stats').innerHTML = `
-      ${mktHTML}
-      <div id="sat-compact-area"></div>
-    `;
+    // --- Tile 4: Build Time (from cached technical data) ---
+    const tileBuild = document.querySelector('#tile-build-time .tile-body');
+    if (_cachedTech) {
+      const timeStr = _cachedTech.time_estimates?.done_a_few || _cachedTech.time_estimates?.first_project || '';
+      // Extract just the time portion (e.g. "3-4 months")
+      const shortTime = timeStr.replace(/\s*(using|with|for).*$/i, '').trim();
+      const diffScore = _cachedTech.difficulty_score || 5;
+      const dots = Array.from({length: 5}, (_, i) =>
+        `<div class="build-dot${i < Math.round(diffScore / 2) ? ' filled' : ''}"></div>`
+      ).join('');
+      tileBuild.innerHTML = `
+        <div class="build-tile-value">${shortTime || '—'}</div>
+        <div class="build-tile-difficulty">${dots}<span style="font-size:10px;color:var(--text-muted);margin-left:6px;text-transform:uppercase;letter-spacing:0.5px">${humanize(_cachedTech.difficulty || '')}</span></div>`;
+    }
   }
 
   function renderMarket(d) {
     const sat = d.saturation_score || 0;
 
-    // Compact saturation meter in score-stats
-    const satArea = document.getElementById('sat-compact-area');
-    if (satArea) {
-      satArea.innerHTML = `
-        <div class="stat-row">
-          <label>Saturation</label>
-          <div class="sat-compact">
-            <div class="sat-compact-bar">
-              <div class="sat-compact-fill" style="width:0%"></div>
-            </div>
-            <span class="sat-compact-num">${sat}<span style="font-size:11px;color:var(--text-muted)">/10</span></span>
+    // --- Tile 2: Saturation ---
+    const tileSat = document.querySelector('#tile-saturation .tile-body');
+    if (tileSat) {
+      const satLabel = sat <= 3 ? 'Low' : sat <= 6 ? 'Moderate' : 'High';
+      tileSat.innerHTML = `
+        <div class="sat-tile-meter">
+          <div class="sat-tile-bar">
+            <div class="sat-tile-fill" style="width:0%"></div>
           </div>
-        </div>`;
-      // Animate fill
+          <span class="sat-tile-num">${sat}<span style="font-size:12px;color:var(--text-muted)">/10</span></span>
+        </div>
+        <div class="sat-tile-label">${satLabel} saturation</div>`;
       setTimeout(() => {
-        const fill = satArea.querySelector('.sat-compact-fill');
+        const fill = tileSat.querySelector('.sat-tile-fill');
         if (fill) fill.style.width = (sat * 10) + '%';
       }, 100);
     }
 
-    // Differentiator tags in score card
+    // --- Tile 3: Competition (market dominance) ---
+    const tileComp = document.querySelector('#tile-competition .tile-body');
+    if (tileComp) {
+      const concentration = d.market_concentration || 'moderate';
+      const topPlayer = d.top_player || {};
+      const share = topPlayer.share || 0;
+      const name = topPlayer.name || '';
+      const concLabel = { monopoly: 'Monopoly', top_heavy: 'Top Heavy', moderate: 'Moderate', fragmented: 'Fragmented' }[concentration] || humanize(concentration);
+      if (share > 0 && name) {
+        tileComp.innerHTML = `
+          <div class="comp-tile-row">
+            <div class="comp-donut" style="--comp-share:${share}"></div>
+            <div class="comp-tile-info">
+              <span class="comp-tile-share">${share}%</span>
+              <span class="comp-tile-name">${name}</span>
+              <span class="comp-tile-type">${concLabel}</span>
+            </div>
+          </div>`;
+      } else {
+        tileComp.innerHTML = `
+          <div style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text-main);text-transform:uppercase">${concLabel}</div>
+          <div class="comp-tile-type" style="margin-top:4px">${(d.competitors || []).length} competitors found</div>`;
+      }
+    }
+
+    // Differentiator tags in verdict area
     const diffs = (d.key_differentiators_needed || []).map(k => `<span class="diff-tag">${k}</span>`).join('');
     const diffEl = document.getElementById('score-differentiators');
     if (diffEl && diffs) {
@@ -2153,8 +2186,8 @@
 
     const monos = _cachedMode !== 'personal' ? (opp.monetization_strategies || []).slice(0, 2) : [];
     const monoHTML = monos.length ? `
-      <div class="mono-row">
-        <div class="section-header" style="margin-bottom:8px">Monetization</div>
+      <div class="audience-monetization">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px">Monetization</div>
         ${monos.map(m => `
           <div class="mono-item">
             <div class="mono-model">${m.model || ''}</div>
@@ -2164,7 +2197,10 @@
       </div>
     ` : '';
 
-    document.getElementById('audience-body').innerHTML = segsHTML + monoHTML;
+    document.getElementById('audience-body').innerHTML = `
+      <div class="audience-segments">${segsHTML}</div>
+      ${monoHTML}
+    `;
   }
 
   function renderCompetitors(d) {
@@ -2412,7 +2448,7 @@ ${promptClosing}`.trim();
 
     document.getElementById('landing').style.display = 'none';
     document.getElementById('results').style.display = 'block';
-    document.getElementById('results-title').textContent = 'Analyzing your idea...';
+    setResultsTitle('Analyzing your idea...');
     document.getElementById('status-bar').style.display = 'flex';
     document.getElementById('share-link-btn').style.display = 'none';
     document.getElementById('analyze-btn').disabled = true;
@@ -2427,6 +2463,7 @@ ${promptClosing}`.trim();
     _cachedOpp = null;
     _cachedTech = null;
     _cachedDeploy = null;
+    _cachedMarket = null;
 
     try {
       const response = await fetch('/api/analyze', {
@@ -2453,7 +2490,7 @@ ${promptClosing}`.trim();
             if (line.startsWith('data: '))  data  = line.slice(6);
           }
           if (!event || !data) continue;
-          try { handleEvent(event, JSON.parse(data), idea); } catch {}
+          try { handleEvent(event, JSON.parse(data), idea); } catch (e) { console.error(`[SSE] Error in ${event}:`, e); }
         }
       }
     } catch (err) {
@@ -2479,6 +2516,7 @@ ${promptClosing}`.trim();
         }
         break;
       case 'market':
+        _cachedMarket = data;
         renderMarket(data);
         renderCompetitors(data);
         break;
@@ -2489,9 +2527,9 @@ ${promptClosing}`.trim();
         break;
       case 'opportunity':
         _cachedOpp = data;
-        renderScore(data);
-        renderAudience(data);
-        renderStrategy(data);
+        try { renderScore(data); } catch (e) { console.error('renderScore error:', e); }
+        try { renderAudience(data); } catch (e) { console.error('renderAudience error:', e); }
+        try { renderStrategy(data); } catch (e) { console.error('renderStrategy error:', e); }
         _tryRenderPrompt();
         break;
       case 'deployment':
@@ -2511,7 +2549,7 @@ ${promptClosing}`.trim();
         currentResultId = data.resultId;
         document.getElementById('status-bar').style.display = 'none';
         document.getElementById('sec-score').classList.add('loaded');
-        document.getElementById('results-title').textContent = idea;
+        setResultsTitle(idea);
         document.getElementById('share-link-btn').style.display = '';
         if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
         break;
@@ -2526,19 +2564,19 @@ ${promptClosing}`.trim();
     document.getElementById('grade-value').textContent = '—';
     document.getElementById('grade-value').className = 'grade-value';
     document.getElementById('score-meta').textContent = '';
-    document.getElementById('score-headline').textContent = 'Analyzing...';
     _stopFakeProgress();
     _lastRealPct = 0;
     document.getElementById('status-progress').style.width = '0%';
     document.querySelector('.grade-ring').style.setProperty('--ring-pct', 0);
     document.getElementById('sec-score').classList.remove('loaded');
     document.getElementById('score-summary').textContent = '';
-    document.getElementById('score-stats').innerHTML = `
-      <div class="skel-block skeleton" style="height:60px"></div>
-      <div class="skel-block skeleton" style="height:60px"></div>
-      <div class="skel-block skeleton" style="height:60px"></div>
-    `;
     document.getElementById('score-differentiators').innerHTML = '';
+    document.getElementById('grade-value').textContent = '—';
+    document.getElementById('score-meta').textContent = '';
+    // Reset all 4 tiles
+    document.querySelectorAll('.stat-tile .tile-body').forEach(el => {
+      el.innerHTML = '<div class="skel-block skeleton" style="height:48px"></div>';
+    });
     document.getElementById('audience-body').innerHTML = `
       <div class="skeleton skel-block" style="height:48px"></div>
       <div class="skeleton skel-block" style="height:48px"></div>
@@ -2582,6 +2620,13 @@ ${promptClosing}`.trim();
   }
 
   // ── SHARE / LOAD ──────────────────────────────
+  function setResultsTitle(text) {
+    const el = document.getElementById('results-title');
+    const btn = document.getElementById('share-link-btn');
+    el.textContent = text;
+    el.appendChild(btn);
+  }
+
   function shareResult() {
     navigator.clipboard.writeText(window.location.href).then(() => {
       const el = document.getElementById('share-toast');
@@ -2600,8 +2645,10 @@ ${promptClosing}`.trim();
       if (!r.ok) throw new Error('Result not found or expired');
       const d = await r.json();
       _cachedMode = d.mode || 'market';
+      _cachedTech = d.technical;
+      _cachedMarket = d.market;
       applyModeLabels(_cachedMode);
-      document.getElementById('results-title').textContent = d.idea;
+      setResultsTitle(d.idea);
       renderMarket(d.market);
       renderCompetitors(d.market);
       renderScore(d.opportunity);
