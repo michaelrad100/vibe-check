@@ -1716,6 +1716,54 @@
   let navObserver          = null;
   let _selectedMode        = 'market';
   let _cachedMode          = 'market';
+
+  // ── FAKE MICRO-PROGRESS between real server events ──
+  // Adds ~1% every 1.5s so the bar never appears stuck
+  let _fakeProgressTimer = null;
+  let _lastRealPct = 0;
+  const _fakeMessages = [
+    'Cross-referencing market data...',
+    'Scanning industry trends...',
+    'Checking pricing models...',
+    'Evaluating competitive positioning...',
+    'Reviewing user acquisition channels...',
+    'Analyzing revenue potential...',
+    'Mapping feature landscapes...',
+    'Checking API availability...',
+    'Scanning developer communities...',
+    'Reviewing integration options...',
+    'Analyzing growth trajectories...',
+    'Evaluating market timing...',
+    'Checking regulatory landscape...',
+    'Reviewing similar launches...',
+    'Scanning for emerging competitors...',
+  ];
+  let _fakeMessageIndex = 0;
+
+  function _startFakeProgress(fromPct) {
+    _fakeMessageIndex = Math.floor(Math.random() * _fakeMessages.length);
+    _fakeProgressTimer = setInterval(() => {
+      const bar = document.getElementById('status-progress');
+      const current = parseFloat(bar.style.width) || fromPct;
+      // Creep forward but never exceed next real milestone (stay 2% below)
+      const maxCreep = _lastRealPct + 7;
+      if (current < maxCreep) {
+        bar.style.width = (current + 0.5) + '%';
+      }
+      // Rotate fake status messages every 2 ticks (~3s)
+      if (Math.random() < 0.5) {
+        _fakeMessageIndex = (_fakeMessageIndex + 1) % _fakeMessages.length;
+        document.getElementById('status-text').textContent = _fakeMessages[_fakeMessageIndex];
+      }
+    }, 1500);
+  }
+
+  function _stopFakeProgress() {
+    if (_fakeProgressTimer) {
+      clearInterval(_fakeProgressTimer);
+      _fakeProgressTimer = null;
+    }
+  }
   let _cachedIdea        = '';
   let _cachedOpp         = null;
   let _cachedTech        = null;
@@ -2339,7 +2387,15 @@ ${promptClosing}`.trim();
       case 'status':
         document.getElementById('status-text').textContent = data.message || '';
         const PHASE_PROGRESS = { market: 8, market_done: 16, technical: 24, technical_done: 32, opportunity: 40, opportunity_done: 48, deployment: 56, deployment_done: 64, sentiment_exa: 70, sentiment: 78, sentiment_done: 86, launch_intel: 93, launch_done: 100 };
-        document.getElementById('status-progress').style.width = (PHASE_PROGRESS[data.phase] || 0) + '%';
+        const serverPct = PHASE_PROGRESS[data.phase];
+        if (serverPct != null) {
+          _stopFakeProgress();
+          const bar = document.getElementById('status-progress');
+          bar.style.width = serverPct + '%';
+          _lastRealPct = serverPct;
+          // Start fake micro-progress between real events
+          if (serverPct < 100) _startFakeProgress(serverPct);
+        }
         break;
       case 'market':
         renderMarket(data);
@@ -2370,6 +2426,7 @@ ${promptClosing}`.trim();
         renderLaunchIntel(data);
         break;
       case 'complete':
+        _stopFakeProgress();
         currentResultId = data.resultId;
         document.getElementById('status-bar').style.display = 'none';
         document.getElementById('sec-score').classList.add('loaded');
@@ -2378,6 +2435,7 @@ ${promptClosing}`.trim();
         if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
         break;
       case 'error':
+        _stopFakeProgress();
         document.getElementById('status-text').textContent = 'Something went wrong: ' + (data.message || '');
         break;
     }
@@ -2388,6 +2446,8 @@ ${promptClosing}`.trim();
     document.getElementById('grade-value').className = 'grade-value';
     document.getElementById('score-meta').textContent = '';
     document.getElementById('score-headline').textContent = 'Analyzing...';
+    _stopFakeProgress();
+    _lastRealPct = 0;
     document.getElementById('status-progress').style.width = '0%';
     document.querySelector('.grade-ring').style.setProperty('--ring-pct', 0);
     document.getElementById('sec-score').classList.remove('loaded');
