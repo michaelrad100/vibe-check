@@ -638,15 +638,12 @@
       grid-column: span 12;
       background: linear-gradient(180deg, var(--bg-card) 0%, #0a0a0a 100%);
       padding: 32px 40px;
-      border-top: 2px solid var(--border);
+      border-top: none;
       scroll-margin-top: 24px;
       transition: border-color 0.2s ease;
     }
     .card-score:hover {
-      border-top-color: rgba(0,229,255,0.4);
-    }
-    .card-score.loaded {
-      border-top-color: var(--accent-cyan);
+      border-color: rgba(0,229,255,0.4);
     }
 
     /* Top row: grade ring + verdict */
@@ -729,18 +726,56 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .stat-tile:hover {
+      background: rgba(0,229,255,0.03);
     }
     .tile-label {
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .tile-body {
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
+    }
+    .tile-info-icon {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.15);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: rgba(255,255,255,0.25);
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .stat-tile:hover .tile-info-icon {
+      border-color: rgba(0,229,255,0.4);
+      color: rgba(0,229,255,0.5);
+    }
+    .tile-insight {
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+    .tile-insight.open {
+      display: block;
     }
 
     /* Market size tile: two bars */
@@ -1530,21 +1565,25 @@
           </div>
           <!-- Bottom: 4 Stat Tiles -->
           <div class="score-tiles" id="score-tiles">
-            <div class="stat-tile" id="tile-market-size">
-              <div class="tile-label">Market Size</div>
+            <div class="stat-tile" id="tile-market-size" onclick="toggleTileInsight(this)">
+              <div class="tile-label">Market Size <span class="tile-info-icon">i</span></div>
               <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
+              <div class="tile-insight" id="insight-market-size"></div>
             </div>
-            <div class="stat-tile" id="tile-saturation">
-              <div class="tile-label">Saturation</div>
+            <div class="stat-tile" id="tile-saturation" onclick="toggleTileInsight(this)">
+              <div class="tile-label">Saturation <span class="tile-info-icon">i</span></div>
               <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
+              <div class="tile-insight" id="insight-saturation"></div>
             </div>
-            <div class="stat-tile" id="tile-competition">
-              <div class="tile-label">Competition</div>
+            <div class="stat-tile" id="tile-competition" onclick="toggleTileInsight(this)">
+              <div class="tile-label">Competition <span class="tile-info-icon">i</span></div>
               <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
+              <div class="tile-insight" id="insight-competition"></div>
             </div>
-            <div class="stat-tile" id="tile-build-time">
-              <div class="tile-label">Build Time</div>
+            <div class="stat-tile" id="tile-build-time" onclick="toggleTileInsight(this)">
+              <div class="tile-label">Build Time <span class="tile-info-icon">i</span></div>
               <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
+              <div class="tile-insight" id="insight-build-time"></div>
             </div>
           </div>
         </div>
@@ -2062,6 +2101,76 @@
 
   // ── RENDERERS ─────────────────────────────────
 
+  function toggleTileInsight(tile) {
+    const insight = tile.querySelector('.tile-insight');
+    if (insight) insight.classList.toggle('open');
+  }
+
+  function populateTileInsights(opp, market, tech) {
+    // Market Size insight
+    const mktInsight = document.getElementById('insight-market-size');
+    if (mktInsight) {
+      const cur = opp?.market_size_current;
+      const proj = opp?.market_size_projected;
+      if (cur && proj && cur.value && proj.value) {
+        const parseVal = (v) => parseFloat(String(v).replace(/[^0-9.]/g, '')) || 0;
+        const curNum = parseVal(cur.value);
+        const projNum = parseVal(proj.value);
+        const years = (proj.year || 2033) - (cur.year || 2026);
+        const growth = curNum > 0 ? Math.round(((projNum - curNum) / curNum) * 100) : 0;
+        const direction = growth > 0 ? 'growing' : growth < 0 ? 'shrinking' : 'flat';
+        mktInsight.textContent = `Market is ${direction} ${Math.abs(growth)}% over ${years} years (${cur.value} → ${proj.value}). ${growth > 50 ? 'Strong tailwinds for new entrants.' : growth > 0 ? 'Steady growth supports a viable opportunity.' : 'Declining market — timing and differentiation are critical.'}`;
+      } else if (opp?.market_size) {
+        mktInsight.textContent = (opp.market_size || '').replace(/\[\d+\]/g, '');
+      }
+    }
+
+    // Saturation insight
+    const satInsight = document.getElementById('insight-saturation');
+    if (satInsight && market) {
+      const sat = market.saturation_score || 0;
+      const numComps = (market.competitors || []).length;
+      if (sat <= 3) {
+        satInsight.textContent = `Only ${numComps} notable competitors found. Low saturation means less competition but may also signal unproven demand — validate with real users early.`;
+      } else if (sat <= 6) {
+        satInsight.textContent = `${numComps} competitors in a moderately saturated space. There's room for a differentiated product, but you'll need a clear angle to stand out.`;
+      } else {
+        satInsight.textContent = `${numComps} competitors in a crowded market (${sat}/10). Winning here requires a strong differentiator or underserved niche — competing head-on is expensive.`;
+      }
+    }
+
+    // Competition insight
+    const compInsight = document.getElementById('insight-competition');
+    if (compInsight && market) {
+      const conc = market.market_concentration || 'moderate';
+      const top = market.top_player || {};
+      const concMessages = {
+        monopoly: `${top.name || 'The leader'} dominates with ~${top.share || 60}% share. Competing directly is risky — target an underserved segment or workflow they ignore.`,
+        top_heavy: `${top.name || 'The top player'} leads at ~${top.share || 40}% but the market isn't locked up. There's room to capture share by solving specific pain points better.`,
+        moderate: `No single player dominates. This is a competitive but open market — execution speed and product focus will determine winners.`,
+        fragmented: `No clear market leader — many small players competing. This signals opportunity to build the category-defining product.`
+      };
+      compInsight.textContent = concMessages[conc] || concMessages.moderate;
+    }
+
+    // Build Time insight
+    const buildInsight = document.getElementById('insight-build-time');
+    if (buildInsight && tech) {
+      const diff = tech.difficulty || 'intermediate';
+      const apis = (tech.required_apis || []).length;
+      const stack = tech.tech_stack || {};
+      const stackStr = [stack.frontend, stack.backend].filter(Boolean).join(' + ');
+      const diffMessages = {
+        no_code: `Achievable with no-code tools. Minimal technical barriers — focus on design and user experience.`,
+        beginner: `Straightforward build${stackStr ? ' with ' + stackStr : ''}. ${apis > 0 ? apis + ' API integration' + (apis > 1 ? 's' : '') + ' needed.' : 'No complex integrations required.'}`,
+        intermediate: `Moderate complexity${stackStr ? ' using ' + stackStr : ''}. ${apis > 0 ? 'Requires ' + apis + ' API integration' + (apis > 1 ? 's' : '') + '.' : ''} Plan for auth, data storage, and core UX before extras.`,
+        advanced: `Significant engineering effort${stackStr ? ' with ' + stackStr : ''}. ${apis > 0 ? apis + ' API integration' + (apis > 1 ? 's' : '') + ' required.' : ''} Consider starting with the hardest technical risk first.`,
+        expert: `High technical complexity${stackStr ? ' requiring ' + stackStr : ''}. ${apis > 0 ? apis + ' API integration' + (apis > 1 ? 's' : '') + ' needed.' : ''} This will take real engineering depth — consider co-founders or contractors for specialized work.`
+      };
+      buildInsight.textContent = diffMessages[diff] || diffMessages.intermediate;
+    }
+  }
+
   function renderScore(opp) {
     const g = opp.opportunity_grade || '?';
     document.getElementById('grade-value').textContent = g;
@@ -2117,6 +2226,9 @@
         <div class="build-tile-value">${shortTime || '—'}</div>
         <div class="build-tile-difficulty">${dots}<span style="font-size:10px;color:var(--text-muted);margin-left:6px;text-transform:uppercase;letter-spacing:0.5px">${humanize(_cachedTech.difficulty || '')}</span></div>`;
     }
+
+    // Populate tile insights with contextual data
+    populateTileInsights(opp, _cachedMarket, _cachedTech);
   }
 
   function renderMarket(d) {
