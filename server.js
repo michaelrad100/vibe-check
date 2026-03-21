@@ -180,7 +180,11 @@ Return JSON with this exact structure (no other text):
 
 Focus on what frustrates people about these tools: missing features, limitations, things that are broken or clunky. Also capture what they love and what they wish existed. This helps someone decide if building their own version is worth the effort.
 
-IMPORTANT: Only include quotes that are specifically about product experiences with real tools, NOT generic topic discussions. Pull from diverse sources — don't rely on just one or two platforms.
+IMPORTANT RULES:
+- Only include quotes that are specifically about product experiences with real tools, NOT generic topic discussions.
+- Pull from diverse sources — don't rely on just one or two platforms. Each insight should ideally come from a DIFFERENT source.
+- NEVER cite blog posts or marketing content from the competitors themselves. A competitor's own blog is not a valid community source. Prioritize independent user voices: app store reviews, Reddit threads, tweets, forum posts, G2/Capterra reviews, YouTube comments, etc.
+- No single source should appear more than twice across all 9 insights.
 
 Return JSON with this exact structure (no other text):
 {
@@ -209,7 +213,11 @@ ${competitorList}
 
 Find specific quotes where users discuss their experience with these competing products — what frustrates them, what they love, what they wish existed. Aim to include a variety of different competitors across your findings (ideally no single competitor mentioned more than twice).
 
-IMPORTANT: Only include quotes that are specifically about product experiences with real competing apps, NOT generic topic discussions. Pull from diverse sources — don't rely on just one or two platforms.
+IMPORTANT RULES:
+- Only include quotes that are specifically about product experiences with real competing apps, NOT generic topic discussions.
+- Pull from diverse sources — don't rely on just one or two platforms. Each insight should ideally come from a DIFFERENT source.
+- NEVER cite blog posts or marketing content from the competitors themselves. A competitor's own blog is not a valid community source. Prioritize independent user voices: app store reviews, Reddit threads, tweets, forum posts, G2/Capterra reviews, YouTube comments, etc.
+- No single source should appear more than twice across all 9 insights.
 
 Return JSON with this exact structure (no other text):
 {
