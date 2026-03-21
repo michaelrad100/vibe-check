@@ -638,7 +638,7 @@
       grid-column: span 12;
       background: linear-gradient(180deg, var(--bg-card) 0%, #0a0a0a 100%);
       padding: 32px 40px;
-      border-top: none;
+      border-top: 1px solid var(--border);
       scroll-margin-top: 24px;
       transition: border-color 0.2s ease;
     }
@@ -1429,7 +1429,9 @@
       .card-prompt   { padding: 20px; }
 
       /* ── Score card mobile ── */
-      .score-top { flex-direction: column; text-align: center; gap: 20px; }
+      .score-top { flex-direction: column; gap: 20px; }
+      .score-visual { align-items: center; }
+      .score-verdict { text-align: left; }
       .score-tiles { grid-template-columns: repeat(2, 1fr); }
       .grade-ring { width: 120px; height: 120px; }
       .grade-value { font-size: 64px; }
