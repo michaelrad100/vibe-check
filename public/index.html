@@ -17,9 +17,9 @@
       --accent-cyan-dim: rgba(0, 229, 255, 0.12);
       --accent-glow:     rgba(0, 229, 255, 0.08);
 
-      --green:  #34d399;
-      --yellow: #fbbf24;
-      --red:    #f87171;
+      --green:  #5eead4;
+      --yellow: #c4b5a0;
+      --red:    #c4b5a0;
 
       --text-main:  #e0e0e0;
       --text-muted: #888888;
@@ -848,8 +848,8 @@
     .strength-fill { height: 100%; background: var(--accent-cyan); transition: width 0.6s ease; }
     .sw-row { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
     .sw-tag { font-size: 12px; padding: 2px 6px; }
-    .sw-strength { background: rgba(52,211,153,0.1); color: var(--green); }
-    .sw-weakness { background: rgba(251,191,36,0.1); color: var(--yellow); }
+    .sw-strength { background: rgba(94,234,212,0.1); color: var(--green); }
+    .sw-weakness { background: rgba(196,181,160,0.1); color: var(--yellow); }
 
     /* ── Build card ── */
     .card-build {
@@ -912,10 +912,10 @@
       letter-spacing: 0.5px;
       white-space: nowrap;
     }
-    .rec-green  { color: var(--green);  border-color: rgba(52,211,153,0.3);  background: rgba(52,211,153,0.08); }
+    .rec-green  { color: var(--green);  border-color: rgba(94,234,212,0.3);  background: rgba(94,234,212,0.08); }
     .rec-cyan   { color: var(--accent-cyan); border-color: rgba(0,229,255,0.3); background: rgba(0,229,255,0.06); }
-    .rec-yellow { color: var(--yellow); border-color: rgba(251,191,36,0.3);  background: rgba(251,191,36,0.06); }
-    .rec-red    { color: var(--yellow); border-color: rgba(251,191,36,0.3);  background: rgba(251,191,36,0.06); }
+    .rec-yellow { color: var(--yellow); border-color: rgba(196,181,160,0.3);  background: rgba(196,181,160,0.06); }
+    .rec-red    { color: var(--yellow); border-color: rgba(196,181,160,0.3);  background: rgba(196,181,160,0.06); }
 
     /* ── Community Pulse card ── */
     .card-community {
@@ -1028,7 +1028,7 @@
       margin-bottom: 6px;
     }
     .strat-priority.high   { color: var(--accent-cyan); background: rgba(0,229,255,0.08); }
-    .strat-priority.medium { color: var(--yellow);  background: rgba(251,191,36,0.08); }
+    .strat-priority.medium { color: var(--yellow);  background: rgba(196,181,160,0.08); }
     .strat-priority.low    { color: var(--text-muted); background: rgba(255,255,255,0.04); }
 
     /* ── Launch Intel card ── */
@@ -1045,7 +1045,7 @@
     .fatal-flaw-box {
       border-left: 3px solid var(--yellow);
       padding: 16px 20px;
-      background: rgba(251,191,36,0.04);
+      background: rgba(196,181,160,0.04);
     }
     .fatal-flaw-label {
       font-family: var(--font-display);
@@ -1119,7 +1119,7 @@
       letter-spacing: 0.8px;
       padding: 1px 5px;
     }
-    .mvp-priority.must_have { color: var(--green); background: rgba(52,211,153,0.08); }
+    .mvp-priority.must_have { color: var(--green); background: rgba(94,234,212,0.08); }
     .mvp-priority.nice_to_have { color: var(--text-muted); background: rgba(255,255,255,0.04); }
     .mvp-feature-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
     @media (max-width: 1024px) {
@@ -1557,27 +1557,38 @@
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
-  <span class="version-badge" onclick="toggleChangelog(event)">v1.9</span>
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.11</span>
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
     <div class="changelog-entry">
-      <div class="changelog-version">v1.9 <span class="changelog-date">— Mar 21, 2026</span></div>
+      <div class="changelog-version">v1.11 <span class="changelog-date">— Mar 21, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Floating share button — faded until hover, always visible on results</li>
+        <li>Click-to-copy prompt with centered "Copied" toast</li>
+        <li>Section cards highlight with cyan border on hover</li>
+        <li>Expanded competitor discovery: G2, Capterra, AlternativeTo, Crunchbase, GitHub, and more</li>
+        <li>Community Pulse now pulls from 20+ sources including Twitter/X, Trustpilot, Discord, and LinkedIn</li>
+        <li>Community insights upgraded to 9 results: 3 pain points, 3 loved features, 3 wishes</li>
+        <li>Muted color palette: soft teal + warm sand replace bright green/yellow</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.10 <span class="changelog-date">— Mar 19, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Themed scrollable release notes popover</li>
+        <li>Tab key fills textarea with the sample idea for quick testing</li>
+        <li>"Start Analysis" button with wide letter-spacing</li>
+        <li>Supabase persistent storage for shareable results</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.9 <span class="changelog-date">— Mar 3, 2026</span></div>
       <ul class="changelog-list">
         <li>New tagline: "Is your idea worth building?"</li>
         <li>Rotating placeholder ideas — 25 unique examples on each page load</li>
         <li>Removed mode selector (Build to Market / Build for Myself)</li>
         <li>Horizontal scrollable nav bar on mobile replaces slide-out drawer</li>
         <li>Cleaner mobile layout with reduced padding and spacing</li>
-        <li>Themed scrollable release notes popover</li>
-        <li>Tab key fills textarea with the sample idea for quick testing</li>
-        <li>"Start Analysis" button with wide letter-spacing</li>
-        <li>Floating share button — faded until hover, always visible on results</li>
-        <li>Click-to-copy prompt with centered "Prompt Copied" toast</li>
-        <li>Section cards highlight with cyan border on hover</li>
-        <li>Supabase persistent storage for shareable results</li>
-        <li>Expanded competitor discovery: G2, Capterra, AlternativeTo, Crunchbase, GitHub, and more</li>
-        <li>Community Pulse now pulls from 20+ sources including Twitter/X, Trustpilot, Discord, and LinkedIn</li>
-        <li>Community insights upgraded to 9 results: 3 pain points, 3 loved features, 3 wishes</li>
       </ul>
     </div>
     <div class="changelog-entry">

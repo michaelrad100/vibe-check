@@ -78,8 +78,8 @@ Each SSE event triggers a `render*` function:
 --bg-deep:         #050505   /* Page background */
 --bg-surface:      #0f0f11   /* Sidebar */
 --bg-card:         #141416   /* Cards */
---green:           #34d399   /* Good/positive */
---yellow:          #fbbf24   /* Caution/medium */
+--green:           #5eead4   /* Good/positive — soft teal */
+--yellow:          #c4b5a0   /* Caution/medium — warm sand */
 --text-main:       #e0e0e0
 --text-muted:      #888888
 --border:          #262626
@@ -144,7 +144,7 @@ npm run dev          # node --watch server.js
 - If no changes ship for multiple days, the next push gets the next version number (e.g. v1.9 → v1.10)
 - **Always update release notes on every push** — bump the version badge and add/update the changelog entry in `index.html`
 - The version badge and changelog popover in `index.html` must always stay in sync with CLAUDE.md
-- Current version: **v1.9** (Mar 21, 2026)
+- Current version: **v1.11** (Mar 21, 2026)
 
 ---
 
