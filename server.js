@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { randomUUID } from 'crypto';
 import { createClient } from '@supabase/supabase-js';
+import Exa from 'exa-js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
@@ -27,6 +28,50 @@ const resultStore = new Map();
 
 const PERPLEXITY_KEY = process.env.PERPLEXITY_KEY;
 if (!PERPLEXITY_KEY) { console.error('PERPLEXITY_KEY env var is missing'); process.exit(1); }
+
+// ── EXA (optional — enriches community sentiment) ───
+const exa = process.env.EXA_API_KEY ? new Exa(process.env.EXA_API_KEY) : null;
+if (exa) {
+  console.log('Exa connected — community sentiment will use enriched search');
+} else {
+  console.log('Exa not configured — community sentiment will use Perplexity only');
+}
+
+async function exaSearch(idea, competitorNames = []) {
+  if (!exa) return null;
+  try {
+    const competitors = competitorNames.slice(0, 3).join(' OR ');
+    const queries = [
+      { query: `${idea} review complaints frustrations`, category: 'reddit' },
+      { query: `${competitors || idea} app review`, category: 'tweet' },
+      { query: `${competitors || idea} user review experience`, category: null },
+    ];
+
+    const results = await Promise.all(queries.map(async (q) => {
+      try {
+        const opts = {
+          numResults: 5,
+          type: 'auto',
+          text: true,
+          useAutoprompt: true,
+        };
+        if (q.category) opts.category = q.category;
+        const r = await exa.searchAndContents(q.query, opts);
+        return (r.results || []).map(item => ({
+          title: item.title,
+          url: item.url,
+          snippet: (item.text || '').slice(0, 500),
+          source: item.url,
+        }));
+      } catch { return []; }
+    }));
+
+    return results.flat();
+  } catch (err) {
+    console.warn('Exa search failed, falling back to Perplexity only:', err.message);
+    return null;
+  }
+}
 
 // ── PERPLEXITY CALL ─────────────────────────────
 async function callPerplexity(userMessage) {
@@ -184,13 +229,17 @@ Return JSON with this exact structure (no other text):
   ]
 }`,
 
-  sentiment: (idea, competitorNames = [], mode = 'market') => {
+  sentiment: (idea, competitorNames = [], mode = 'market', exaContext = null) => {
     const toolList = competitorNames.length > 0
       ? competitorNames.join(', ')
       : 'existing tools in this space';
 
+    const exaBlock = exaContext && exaContext.length > 0
+      ? `\n\nHere are real user discussions and reviews found across the web that you should use as source material. Extract genuine user quotes, pain points, loved features, and wishes from these:\n\n${exaContext.map((r, i) => `[${i+1}] ${r.title || 'Untitled'}\nURL: ${r.url}\n${r.snippet}\n`).join('\n')}\n\nUse the above sources as PRIMARY material. Supplement with your own web search to fill any gaps and ensure diversity.`
+      : '';
+
     if (mode === 'personal') {
-      return `Search Twitter/X, Threads, Bluesky, Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, App Store reviews, Play Store reviews, G2 reviews, Capterra reviews, Stack Overflow, Discord servers, Slack communities, YouTube comments, Indie Hackers, Quora, subreddit wikis, GitHub Issues on competing projects, Trustpilot, LinkedIn posts, and Google Trends for real user feedback about: ${toolList} — existing alternatives to "${idea}".
+      return `Search Twitter/X, Threads, Bluesky, Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, App Store reviews, Play Store reviews, G2 reviews, Capterra reviews, Stack Overflow, Discord servers, Slack communities, YouTube comments, Indie Hackers, Quora, subreddit wikis, GitHub Issues on competing projects, Trustpilot, LinkedIn posts, and Google Trends for real user feedback about: ${toolList} — existing alternatives to "${idea}".${exaBlock}
 
 Focus on what frustrates people about these tools: missing features, limitations, things that are broken or clunky. Also capture what they love and what they wish existed. This helps someone decide if building their own version is worth the effort.
 
@@ -214,10 +263,10 @@ Return JSON with this exact structure (no other text):
   ]
 }
 
-Include exactly 15 insights: 5 pain_point, 5 loved_feature, 5 wish. Quotes must be about real tools, not general topics.
+Include up to 15 insights: 5 pain_point, 5 loved_feature, 5 wish. If you cannot find 5 for a category, include as many as you can find (minimum 2 per category). Quotes must be about real tools, not general topics.
 
 SOURCE DIVERSITY RULES:
-- You MUST use at least 8 different sources across the 15 insights.
+- Aim for at least 6 different sources across the insights.
 - No single source may appear more than twice.
 - Prioritize in this order: (1) App Store / Play Store reviews, (2) Reddit threads, (3) Twitter/X posts, (4) G2 / Capterra / Trustpilot reviews, (5) Product Hunt comments, (6) Hacker News, (7) YouTube comments, (8) Indie Hackers / Quora / forums, (9) GitHub Issues, (10) Discord / Slack communities.
 - If you cannot find real quotes from a source, skip it — but do NOT fabricate quotes or attribute them to sources you didn't actually find them on.`;
@@ -227,7 +276,7 @@ SOURCE DIVERSITY RULES:
       ? `Focus specifically on these known competitors: ${toolList}. Search for real user comments, reviews, and discussions about these specific products.`
       : `Search for real user opinions about existing apps and products that are direct competitors to the idea.`;
 
-    return `Search Twitter/X, Threads, Bluesky, Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, App Store reviews, Play Store reviews, G2 reviews, Capterra reviews, Stack Overflow, Discord servers, Slack communities, YouTube comments, Indie Hackers, Quora, subreddit wikis, GitHub Issues on competing projects, Trustpilot, LinkedIn posts, and Google Trends for real user opinions about this product space: "${idea}"
+    return `Search Twitter/X, Threads, Bluesky, Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, App Store reviews, Play Store reviews, G2 reviews, Capterra reviews, Stack Overflow, Discord servers, Slack communities, YouTube comments, Indie Hackers, Quora, subreddit wikis, GitHub Issues on competing projects, Trustpilot, LinkedIn posts, and Google Trends for real user opinions about this product space: "${idea}"${exaBlock}
 
 ${competitorList}
 
@@ -253,10 +302,10 @@ Return JSON with this exact structure (no other text):
   ]
 }
 
-Include exactly 15 insights: 5 pain_point, 5 loved_feature, 5 wish. Quotes must be about real competing products, not general topics.
+Include up to 15 insights: 5 pain_point, 5 loved_feature, 5 wish. If you cannot find 5 for a category, include as many as you can find (minimum 2 per category). Quotes must be about real competing products, not general topics.
 
 SOURCE DIVERSITY RULES:
-- You MUST use at least 8 different sources across the 15 insights.
+- Aim for at least 6 different sources across the insights.
 - No single source may appear more than twice.
 - Prioritize in this order: (1) App Store / Play Store reviews, (2) Reddit threads, (3) Twitter/X posts, (4) G2 / Capterra / Trustpilot reviews, (5) Product Hunt comments, (6) Hacker News, (7) YouTube comments, (8) Indie Hackers / Quora / forums, (9) GitHub Issues, (10) Discord / Slack communities.
 - If you cannot find real quotes from a source, skip it — but do NOT fabricate quotes or attribute them to sources you didn't actually find them on.`;
@@ -328,7 +377,9 @@ app.post('/api/analyze', async (req, res) => {
     send('deployment', deployData);
 
     send('status', { phase: 'sentiment', message: mode === 'personal' ? 'Finding complaints about existing tools...' : 'Scanning community discussions...' });
-    const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea, competitorNames, mode)));
+    // Exa pre-search for richer community data (runs in parallel with status update)
+    const exaResults = await exaSearch(idea, competitorNames);
+    const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea, competitorNames, mode, exaResults)));
     send('sentiment', sentimentData);
 
     send('status', { phase: 'launch_intel', message: mode === 'personal' ? 'Mapping your first move...' : 'Building your launch playbook...' });

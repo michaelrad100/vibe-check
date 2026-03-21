@@ -1573,7 +1573,8 @@
         <li>Expanded competitor discovery: G2, Capterra, AlternativeTo, Crunchbase, GitHub, and more</li>
         <li>Community Pulse now pulls from 20+ sources including Twitter/X, Trustpilot, Discord, and LinkedIn</li>
         <li>Community insights expanded to 15 results: 5 pain points, 5 loved features, 5 wishes</li>
-        <li>Source diversity enforced: minimum 8 different sources, max 2 per source</li>
+        <li>Source diversity enforced: minimum 6 different sources, max 2 per source</li>
+        <li>Exa integration: pre-searches Reddit, Twitter/X, and review sites for richer community data</li>
         <li>Muted color palette: soft teal + warm sand for semantic indicators only</li>
         <li>Cyan-only UI: grades, stats, deploy pills, and highlights all use blue</li>
         <li>Top-pick deploy option highlighted with cyan gradient</li>
@@ -1954,9 +1955,9 @@
 
   function renderSentiment(d) {
     const insights = d.community_insights || [];
-    const pain = insights.filter(i => i.sentiment === 'pain_point').slice(0, 2);
-    const love = insights.filter(i => i.sentiment === 'loved_feature').slice(0, 2);
-    const wish = insights.filter(i => i.sentiment === 'wish').slice(0, 2);
+    const pain = insights.filter(i => i.sentiment === 'pain_point').slice(0, 5);
+    const love = insights.filter(i => i.sentiment === 'loved_feature').slice(0, 5);
+    const wish = insights.filter(i => i.sentiment === 'wish').slice(0, 5);
 
     function renderItems(items, cls) {
       if (!items.length) return '<p style="font-size:12px;color:var(--text-muted);padding:8px 0">No data found.</p>';
