@@ -198,7 +198,7 @@ IMPORTANT RULES:
 - Only include quotes that are specifically about product experiences with real tools, NOT generic topic discussions.
 - Pull from diverse sources — don't rely on just one or two platforms. Each insight should ideally come from a DIFFERENT source.
 - NEVER cite blog posts or marketing content from the competitors themselves. A competitor's own blog is not a valid community source. Prioritize independent user voices: app store reviews, Reddit threads, tweets, forum posts, G2/Capterra reviews, YouTube comments, etc.
-- No single source should appear more than twice across all 9 insights.
+- No single source should appear more than twice across all 15 insights.
 
 Return JSON with this exact structure (no other text):
 {
@@ -214,7 +214,13 @@ Return JSON with this exact structure (no other text):
   ]
 }
 
-Include exactly 9 insights: 3 pain_point, 3 loved_feature, 3 wish. Quotes must be about real tools, not general topics. Use a variety of different sources.`;
+Include exactly 15 insights: 5 pain_point, 5 loved_feature, 5 wish. Quotes must be about real tools, not general topics.
+
+SOURCE DIVERSITY RULES:
+- You MUST use at least 8 different sources across the 15 insights.
+- No single source may appear more than twice.
+- Prioritize in this order: (1) App Store / Play Store reviews, (2) Reddit threads, (3) Twitter/X posts, (4) G2 / Capterra / Trustpilot reviews, (5) Product Hunt comments, (6) Hacker News, (7) YouTube comments, (8) Indie Hackers / Quora / forums, (9) GitHub Issues, (10) Discord / Slack communities.
+- If you cannot find real quotes from a source, skip it — but do NOT fabricate quotes or attribute them to sources you didn't actually find them on.`;
     }
 
     const competitorList = competitorNames.length > 0
@@ -231,7 +237,7 @@ IMPORTANT RULES:
 - Only include quotes that are specifically about product experiences with real competing apps, NOT generic topic discussions.
 - Pull from diverse sources — don't rely on just one or two platforms. Each insight should ideally come from a DIFFERENT source.
 - NEVER cite blog posts or marketing content from the competitors themselves. A competitor's own blog is not a valid community source. Prioritize independent user voices: app store reviews, Reddit threads, tweets, forum posts, G2/Capterra reviews, YouTube comments, etc.
-- No single source should appear more than twice across all 9 insights.
+- No single source should appear more than twice across all 15 insights.
 
 Return JSON with this exact structure (no other text):
 {
@@ -247,7 +253,13 @@ Return JSON with this exact structure (no other text):
   ]
 }
 
-Include exactly 9 insights: 3 pain_point, 3 loved_feature, 3 wish. Quotes must be about real competing products, not general topics. Use a variety of different sources.`;
+Include exactly 15 insights: 5 pain_point, 5 loved_feature, 5 wish. Quotes must be about real competing products, not general topics.
+
+SOURCE DIVERSITY RULES:
+- You MUST use at least 8 different sources across the 15 insights.
+- No single source may appear more than twice.
+- Prioritize in this order: (1) App Store / Play Store reviews, (2) Reddit threads, (3) Twitter/X posts, (4) G2 / Capterra / Trustpilot reviews, (5) Product Hunt comments, (6) Hacker News, (7) YouTube comments, (8) Indie Hackers / Quora / forums, (9) GitHub Issues, (10) Discord / Slack communities.
+- If you cannot find real quotes from a source, skip it — but do NOT fabricate quotes or attribute them to sources you didn't actually find them on.`;
   },
 
   launchIntel: (idea, mode = 'market') => mode === 'personal'
