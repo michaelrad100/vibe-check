@@ -1142,8 +1142,27 @@
       cursor: pointer;
       transition: border-color 0.2s ease;
     }
+    .prompt-block { position: relative; }
     .prompt-block:hover { border-color: var(--accent-cyan); }
-    .prompt-block.copied { border-color: var(--green); }
+    .prompt-block.copied { border-color: var(--accent-cyan); }
+    .prompt-copied-toast {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,229,255,0.12);
+      color: var(--accent-cyan);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 8px 20px;
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .prompt-copied-toast.show { opacity: 1; }
 
     /* Floating share button */
     .share-fab {
@@ -1515,6 +1534,7 @@
           <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">Click the prompt below to copy it, then paste into Claude Code, Cursor, or any AI coding assistant to start building.</p>
           <div class="prompt-block" id="prompt-block" onclick="copyPrompt()">
             <div class="skeleton skel-block" style="height:160px"></div>
+            <div class="prompt-copied-toast" id="prompt-toast">Prompt Copied</div>
           </div>
         </div>
 
@@ -2035,11 +2055,14 @@ ${promptClosing}`.trim();
     if (!_promptText) return;
     navigator.clipboard.writeText(_promptText).then(() => {
       const block = document.getElementById('prompt-block');
+      const toast = document.getElementById('prompt-toast');
       if (block) {
         block.classList.add('copied');
-        const el = document.getElementById('copy-feedback');
-        if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
         setTimeout(() => block.classList.remove('copied'), 2000);
+      }
+      if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1800);
       }
     });
   }
