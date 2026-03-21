@@ -224,10 +224,12 @@ Return JSON with this exact structure (no other text):
 {
   "opportunity_grade": "A|B|C|D|F",
   "opportunity_score": 1-10,
-  "opportunity_summary": "One strong compelling sentence",
+  "grade_explanation": "3-5 sentences explaining WHY this idea received this grade",
   "opportunity_type": "blue_ocean|niche_product|competitive_market|emerging_market|saturated_market",
   "trend": "rapidly_growing|growing|stable|declining|emerging",
   "market_size": "One sentence with specific market size and growth rate data",
+  "market_size_current": { "value": "$X.XB", "year": 2026 },
+  "market_size_projected": { "value": "$X.XB", "year": 2033 },
   "target_audiences": [
     {"segment":"","size":"small|medium|large","willingness_to_pay":"low|medium|high"}
   ],
@@ -237,7 +239,12 @@ Return JSON with this exact structure (no other text):
   "improvement_suggestions": [
     {"suggestion":"","reasoning":"","priority":"high|medium|low","effort":"low|medium|high"}
   ]
-}`,
+}
+
+grade_explanation: 3-5 sentences explaining WHY this idea received this grade. Be specific: name the key challenges, concrete opportunities, competitive dynamics, and give a clear recommendation on whether and how to proceed. This should synthesize the most important findings — do not repeat generic market descriptions.
+market_size_current: the current market size as a short value string (e.g. "$1.55B") and year. Use real data.
+market_size_projected: the projected future market size and target year. Use real data.
+Do NOT include citation numbers like [1] or [2] in any text fields.`,
 
   deployment: (idea) => `Recommend deployment platforms for: "${idea}"
 

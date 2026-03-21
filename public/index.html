@@ -666,7 +666,10 @@
       margin-bottom: 12px;
       color: var(--text-main);
     }
-    .score-left p { color: var(--text-muted); max-width: 240px; font-size: 13px; line-height: 1.6; }
+    .score-left p { color: var(--text-muted); max-width: 380px; font-size: 14px; line-height: 1.6; }
+    #score-differentiators { margin-top: 16px; }
+    #score-differentiators .diff-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    #score-differentiators .diff-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; }
 
     .score-visual {
       grid-column: 2;
@@ -740,14 +743,72 @@
     .value-yellow{ color: var(--accent-cyan) !important; }
     .value-red   { color: var(--accent-cyan) !important; }
 
-    /* ── Market card ── */
-    .card-market {
-      grid-column: span 8;
-      padding: 28px;
-      display: grid;
-      grid-template-columns: 160px 1fr;
-      gap: 28px;
-      scroll-margin-top: 24px;
+    /* Market size mini chart */
+    .mkt-size-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 80px;
+      margin-top: 4px;
+    }
+    .mkt-bar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .mkt-bar-fill {
+      width: 100%;
+      border: 1px solid rgba(0,229,255,0.3);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 4px 2px;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+    .mkt-bar.current .mkt-bar-fill {
+      background: rgba(0,229,255,0.12);
+    }
+    .mkt-bar.projected .mkt-bar-fill {
+      background: transparent;
+      border-style: dashed;
+    }
+    .mkt-bar-year {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Compact saturation in score-stats */
+    .sat-compact {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .sat-compact-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .sat-compact-fill {
+      height: 100%;
+      background: var(--accent-cyan);
+      transition: width 0.8s ease;
+    }
+    .sat-compact-num {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      min-width: 36px;
     }
     /* Left column: vertical saturation meter */
     .market-visual-col {
@@ -1437,7 +1498,6 @@
       </a>
       <ul class="nav-menu" id="results-nav">
         <li class="nav-item active" onclick="jumpTo('sec-score')"><span class="nav-label">Overview</span></li>
-        <li class="nav-item" onclick="jumpTo('sec-market')"><span class="nav-label">Market Signal</span></li>
         <li class="nav-item" onclick="jumpTo('sec-competitors')"><span class="nav-label">Competitors</span></li>
         <li class="nav-item" onclick="jumpTo('sec-community')"><span class="nav-label">Community</span></li>
         <li class="nav-item" onclick="jumpTo('sec-strategy')"><span class="nav-label">How to Win</span></li>
@@ -1466,12 +1526,13 @@
 
       <div class="dashboard-grid">
 
-        <!-- Score -->
+        <!-- Overview (merged Score + Market) -->
         <div class="section-card card-score" id="sec-score">
           <div class="score-left">
             <div class="section-header">Vibe Check Result</div>
             <h2 id="score-headline">Analyzing...</h2>
             <p id="score-summary"></p>
+            <div id="score-differentiators"></div>
           </div>
           <div class="score-visual">
             <div class="grade-ring">
@@ -1482,27 +1543,6 @@
           <div class="score-stats" id="score-stats">
             <div class="skel-block skeleton" style="height:60px"></div>
             <div class="skel-block skeleton" style="height:60px"></div>
-            <div class="skel-block skeleton" style="height:60px"></div>
-          </div>
-        </div>
-
-        <!-- Market -->
-        <div class="section-card card-market" id="sec-market">
-          <div class="market-visual-col" id="market-visual">
-            <div class="market-status-label" id="market-condition">—</div>
-            <div class="market-status-sub">Market Status</div>
-            <div class="sat-meter" id="sat-meter">
-              <div class="sat-meter-fill" id="sat-meter-fill" style="height:0%"></div>
-            </div>
-            <div class="sat-score-row">
-              <span class="sat-score-num" id="sat-score-num">—</span>
-              <span class="sat-score-denom">/10</span>
-            </div>
-            <div class="sat-score-label">Saturation</div>
-          </div>
-          <div class="market-data-col" id="market-data">
-            <div class="data-point skeleton" style="height:60px"></div>
-            <div class="data-point skeleton" style="height:60px"></div>
           </div>
         </div>
 
@@ -1652,6 +1692,10 @@
         <li>100 unique sample ideas with no-repeat shuffle</li>
         <li>13-step granular progress updates during analysis</li>
         <li>Competitor app store ratings shown when available</li>
+        <li>Merged Overview + Market Signal into one consolidated section</li>
+        <li>Grade explanation: 3-5 sentences on WHY the idea got its score</li>
+        <li>Market size shown as visual chart (current vs projected)</li>
+        <li>Removed redundant numeric opportunity score</li>
       </ul>
     </div>
     <div class="changelog-entry">
@@ -1975,7 +2019,7 @@
 
   function setupNavObserver() {
     if (navObserver) navObserver.disconnect();
-    const sections = ['sec-score','sec-market','sec-competitors','sec-community','sec-strategy','sec-launch-intel','sec-build','sec-ship','sec-prompt'];
+    const sections = ['sec-score','sec-competitors','sec-community','sec-strategy','sec-launch-intel','sec-build','sec-ship','sec-prompt'];
     const navItems = document.querySelectorAll('.nav-item');
     navObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -2015,50 +2059,87 @@
     document.getElementById('grade-value').className = 'grade-value ' + gradeColor(g);
     document.getElementById('score-meta').textContent = humanize(opp.opportunity_type || '');
     document.getElementById('score-headline').textContent = humanize(opp.trend || '') + ' Market';
-    document.getElementById('score-summary').textContent = opp.opportunity_summary || '';
-    // Grade ring fill — maps letter grade to percentage of circle
+    // Use grade_explanation (new) or fall back to opportunity_summary (old)
+    const explanation = (opp.grade_explanation || opp.opportunity_summary || '').replace(/\[\d+\]/g, '');
+    document.getElementById('score-summary').textContent = explanation;
+    // Grade ring fill
     const gradePct = { 'A+': 100, A: 95, 'A-': 90, 'B+': 85, B: 78, 'B-': 72, 'C+': 65, C: 58, 'C-': 52, 'D+': 45, D: 38, 'D-': 32, F: 15 };
     const pct = gradePct[g] || (opp.opportunity_score ? opp.opportunity_score * 10 : 50);
     document.querySelector('.grade-ring').style.setProperty('--ring-pct', pct);
 
+    // Market size visual
+    const cur = opp.market_size_current;
+    const proj = opp.market_size_projected;
+    let mktHTML = '';
+    if (cur && proj && cur.value && proj.value) {
+      // Extract numeric values for bar heights
+      const parseVal = (v) => parseFloat(v.replace(/[^0-9.]/g, '')) || 1;
+      const curNum = parseVal(cur.value);
+      const projNum = parseVal(proj.value);
+      const maxNum = Math.max(curNum, projNum);
+      const curH = Math.round((curNum / maxNum) * 60);
+      const projH = Math.round((projNum / maxNum) * 60);
+      mktHTML = `
+        <div class="stat-row">
+          <label>Market Size</label>
+          <div class="mkt-size-chart">
+            <div class="mkt-bar current">
+              <div class="mkt-bar-fill" style="height:${curH}px">${cur.value}</div>
+              <div class="mkt-bar-year">${cur.year}</div>
+            </div>
+            <div class="mkt-bar projected">
+              <div class="mkt-bar-fill" style="height:${projH}px">${proj.value}</div>
+              <div class="mkt-bar-year">${proj.year}</div>
+            </div>
+          </div>
+        </div>`;
+    } else if (opp.market_size) {
+      const cleanSize = (opp.market_size || '').replace(/\[\d+\]/g, '');
+      mktHTML = `
+        <div class="stat-row">
+          <label>Market Size</label>
+          <div class="value" style="font-size:14px;line-height:1.4;font-family:var(--font-body);font-weight:400">${cleanSize}</div>
+        </div>`;
+    }
+
+    // Saturation placeholder — renderMarket will fill this
     document.getElementById('score-stats').innerHTML = `
-      <div class="stat-row">
-        <label>Opportunity Score</label>
-        <div class="value">${opp.opportunity_score || '—'}<span style="font-size:16px;color:var(--text-muted)">/10</span></div>
-      </div>
-      <div class="stat-row">
-        <label>Market Size</label>
-        <div class="value" style="font-size:16px;line-height:1.4">${opp.market_size || '—'}</div>
-      </div>
-      <div class="stat-row">
-        <label>Trend</label>
-        <div class="value ${gradeColor(g)}">${humanize(opp.trend || '')}</div>
-      </div>
+      ${mktHTML}
+      <div id="sat-compact-area"></div>
     `;
   }
 
   function renderMarket(d) {
     const sat = d.saturation_score || 0;
-    const existsLabel = humanize(d.exists || '');
 
-    // Left column: vertical meter
-    document.getElementById('market-condition').textContent = existsLabel;
-    document.getElementById('sat-score-num').textContent = sat;
-    // Animate fill height after a short delay so transition plays
-    setTimeout(() => {
-      const fill = document.getElementById('sat-meter-fill');
-      if (fill) fill.style.height = (sat * 10) + '%';
-    }, 100);
+    // Compact saturation meter in score-stats
+    const satArea = document.getElementById('sat-compact-area');
+    if (satArea) {
+      satArea.innerHTML = `
+        <div class="stat-row">
+          <label>Saturation</label>
+          <div class="sat-compact">
+            <div class="sat-compact-bar">
+              <div class="sat-compact-fill" style="width:0%"></div>
+            </div>
+            <span class="sat-compact-num">${sat}<span style="font-size:11px;color:var(--text-muted)">/10</span></span>
+          </div>
+        </div>`;
+      // Animate fill
+      setTimeout(() => {
+        const fill = satArea.querySelector('.sat-compact-fill');
+        if (fill) fill.style.width = (sat * 10) + '%';
+      }, 100);
+    }
 
-    // Right column: differentiators + consolidated summary (no Market Status repeat)
+    // Differentiator tags in score card
     const diffs = (d.key_differentiators_needed || []).map(k => `<span class="diff-tag">${k}</span>`).join('');
-    document.getElementById('market-data').innerHTML = `
-      <div class="data-point">
-        <p style="font-size:15px;color:var(--text-main);line-height:1.6;margin-bottom:12px">${d.market_summary || ''}</p>
-        ${diffs ? `<p style="margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted)">Differentiators Needed</p>
-        <div class="diff-tags">${diffs}</div>` : ''}
-      </div>
-    `;
+    const diffEl = document.getElementById('score-differentiators');
+    if (diffEl && diffs) {
+      diffEl.innerHTML = `
+        <div class="diff-label">Differentiators Needed</div>
+        <div class="diff-tags">${diffs}</div>`;
+    }
   }
 
   function renderAudience(opp) {
@@ -2457,14 +2538,7 @@ ${promptClosing}`.trim();
       <div class="skel-block skeleton" style="height:60px"></div>
       <div class="skel-block skeleton" style="height:60px"></div>
     `;
-    document.getElementById('market-condition').textContent = '—';
-    document.getElementById('sat-score-num').textContent = '—';
-    const mf = document.getElementById('sat-meter-fill');
-    if (mf) mf.style.height = '0%';
-    document.getElementById('market-data').innerHTML = `
-      <div class="data-point skeleton" style="height:80px"></div>
-      <div class="data-point skeleton" style="height:40px"></div>
-    `;
+    document.getElementById('score-differentiators').innerHTML = '';
     document.getElementById('audience-body').innerHTML = `
       <div class="skeleton skel-block" style="height:48px"></div>
       <div class="skeleton skel-block" style="height:48px"></div>
