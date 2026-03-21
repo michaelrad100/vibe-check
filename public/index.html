@@ -1139,62 +1139,35 @@
       white-space: pre-wrap;
       margin-bottom: 16px;
       min-height: 120px;
-    }
-    .prompt-copy-btn {
-      padding: 10px 24px;
-      background: var(--accent-cyan);
-      color: #000;
-      border: none;
-      font-family: var(--font-body);
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
       cursor: pointer;
-      transition: opacity 0.15s;
+      transition: border-color 0.2s ease;
     }
-    .prompt-copy-btn:hover { opacity: 0.85; }
-    .prompt-copy-btn:disabled { opacity: 0.5; cursor: default; }
+    .prompt-block:hover { border-color: var(--accent-cyan); }
+    .prompt-block.copied { border-color: var(--green); }
 
-    /* Action row */
-    .action-row {
+    /* Floating share button */
+    .share-fab {
       display: none;
-      align-items: center;
-      gap: 12px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
-      margin-top: 24px;
-      flex-wrap: wrap;
-    }
-    .action-row.visible { display: flex; }
-    .btn-secondary {
-      padding: 10px 20px;
-      background: transparent;
-      border: 1px solid var(--border-highlight);
-      color: var(--text-main);
-      font-family: var(--font-body);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .btn-secondary:hover { border-color: var(--text-muted); }
-    .btn-accent {
-      padding: 10px 20px;
-      background: transparent;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 28px;
+      background: var(--bg-card);
       border: 1px solid rgba(0,229,255,0.3);
       color: var(--accent-cyan);
       font-family: var(--font-body);
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      z-index: 400;
+      opacity: 0.35;
+      transition: opacity 0.25s ease;
     }
-    .btn-accent:hover { background: rgba(0,229,255,0.06); }
+    .share-fab:hover { opacity: 1; background: rgba(0,229,255,0.06); }
+    .share-fab.visible { display: block; }
 
     /* Copy toast */
     .copy-feedback {
@@ -1312,9 +1285,6 @@
       .pulse-grid { grid-template-columns: 1fr; }
       .launch-grid { grid-template-columns: 1fr; gap: 20px; }
 
-      /* ── Action row ── */
-      .action-row { flex-direction: column; gap: 10px; }
-      .btn-secondary, .btn-accent { width: 100%; text-align: center; }
 
       /* ── Version corner ── */
       .version-corner { bottom: 14px; right: 14px; }
@@ -1542,23 +1512,18 @@
             Build Your Prompt
             <span class="section-badge">Claude Code Ready</span>
           </div>
-          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">Copy this prompt into Claude Code, Cursor, or any AI coding assistant to start building your validated idea.</p>
-          <div class="prompt-block" id="prompt-block">
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">Click the prompt below to copy it, then paste into Claude Code, Cursor, or any AI coding assistant to start building.</p>
+          <div class="prompt-block" id="prompt-block" onclick="copyPrompt()">
             <div class="skeleton skel-block" style="height:160px"></div>
           </div>
-          <button class="prompt-copy-btn" id="prompt-copy-btn" onclick="copyPrompt()">Copy Prompt</button>
         </div>
 
       </div><!-- /dashboard-grid -->
-
-      <div class="action-row" id="action-row">
-        <button class="btn-secondary" onclick="goHome()">New Analysis</button>
-        <button class="btn-accent" onclick="shareResult()">Share Result</button>
-      </div>
-
     </main>
   </div>
 </section>
+
+<button class="share-fab" id="share-fab" onclick="shareResult()">Share Result</button>
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
@@ -1576,6 +1541,8 @@
         <li>Themed scrollable release notes popover</li>
         <li>Tab key fills textarea with the sample idea for quick testing</li>
         <li>"Start Analysis" button with wide letter-spacing</li>
+        <li>Floating share button — faded until hover, always visible on results</li>
+        <li>Click-to-copy prompt block replaces Copy Prompt button</li>
       </ul>
     </div>
     <div class="changelog-entry">
@@ -2062,15 +2029,18 @@ ${promptClosing}`.trim();
 
     const block = document.getElementById('prompt-block');
     if (block) block.textContent = _promptText;
-    const btn = document.getElementById('prompt-copy-btn');
-    if (btn) btn.disabled = false;
   }
 
   function copyPrompt() {
     if (!_promptText) return;
     navigator.clipboard.writeText(_promptText).then(() => {
-      const btn = document.getElementById('prompt-copy-btn');
-      if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy Prompt'; }, 2000); }
+      const block = document.getElementById('prompt-block');
+      if (block) {
+        block.classList.add('copied');
+        const el = document.getElementById('copy-feedback');
+        if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
+        setTimeout(() => block.classList.remove('copied'), 2000);
+      }
     });
   }
 
@@ -2083,7 +2053,7 @@ ${promptClosing}`.trim();
     document.getElementById('results').style.display = 'block';
     document.getElementById('results-title').textContent = 'Analyzing your idea...';
     document.getElementById('status-bar').style.display = 'flex';
-    document.getElementById('action-row').classList.remove('visible');
+    document.getElementById('share-fab').classList.remove('visible');
     document.getElementById('analyze-btn').disabled = true;
 
     _cachedMode = _selectedMode;
@@ -2169,7 +2139,7 @@ ${promptClosing}`.trim();
         currentResultId = data.resultId;
         document.getElementById('status-bar').style.display = 'none';
         document.getElementById('results-title').textContent = idea;
-        document.getElementById('action-row').classList.add('visible');
+        document.getElementById('share-fab').classList.add('visible');
         if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
         break;
       case 'error':
@@ -2237,8 +2207,6 @@ ${promptClosing}`.trim();
     document.getElementById('comp-count').textContent = '';
     const pb = document.getElementById('prompt-block');
     if (pb) pb.innerHTML = '<div class="skeleton skel-block" style="height:160px"></div>';
-    const cpb = document.getElementById('prompt-copy-btn');
-    if (cpb) cpb.disabled = true;
   }
 
   // ── SHARE / LOAD ──────────────────────────────
@@ -2273,7 +2241,7 @@ ${promptClosing}`.trim();
       if (d.launch_intel) renderLaunchIntel(d.launch_intel);
       renderPrompt(d.idea, d.opportunity, d.technical, d.deployment);
       document.getElementById('status-bar').style.display = 'none';
-      document.getElementById('action-row').classList.add('visible');
+      document.getElementById('share-fab').classList.add('visible');
       currentResultId = id;
       setupNavObserver();
     } catch (err) {
