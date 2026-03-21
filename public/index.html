@@ -237,16 +237,15 @@
     }
     .shuffle-btn:hover { opacity: 1; color: var(--accent-cyan); }
 
-    /* Empty idea toast */
+    /* Empty idea toast — anchored inside textarea */
     .idea-modal-overlay {
       display: none;
-      position: fixed;
+      position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.25);
-      z-index: 1000;
-      align-items: flex-start;
+      background: rgba(0,0,0,0.15);
+      z-index: 10;
+      align-items: center;
       justify-content: center;
-      padding-top: 20vh;
       animation: modalFadeIn 0.25s ease;
     }
     .idea-modal-overlay.show { display: flex; }
@@ -286,13 +285,13 @@
     .shuffle-nudge {
       display: none;
       position: absolute;
-      bottom: 10px;
-      right: 36px;
+      bottom: 17px;
+      right: 34px;
       color: rgba(0,229,255,0.35);
       animation: shuffleNudgeBounce 1.2s ease infinite;
       pointer-events: none;
-      font-size: 14px;
-      line-height: 14px;
+      font-size: 13px;
+      line-height: 1;
     }
     .shuffle-nudge.show { display: block; }
     @keyframes shuffleNudgeBounce { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
@@ -1549,6 +1548,12 @@
         <textarea id="idea-input" placeholder=""></textarea>
         <span class="shuffle-nudge" id="shuffle-nudge">→</span>
         <button class="shuffle-btn" onclick="shuffleIdea()" title="Try a random idea" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg></button>
+        <div class="idea-modal-overlay" id="idea-modal" onclick="dismissIdeaModal()">
+          <div class="idea-modal" onclick="event.stopPropagation()">
+            <button class="idea-modal-close" onclick="dismissIdeaModal()">&#x2715;</button>
+            <p>Describe your idea, or try a random one with the shuffle button.</p>
+          </div>
+        </div>
       </div>
       <p class="textarea-hint">More detail = sharper analysis. Include who it's for, the problem it solves, and any key features you have in mind.</p>
       <button class="cta-button" id="analyze-btn" onclick="analyze()">Start Analysis</button>
@@ -2908,12 +2913,6 @@ ${promptClosing}`.trim();
   })();
 </script>
 
-<div class="idea-modal-overlay" id="idea-modal" onclick="dismissIdeaModal()">
-  <div class="idea-modal" onclick="event.stopPropagation()">
-    <button class="idea-modal-close" onclick="dismissIdeaModal()">&#x2715;</button>
-    <p>Describe your idea above, or try a random one with the shuffle button.</p>
-  </div>
-</div>
 
 </body>
 </html>
