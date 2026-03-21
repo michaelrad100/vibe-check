@@ -41,19 +41,35 @@ async function exaSearch(idea, competitorNames = []) {
   if (!exa) { console.log('[Exa] Skipped — no API key configured'); return null; }
   console.log(`[Exa] Starting search for: "${idea.slice(0, 60)}..." with ${competitorNames.length} competitors`);
   try {
-    const competitors = competitorNames.slice(0, 3).join(' OR ');
+    const topCompetitors = competitorNames.slice(0, 4);
+    const competitorStr = topCompetitors.join(' OR ') || idea;
+
+    // Build diverse queries — spread across competitors and source types
     const queries = [
-      { query: `${idea} review complaints frustrations`, category: 'reddit' },
-      { query: `${competitors || idea} app review`, category: 'tweet' },
-      { query: `${competitors || idea} user review experience`, category: null },
+      // Reddit — complaints and reviews across competitors
+      { query: `${competitorStr} complaints frustrations problems`, category: 'reddit' },
+      { query: `${idea} recommendations alternatives`, category: 'reddit' },
+      // Twitter/X — real user opinions
+      { query: `${competitorStr} review experience`, category: 'tweet' },
+      // General web — app store reviews, G2, Trustpilot, blog reviews
+      { query: `${competitorStr} app store review user experience`, category: null },
+      { query: `${competitorStr} G2 review OR Trustpilot review OR Capterra review`, category: null },
     ];
+
+    // Add per-competitor queries if we have multiple (ensures diversity)
+    if (topCompetitors.length >= 2) {
+      // Query the 2nd and 3rd competitors specifically so results aren't dominated by #1
+      for (const comp of topCompetitors.slice(1, 3)) {
+        queries.push({ query: `"${comp}" review pros cons user feedback`, category: null });
+      }
+    }
 
     const results = await Promise.all(queries.map(async (q) => {
       try {
         const opts = {
-          numResults: 5,
+          numResults: 3,
           type: 'auto',
-          highlights: { maxCharacters: 4000 },
+          highlights: { maxCharacters: 3000 },
         };
         if (q.category) opts.category = q.category;
         const r = await exa.searchAndContents(q.query, opts);
@@ -248,8 +264,20 @@ Focus on what frustrates people about these tools: missing features, limitations
 IMPORTANT RULES:
 - Only include quotes that are specifically about product experiences with real tools, NOT generic topic discussions.
 - Pull from diverse sources — don't rely on just one or two platforms. Each insight should ideally come from a DIFFERENT source.
-- NEVER cite blog posts or marketing content from the competitors themselves. A competitor's own blog is not a valid community source. Prioritize independent user voices: app store reviews, Reddit threads, tweets, forum posts, G2/Capterra reviews, YouTube comments, etc.
-- No single source should appear more than twice across all 15 insights.
+- NEVER cite blog posts or marketing content from the competitors themselves.
+- No single source should appear more than twice across all insights.
+
+HONESTY RULES — CRITICAL:
+- NEVER fabricate quotes. If you cannot find a real quote, do not invent one.
+- NEVER attribute a quote to "YouTube comments" if it came from a video transcript or description — label it "YouTube transcript" or "YouTube video".
+- NEVER attribute a quote to a source you did not actually retrieve it from. If the URL is a blog post, say "blog review", not "App Store review".
+- If a source_url is provided, it MUST actually contain or closely paraphrase the quote. Do not link to unrelated pages.
+- It is better to return fewer high-quality, real quotes than to pad the list with fabricated ones.
+
+COMPETITOR DIVERSITY — CRITICAL:
+- Spread quotes across MULTIPLE different competitors. Do NOT let one competitor dominate.
+- No single competitor should appear more than 3 times across all insights.
+- If there are 4+ competitors, aim to reference at least 3 different ones.
 
 Return JSON with this exact structure (no other text):
 {
@@ -258,9 +286,9 @@ Return JSON with this exact structure (no other text):
       "quote": "Direct or close paraphrase of a real user comment about a specific existing tool",
       "sentiment": "pain_point|loved_feature|wish",
       "theme": "Short theme label (3-5 words)",
-      "source": "e.g. r/entrepreneur, Hacker News, App Store, G2, Twitter/X",
-      "source_url": "Direct URL to the post or thread if available, otherwise null",
-      "competitor_reference": "Name of the specific tool being discussed, or null"
+      "source": "e.g. r/personalfinance, App Store review, G2 review, Twitter/X, Trustpilot",
+      "source_url": "Direct URL to the actual post, review, or thread — or null if unavailable",
+      "competitor_reference": "Name of the specific tool being discussed"
     }
   ]
 }
@@ -268,10 +296,10 @@ Return JSON with this exact structure (no other text):
 Include up to 15 insights: 5 pain_point, 5 loved_feature, 5 wish. If you cannot find 5 for a category, include as many as you can find (minimum 2 per category). Quotes must be about real tools, not general topics.
 
 SOURCE DIVERSITY RULES:
-- Aim for at least 6 different sources across the insights.
-- No single source may appear more than twice.
-- Prioritize in this order: (1) App Store / Play Store reviews, (2) Reddit threads, (3) Twitter/X posts, (4) G2 / Capterra / Trustpilot reviews, (5) Product Hunt comments, (6) Hacker News, (7) YouTube comments, (8) Indie Hackers / Quora / forums, (9) GitHub Issues, (10) Discord / Slack communities.
-- If you cannot find real quotes from a source, skip it — but do NOT fabricate quotes or attribute them to sources you didn't actually find them on.`;
+- Aim for at least 5 different source types across the insights.
+- No single source type (e.g. "YouTube") should appear more than 3 times.
+- Prioritize: (1) App Store / Play Store reviews, (2) Reddit threads, (3) Twitter/X posts, (4) G2 / Capterra / Trustpilot reviews, (5) Product Hunt comments, (6) Hacker News, (7) YouTube comments (real comments only, not transcripts), (8) Indie Hackers / Quora / forums, (9) GitHub Issues.
+- If you cannot find real quotes from a source, skip it — do NOT fabricate.`;
     }
 
     const competitorList = competitorNames.length > 0
@@ -282,13 +310,25 @@ SOURCE DIVERSITY RULES:
 
 ${competitorList}
 
-Find specific quotes where users discuss their experience with these competing products — what frustrates them, what they love, what they wish existed. Aim to include a variety of different competitors across your findings (ideally no single competitor mentioned more than twice).
+Find specific quotes where users discuss their experience with these competing products — what frustrates them, what they love, what they wish existed.
 
 IMPORTANT RULES:
 - Only include quotes that are specifically about product experiences with real competing apps, NOT generic topic discussions.
 - Pull from diverse sources — don't rely on just one or two platforms. Each insight should ideally come from a DIFFERENT source.
-- NEVER cite blog posts or marketing content from the competitors themselves. A competitor's own blog is not a valid community source. Prioritize independent user voices: app store reviews, Reddit threads, tweets, forum posts, G2/Capterra reviews, YouTube comments, etc.
-- No single source should appear more than twice across all 15 insights.
+- NEVER cite blog posts or marketing content from the competitors themselves.
+- No single source should appear more than twice across all insights.
+
+HONESTY RULES — CRITICAL:
+- NEVER fabricate quotes. If you cannot find a real quote, do not invent one.
+- NEVER attribute a quote to "YouTube comments" if it came from a video transcript or description — label it "YouTube transcript" or "YouTube video".
+- NEVER attribute a quote to a source you did not actually retrieve it from. If the URL is a blog post, say "blog review", not "App Store review".
+- If a source_url is provided, it MUST actually contain or closely paraphrase the quote. Do not link to unrelated pages.
+- It is better to return fewer high-quality, real quotes than to pad the list with fabricated ones.
+
+COMPETITOR DIVERSITY — CRITICAL:
+- Spread quotes across MULTIPLE different competitors. Do NOT let one competitor dominate.
+- No single competitor should appear more than 3 times across all insights.
+- If there are 4+ competitors, aim to reference at least 3 different ones.
 
 Return JSON with this exact structure (no other text):
 {
@@ -297,9 +337,9 @@ Return JSON with this exact structure (no other text):
       "quote": "Direct or close paraphrase of a real user comment about a specific competing product",
       "sentiment": "pain_point|loved_feature|wish",
       "theme": "Short theme label (3-5 words)",
-      "source": "e.g. r/entrepreneur, Hacker News, App Store, G2, Twitter/X",
-      "source_url": "Direct URL to the post or thread if available, otherwise null",
-      "competitor_reference": "Name of the specific competitor app being discussed, or null if this is a general observation about the space"
+      "source": "e.g. r/personalfinance, App Store review, G2 review, Twitter/X, Trustpilot",
+      "source_url": "Direct URL to the actual post, review, or thread — or null if unavailable",
+      "competitor_reference": "Name of the specific competitor being discussed"
     }
   ]
 }
@@ -307,10 +347,10 @@ Return JSON with this exact structure (no other text):
 Include up to 15 insights: 5 pain_point, 5 loved_feature, 5 wish. If you cannot find 5 for a category, include as many as you can find (minimum 2 per category). Quotes must be about real competing products, not general topics.
 
 SOURCE DIVERSITY RULES:
-- Aim for at least 6 different sources across the insights.
-- No single source may appear more than twice.
-- Prioritize in this order: (1) App Store / Play Store reviews, (2) Reddit threads, (3) Twitter/X posts, (4) G2 / Capterra / Trustpilot reviews, (5) Product Hunt comments, (6) Hacker News, (7) YouTube comments, (8) Indie Hackers / Quora / forums, (9) GitHub Issues, (10) Discord / Slack communities.
-- If you cannot find real quotes from a source, skip it — but do NOT fabricate quotes or attribute them to sources you didn't actually find them on.`;
+- Aim for at least 5 different source types across the insights.
+- No single source type (e.g. "YouTube") should appear more than 3 times.
+- Prioritize: (1) App Store / Play Store reviews, (2) Reddit threads, (3) Twitter/X posts, (4) G2 / Capterra / Trustpilot reviews, (5) Product Hunt comments, (6) Hacker News, (7) YouTube comments (real comments only, not transcripts), (8) Indie Hackers / Quora / forums, (9) GitHub Issues.
+- If you cannot find real quotes from a source, skip it — do NOT fabricate.`;
   },
 
   launchIntel: (idea, mode = 'market') => mode === 'personal'
