@@ -589,8 +589,15 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       align-items: center;
-      border-top: 2px solid var(--accent-cyan);
+      border-top: 2px solid var(--border);
       scroll-margin-top: 24px;
+      transition: border-color 0.2s ease;
+    }
+    .card-score:hover {
+      border-top-color: rgba(0,229,255,0.4);
+    }
+    .card-score.loaded {
+      border-top-color: var(--accent-cyan);
     }
     .score-left { grid-column: 1; }
     .score-left h2 {
@@ -854,6 +861,7 @@
     }
     .comp-name { font-family: var(--font-display); font-size: 22px; text-transform: uppercase; margin-bottom: 8px; color: var(--text-main); text-decoration: none; display: block; transition: color 0.2s ease; }
     a.comp-name:hover { color: var(--accent-cyan); }
+    .comp-rating { font-size: 12px; color: var(--accent-cyan); margin-bottom: 6px; font-weight: 600; letter-spacing: 0.5px; }
     .comp-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; }
     .comp-meta { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 4px; }
     .comp-meta span:first-child { text-transform: uppercase; letter-spacing: 0.5px; }
@@ -1826,6 +1834,8 @@
     const gradePct = { 'A+': 100, A: 95, 'A-': 90, 'B+': 85, B: 78, 'B-': 72, 'C+': 65, C: 58, 'C-': 52, 'D+': 45, D: 38, 'D-': 32, F: 15 };
     const pct = gradePct[g] || (opp.opportunity_score ? opp.opportunity_score * 10 : 50);
     document.querySelector('.grade-ring').style.setProperty('--ring-pct', pct);
+    // Light up the score card top border
+    document.getElementById('sec-score').classList.add('loaded');
 
     document.getElementById('score-stats').innerHTML = `
       <div class="stat-row">
@@ -1909,9 +1919,13 @@
       const nameEl = c.url
         ? `<a class="comp-name" href="${c.url.startsWith('http') ? c.url : 'https://'+c.url}" target="_blank" rel="noopener">${c.name || ''}</a>`
         : `<div class="comp-name">${c.name || ''}</div>`;
+      const ratingEl = c.app_store_rating
+        ? `<div class="comp-rating">★ ${c.app_store_rating}</div>`
+        : '';
       return `
         <div class="comp-tile">
           ${nameEl}
+          ${ratingEl}
           ${c.description ? `<div class="comp-desc">${c.description}</div>` : ''}
           <div class="comp-meta">
             <span>Market Share</span>
@@ -2239,6 +2253,7 @@ ${promptClosing}`.trim();
     document.getElementById('score-headline').textContent = 'Analyzing...';
     document.getElementById('status-progress').style.width = '0%';
     document.querySelector('.grade-ring').style.setProperty('--ring-pct', 0);
+    document.getElementById('sec-score').classList.remove('loaded');
     document.getElementById('score-summary').textContent = '';
     document.getElementById('score-stats').innerHTML = `
       <div class="skel-block skeleton" style="height:60px"></div>

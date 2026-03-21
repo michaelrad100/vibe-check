@@ -139,11 +139,12 @@ Return JSON with this exact structure (no other text):
   "saturation_score": 1-10,
   "market_summary": "2-3 sentences on how well existing tools cover this personal need. Be direct about the gaps.",
   "competitors": [
-    {"name":"","url":"","description":"","pricing":"","strengths":["",""],"weaknesses":["",""]}
+    {"name":"","url":"","description":"","pricing":"","strengths":["",""],"weaknesses":["",""],"app_store_rating":null}
   ],
   "key_differentiators_needed": ["gap1","gap2","gap3"]
 }
 
+app_store_rating = the competitor's rating on the App Store or Play Store (e.g. 4.7) if it has a mobile app, otherwise null. Only include real ratings you can verify — do not guess.
 saturation_score = coverage score: 10 means existing tools fully cover this need (little reason to build your own); 1 means nothing good exists (strong reason to build).
 key_differentiators_needed = specific things missing from existing alternatives that would justify building your own.
 Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find alternatives. Include 3-6 real alternatives with actual URLs. Be specific about their limitations.
@@ -162,11 +163,12 @@ Return JSON with this exact structure (no other text):
   "saturation_score": 1-10,
   "market_summary": "2-3 sentence market overview with specific data points",
   "competitors": [
-    {"name":"","url":"","description":"","pricing":"","strengths":["",""],"weaknesses":["",""]}
+    {"name":"","url":"","description":"","pricing":"","strengths":["",""],"weaknesses":["",""],"app_store_rating":null}
   ],
   "key_differentiators_needed": ["differentiator1","differentiator2","differentiator3"]
 }
 
+app_store_rating = the competitor's rating on the App Store or Play Store (e.g. 4.7) if it has a mobile app, otherwise null. Only include real ratings you can verify — do not guess.
 Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find competitors. Include 4-6 real competitors with actual URLs. Be specific and data-driven.
 
 CRITICAL — Competitor relevance rules:
