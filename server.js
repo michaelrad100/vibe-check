@@ -151,7 +151,8 @@ saturation_score = coverage score: 10 means existing tools fully cover this need
 key_differentiators_needed = specific things missing from existing alternatives that would justify building your own.
 market_concentration: monopoly = one player owns 60%+; top_heavy = top 3 own 70%+; moderate = competitive with some leaders; fragmented = no clear winner.
 top_player: the single largest competitor and their estimated market share percentage. Use your best estimate based on available data.
-Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find alternatives. Include 3-6 real alternatives with actual URLs. Be specific about their limitations.
+Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, App Store editorial lists, and Google Search results to find alternatives. Include 3-6 real alternatives with actual URLs. Be specific about their limitations.
+IMPORTANT: Search the iOS App Store and Google Play Store directly — many strong alternatives are mobile-first apps that won't appear on G2 or Capterra. For ideas involving journaling, mental health, personal tracking, or self-improvement, make sure to check apps like Reflection, Day One, Journey, Stoic, Rosebud, and similar.
 
 CRITICAL — Competitor relevance rules:
 - Every competitor MUST solve the same core problem for the same type of user. Match on use case and target audience, not just shared keywords.
@@ -177,7 +178,8 @@ Return JSON with this exact structure (no other text):
 app_store_rating = the competitor's rating on the App Store or Play Store (e.g. 4.7) if it has a mobile app, otherwise null. Only include real ratings you can verify — do not guess.
 market_concentration: monopoly = one player owns 60%+; top_heavy = top 3 own 70%+; moderate = competitive with some leaders; fragmented = no clear winner.
 top_player: the single largest competitor and their estimated market share percentage. Use your best estimate based on available data.
-Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find competitors. Include 4-6 real competitors with actual URLs. Be specific and data-driven.
+Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, App Store editorial lists, and Google Search results to find competitors. Include 4-6 real competitors with actual URLs. Be specific and data-driven.
+IMPORTANT: Search the iOS App Store and Google Play Store directly — many strong competitors are mobile-first apps that won't appear on G2 or Capterra. For ideas involving journaling, mental health, personal tracking, or self-improvement, make sure to check apps like Reflection, Day One, Journey, Stoic, Rosebud, and similar.
 
 CRITICAL — Competitor relevance rules:
 - Every competitor MUST solve the same core problem for the same type of user. Match on use case and target audience, not just shared keywords.
