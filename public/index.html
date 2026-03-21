@@ -1857,8 +1857,6 @@
     const gradePct = { 'A+': 100, A: 95, 'A-': 90, 'B+': 85, B: 78, 'B-': 72, 'C+': 65, C: 58, 'C-': 52, 'D+': 45, D: 38, 'D-': 32, F: 15 };
     const pct = gradePct[g] || (opp.opportunity_score ? opp.opportunity_score * 10 : 50);
     document.querySelector('.grade-ring').style.setProperty('--ring-pct', pct);
-    // Light up the score card top border
-    document.getElementById('sec-score').classList.add('loaded');
 
     document.getElementById('score-stats').innerHTML = `
       <div class="stat-row">
@@ -2259,6 +2257,7 @@ ${promptClosing}`.trim();
       case 'complete':
         currentResultId = data.resultId;
         document.getElementById('status-bar').style.display = 'none';
+        document.getElementById('sec-score').classList.add('loaded');
         document.getElementById('results-title').textContent = idea;
         document.getElementById('share-fab').classList.add('visible');
         if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
@@ -2366,6 +2365,7 @@ ${promptClosing}`.trim();
       renderPrompt(d.idea, d.opportunity, d.technical, d.deployment);
       document.getElementById('status-bar').style.display = 'none';
       document.getElementById('share-fab').classList.add('visible');
+      document.getElementById('sec-score').classList.add('loaded');
       currentResultId = id;
       setupNavObserver();
     } catch (err) {
