@@ -569,6 +569,15 @@
       letter-spacing: -0.5px;
       color: var(--text-main);
       margin-bottom: 0;
+      cursor: pointer;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .results-idea-title.expanded {
+      -webkit-line-clamp: unset;
+      overflow: visible;
     }
     .share-link-btn {
       background: none;
@@ -1766,38 +1775,14 @@
     <div class="changelog-entry">
       <div class="changelog-version">v1.11 <span class="changelog-date">— Mar 21, 2026</span></div>
       <ul class="changelog-list">
-        <li>Floating share button — faded until hover, always visible on results</li>
-        <li>Click-to-copy prompt with centered "Copied" toast</li>
-        <li>Section cards highlight with cyan border on hover</li>
-        <li>Expanded competitor discovery: G2, Capterra, AlternativeTo, Crunchbase, GitHub, and more</li>
-        <li>Community Pulse now pulls from 20+ sources including Twitter/X, Trustpilot, Discord, and LinkedIn</li>
-        <li>Community insights expanded to 15 results: 5 pain points, 5 loved features, 5 wishes</li>
-        <li>Source diversity enforced: minimum 6 different sources, max 2 per source</li>
-        <li>Exa integration: pre-searches Reddit, Twitter/X, and review sites for richer community data</li>
-        <li>Dynamic progress headlines: score card shows what's happening at each analysis step</li>
-        <li>Muted color palette: soft teal + warm sand for semantic indicators only</li>
-        <li>Cyan-only UI: grades, stats, deploy pills, and highlights all use blue</li>
-        <li>Top-pick deploy option highlighted with cyan gradient</li>
-        <li>Community Pulse: no longer pulls from competitor blogs, diverse sources enforced</li>
-        <li>Smarter competitor matching: filters by actual use case and audience, not just keywords</li>
-        <li>Progress bar tracks analysis phases in real time</li>
-        <li>Grade ring fills proportionally to the score</li>
-        <li>Community Pulse quality filter: only specific, actionable insights shown</li>
-        <li>App Store / Play Store reviews prioritized in community search</li>
-        <li>Grade ring starts at 12 o'clock, fills clockwise proportionally</li>
-        <li>Sticky title header with inline share link icon</li>
-        <li>100 unique sample ideas with no-repeat shuffle</li>
-        <li>13-step granular progress updates during analysis</li>
-        <li>Competitor app store ratings shown when available</li>
-        <li>Merged Overview + Market Signal into one consolidated section</li>
-        <li>Grade explanation: concise 1-2 sentence verdict on WHY the idea got its score</li>
-        <li>Removed redundant numeric opportunity score</li>
-        <li>Share link icon now appears inline after the title — faint cyan, brightens on hover</li>
-        <li>Visual scorecard: 4 stat tiles — Market Size, Saturation, Competition, Build Time</li>
-        <li>Market dominance chart: shows top player share as donut visual</li>
-        <li>Build time tile with difficulty dots pulled from technical analysis</li>
-        <li>Target Audience redesigned as full-width 2-column layout with inline monetization</li>
-        <li>Removed redundant "Rapidly Growing Market" headline from overview</li>
+        <li>Visual scorecard: overview redesigned with 4 stat tiles (Market Size, Saturation, Competition, Build Time) — click any tile for contextual insights</li>
+        <li>Market dominance donut shows top player share and market concentration</li>
+        <li>Exa integration: community data enriched via Reddit, Twitter/X, app stores, and review sites</li>
+        <li>Smarter competitor matching with app store ratings and relevance filtering</li>
+        <li>Real-time progress bar with 13-step granular status updates</li>
+        <li>Sticky header with inline share link and 100 no-repeat sample ideas</li>
+        <li>Cyan-only design system with section hover highlights</li>
+        <li>Favicon added</li>
       </ul>
     </div>
     <div class="changelog-entry">
@@ -2111,13 +2096,11 @@
   }
 
   function _tryRenderPrompt() {
-    console.log('[Prompt] tryRender — idea:', !!_cachedIdea, 'opp:', !!_cachedOpp, 'tech:', !!_cachedTech, 'deploy:', !!_cachedDeploy);
     // Render prompt as soon as we have idea + opp + tech (deploy is optional)
     if (_cachedIdea && _cachedOpp && _cachedTech) {
       const deploy = _cachedDeploy || { primary_recommendation: 'web_app', deployment_options: [] };
       try {
         renderPrompt(_cachedIdea, _cachedOpp, _cachedTech, deploy);
-        console.log('[Prompt] rendered successfully');
       } catch (e) {
         console.error('[Prompt] renderPrompt error:', e);
         const pre = document.getElementById('prompt-text');
@@ -2697,7 +2680,6 @@ ${promptClosing}`.trim();
           }
           const data = dataLines.join('');
           if (!event || !data) continue;
-          console.log(`[SSE] event: ${event}, data length: ${data.length}`);
           try { handleEvent(event, JSON.parse(data), idea); } catch (e) { console.error(`[SSE] Error in ${event}:`, e); }
         }
       }
@@ -2905,6 +2887,24 @@ ${promptClosing}`.trim();
   document.querySelectorAll('.stat-tile').forEach(tile => {
     tile.addEventListener('click', () => toggleTileInsight());
   });
+
+  // ── TITLE EXPAND / COLLAPSE ─────────────────
+  (function() {
+    const title = document.getElementById('results-title');
+    title.addEventListener('click', (e) => {
+      // Don't toggle if clicking the share button
+      if (e.target.closest('.share-link-btn')) return;
+      title.classList.toggle('expanded');
+    });
+    // Collapse on scroll
+    window.addEventListener('scroll', () => {
+      if (title.classList.contains('expanded')) title.classList.remove('expanded');
+    }, { passive: true });
+    // Collapse on click outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.results-idea-title')) title.classList.remove('expanded');
+    });
+  })();
 
   // ── INIT ──────────────────────────────────────
   (function init() {

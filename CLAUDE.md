@@ -120,12 +120,13 @@ Each SSE event triggers a `render*` function:
 ---
 
 ## Sidebar Nav Order
-1. Overview (merged — covers grade + market size + saturation)
+1. Overview (visual scorecard: grade + 4 stat tiles)
 2. Competitors
 3. Community
 4. How to Win
-5. Build + Ship
-6. Build Your Prompt
+5. Launch Intel
+6. Build + Ship
+7. Build Your Prompt
 
 ---
 
@@ -222,4 +223,3 @@ npm run dev          # node --watch server.js
 - **User auth** — login so users can save/revisit their analyses
 - **Pay-per-report** — Stripe integration for monetization
 - **Skill level selector** — currently hardcoded to `done_a_few` in the frontend `analyze()` call; the server supports `first_project | done_a_few | build_regularly`
-- **Build Your Prompt intermittent loading** — occasionally doesn't finish rendering; likely intermittent Perplexity API timeout, needs monitoring
