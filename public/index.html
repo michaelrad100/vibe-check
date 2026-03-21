@@ -503,6 +503,16 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .status-progress {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 3px;
+      background: var(--accent-cyan);
+      width: 0%;
+      transition: width 0.6s ease;
     }
     .status-dot {
       width: 7px; height: 7px;
@@ -615,10 +625,13 @@
       position: absolute;
       top: -2px; left: -2px; right: -2px; bottom: -2px;
       border-radius: 50%;
-      border: 2px solid transparent;
-      border-top-color: var(--accent-cyan);
-      border-right-color: var(--accent-cyan);
-      transform: rotate(-45deg);
+      background: conic-gradient(
+        from -90deg,
+        var(--accent-cyan) calc(var(--ring-pct, 0) * 3.6deg),
+        transparent calc(var(--ring-pct, 0) * 3.6deg)
+      );
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #fff calc(100% - 2px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #fff calc(100% - 2px));
     }
     .grade-value {
       font-family: var(--font-display);
@@ -1399,6 +1412,7 @@
       <div class="status-bar" id="status-bar">
         <div class="status-dot"></div>
         <div class="status-text" id="status-text">Getting started...</div>
+        <div class="status-progress" id="status-progress"></div>
       </div>
 
       <div class="dashboard-grid">
@@ -1581,6 +1595,10 @@
         <li>Top-pick deploy option highlighted with cyan gradient</li>
         <li>Community Pulse: no longer pulls from competitor blogs, diverse sources enforced</li>
         <li>Smarter competitor matching: filters by actual use case and audience, not just keywords</li>
+        <li>Progress bar tracks analysis phases in real time</li>
+        <li>Grade ring fills proportionally to the score</li>
+        <li>Community Pulse quality filter: only specific, actionable insights shown</li>
+        <li>App Store / Play Store reviews prioritized in community search</li>
       </ul>
     </div>
     <div class="changelog-entry">
@@ -1804,6 +1822,10 @@
     document.getElementById('score-meta').textContent = humanize(opp.opportunity_type || '');
     document.getElementById('score-headline').textContent = humanize(opp.trend || '') + ' Market';
     document.getElementById('score-summary').textContent = opp.opportunity_summary || '';
+    // Grade ring fill — maps letter grade to percentage of circle
+    const gradePct = { 'A+': 100, A: 95, 'A-': 90, 'B+': 85, B: 78, 'B-': 72, 'C+': 65, C: 58, 'C-': 52, 'D+': 45, D: 38, 'D-': 32, F: 15 };
+    const pct = gradePct[g] || (opp.opportunity_score ? opp.opportunity_score * 10 : 50);
+    document.querySelector('.grade-ring').style.setProperty('--ring-pct', pct);
 
     document.getElementById('score-stats').innerHTML = `
       <div class="stat-row">
@@ -2166,10 +2188,8 @@ ${promptClosing}`.trim();
     switch (event) {
       case 'status':
         document.getElementById('status-text').textContent = data.message || '';
-        // Also update the big headline in the score card while analyzing
-        if (data.headline) {
-          document.getElementById('score-headline').textContent = data.headline;
-        }
+        const PHASE_PROGRESS = { market: 17, technical: 34, opportunity: 51, deployment: 68, sentiment: 85, launch_intel: 100 };
+        document.getElementById('status-progress').style.width = (PHASE_PROGRESS[data.phase] || 0) + '%';
         break;
       case 'market':
         renderMarket(data);
@@ -2217,6 +2237,8 @@ ${promptClosing}`.trim();
     document.getElementById('grade-value').className = 'grade-value';
     document.getElementById('score-meta').textContent = '';
     document.getElementById('score-headline').textContent = 'Analyzing...';
+    document.getElementById('status-progress').style.width = '0%';
+    document.querySelector('.grade-ring').style.setProperty('--ring-pct', 0);
     document.getElementById('score-summary').textContent = '';
     document.getElementById('score-stats').innerHTML = `
       <div class="skel-block skeleton" style="height:60px"></div>

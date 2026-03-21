@@ -46,13 +46,14 @@ async function exaSearch(idea, competitorNames = []) {
 
     // Build diverse queries — spread across competitors and source types
     const queries = [
+      // App Store / Play Store — highest priority, dedicated query
+      { query: `${competitorStr} review`, category: null, includeDomains: ['apps.apple.com', 'play.google.com'] },
       // Reddit — complaints and reviews across competitors
       { query: `${competitorStr} complaints frustrations problems`, category: 'reddit' },
       { query: `${idea} recommendations alternatives`, category: 'reddit' },
       // Twitter/X — real user opinions
       { query: `${competitorStr} review experience`, category: 'tweet' },
-      // General web — app store reviews, G2, Trustpilot, blog reviews
-      { query: `${competitorStr} app store review user experience`, category: null },
+      // General web — G2, Trustpilot, blog reviews
       { query: `${competitorStr} G2 review OR Trustpilot review OR Capterra review`, category: null },
     ];
 
@@ -72,6 +73,7 @@ async function exaSearch(idea, competitorNames = []) {
           highlights: { maxCharacters: 3000 },
         };
         if (q.category) opts.category = q.category;
+        if (q.includeDomains) opts.includeDomains = q.includeDomains;
         const r = await exa.searchAndContents(q.query, opts);
         return (r.results || []).map(item => ({
           title: item.title,
@@ -279,6 +281,13 @@ COMPETITOR DIVERSITY — CRITICAL:
 - No single competitor should appear more than 3 times across all insights.
 - If there are 4+ competitors, aim to reference at least 3 different ones.
 
+INSIGHT QUALITY — CRITICAL:
+- Every quote must be SPECIFIC and ACTIONABLE — it must explain WHY, not just state a feeling.
+- REJECT vague quotes like "it's great", "I love it", "not a fan", "highly recommend". These say nothing useful.
+- Good example: "The export feature only supports CSV — I need Excel with formatting preserved for my team's reports"
+- Bad example: "The export feature could be better"
+- Each quote must reference a specific feature, workflow, limitation, or use case.
+
 Return JSON with this exact structure (no other text):
 {
   "community_insights": [
@@ -329,6 +338,13 @@ COMPETITOR DIVERSITY — CRITICAL:
 - Spread quotes across MULTIPLE different competitors. Do NOT let one competitor dominate.
 - No single competitor should appear more than 3 times across all insights.
 - If there are 4+ competitors, aim to reference at least 3 different ones.
+
+INSIGHT QUALITY — CRITICAL:
+- Every quote must be SPECIFIC and ACTIONABLE — it must explain WHY, not just state a feeling.
+- REJECT vague quotes like "it's great", "I love it", "not a fan", "highly recommend". These say nothing useful.
+- Good example: "The export feature only supports CSV — I need Excel with formatting preserved for my team's reports"
+- Bad example: "The export feature could be better"
+- Each quote must reference a specific feature, workflow, limitation, or use case.
 
 Return JSON with this exact structure (no other text):
 {
@@ -401,30 +417,38 @@ app.post('/api/analyze', async (req, res) => {
   const send = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 
   try {
-    send('status', { phase: 'market', message: 'Researching market landscape...', headline: 'Scouring the market...' });
+    send('status', { phase: 'market', message: 'Researching market landscape...' });
     const marketData = parseJSON(await callPerplexity(PROMPTS.market(idea, mode)));
     send('market', marketData);
     const competitorNames = (marketData.competitors || []).map(c => c.name).filter(Boolean);
 
-    send('status', { phase: 'technical', message: 'Analyzing technical complexity...', headline: 'Evaluating the build...' });
+    send('status', { phase: 'technical', message: 'Analyzing technical complexity...' });
     const techData = parseJSON(await callPerplexity(PROMPTS.technical(idea)));
     send('technical', techData);
 
-    send('status', { phase: 'opportunity', message: 'Scoring the opportunity...', headline: 'Scoring your opportunity...' });
+    send('status', { phase: 'opportunity', message: 'Scoring the opportunity...' });
     const oppData = parseJSON(await callPerplexity(PROMPTS.opportunity(idea, mode)));
     send('opportunity', oppData);
 
-    send('status', { phase: 'deployment', message: 'Finding best deployment options...', headline: 'Mapping deployment paths...' });
+    send('status', { phase: 'deployment', message: 'Finding best deployment options...' });
     const deployData = parseJSON(await callPerplexity(PROMPTS.deployment(idea)));
     send('deployment', deployData);
 
-    send('status', { phase: 'sentiment', message: 'Searching Reddit, Twitter/X, app reviews, and forums...', headline: 'Listening to real users...' });
+    send('status', { phase: 'sentiment', message: 'Searching Reddit, Twitter/X, app reviews, and forums...' });
     // Exa pre-search for richer community data
     const exaResults = await exaSearch(idea, competitorNames);
     const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea, competitorNames, mode, exaResults)));
+    // Quality filter: remove vague/short community insights
+    if (sentimentData.community_insights && Array.isArray(sentimentData.community_insights)) {
+      sentimentData.community_insights = sentimentData.community_insights.filter(insight => {
+        const quote = (insight.quote || '').trim();
+        if (quote.length < 30) return false;
+        return true;
+      });
+    }
     send('sentiment', sentimentData);
 
-    send('status', { phase: 'launch_intel', message: 'Building your launch playbook...', headline: 'Crafting your game plan...' });
+    send('status', { phase: 'launch_intel', message: 'Building your launch playbook...' });
     const launchData = parseJSON(await callPerplexity(PROMPTS.launchIntel(idea, mode)));
     send('launch_intel', launchData);
 
