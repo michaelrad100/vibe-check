@@ -236,6 +236,27 @@
     }
     .shuffle-btn:hover { opacity: 1; color: var(--accent-cyan); }
 
+    /* Empty idea nudge */
+    .idea-nudge {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      background: rgba(0,229,255,0.06);
+      border: 1px solid rgba(0,229,255,0.15);
+      font-size: 13px;
+      color: var(--accent-cyan);
+      animation: nudgeFadeIn 0.3s ease;
+    }
+    .idea-nudge.show { display: flex; }
+    .idea-nudge .nudge-arrow {
+      display: inline-flex;
+      animation: nudgeBounce 1s ease infinite;
+    }
+    @keyframes nudgeFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+    @keyframes nudgeBounce { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+
     .textarea-hint {
       font-size: 12px;
       color: var(--text-muted);
@@ -1489,6 +1510,7 @@
         <button class="shuffle-btn" onclick="shuffleIdea()" title="Try a random idea" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg></button>
       </div>
       <p class="textarea-hint">More detail = sharper analysis. Include who it's for, the problem it solves, and any key features you have in mind.</p>
+      <div class="idea-nudge" id="idea-nudge">Describe your idea above, or try a random one <span class="nudge-arrow">→</span></div>
       <button class="cta-button" id="analyze-btn" onclick="analyze()">Start Analysis</button>
     </div>
   </div>
@@ -2554,7 +2576,16 @@ ${promptClosing}`.trim();
   // ── ANALYZE ───────────────────────────────────
   async function analyze() {
     const idea = document.getElementById('idea-input').value.trim();
-    if (!idea) { alert('Please describe your idea first.'); return; }
+    if (!idea) {
+      const nudge = document.getElementById('idea-nudge');
+      nudge.classList.add('show');
+      // Briefly highlight the shuffle button
+      const shuffleBtn = document.querySelector('.shuffle-btn');
+      if (shuffleBtn) { shuffleBtn.style.opacity = '1'; shuffleBtn.style.color = 'var(--accent-cyan)'; setTimeout(() => { shuffleBtn.style.opacity = ''; shuffleBtn.style.color = ''; }, 2000); }
+      // Hide nudge when user starts typing
+      document.getElementById('idea-input').addEventListener('input', function hide() { nudge.classList.remove('show'); this.removeEventListener('input', hide); }, { once: true });
+      return;
+    }
 
     document.getElementById('landing').style.display = 'none';
     document.getElementById('results').style.display = 'block';
