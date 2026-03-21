@@ -560,6 +560,9 @@
       padding: 16px 0;
       margin-bottom: 24px;
       border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
     }
     .results-idea-title {
       font-family: var(--font-display);
@@ -570,6 +573,7 @@
       color: var(--text-main);
       margin-bottom: 0;
       cursor: pointer;
+      flex: 1;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -584,13 +588,13 @@
       border: none;
       color: rgba(0, 229, 255, 0.35);
       cursor: pointer;
-      padding: 2px 4px;
-      margin-left: 6px;
+      padding: 6px 4px;
       transition: color 0.2s ease;
       position: relative;
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      vertical-align: middle;
+      flex-shrink: 0;
+      margin-top: 4px;
     }
     .share-link-btn:hover { color: var(--accent-cyan); }
     .share-link-btn .share-toast {
@@ -1600,7 +1604,8 @@
     <main class="main-view">
 
       <div class="results-header">
-        <div class="results-idea-title" id="results-title">Analyzing your idea...<button class="share-link-btn" id="share-link-btn" onclick="shareResult()" title="Copy share link" style="display:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="share-toast" id="share-toast">Link copied</span></button></div>
+        <div class="results-idea-title" id="results-title">Analyzing your idea...</div>
+        <button class="share-link-btn" id="share-link-btn" onclick="shareResult()" title="Copy share link" style="display:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="share-toast" id="share-toast">Link copied</span></button>
       </div>
 
       <div class="status-bar" id="status-bar">
@@ -2813,10 +2818,7 @@ ${promptClosing}`.trim();
 
   // ── SHARE / LOAD ──────────────────────────────
   function setResultsTitle(text) {
-    const el = document.getElementById('results-title');
-    const btn = document.getElementById('share-link-btn');
-    el.textContent = text;
-    el.appendChild(btn);
+    document.getElementById('results-title').textContent = text;
   }
 
   function shareResult() {
@@ -2891,9 +2893,7 @@ ${promptClosing}`.trim();
   // ── TITLE EXPAND / COLLAPSE ─────────────────
   (function() {
     const title = document.getElementById('results-title');
-    title.addEventListener('click', (e) => {
-      // Don't toggle if clicking the share button
-      if (e.target.closest('.share-link-btn')) return;
+    title.addEventListener('click', () => {
       title.classList.toggle('expanded');
     });
     // Collapse on scroll
