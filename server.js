@@ -81,7 +81,7 @@ Return JSON with this exact structure (no other text):
 
 saturation_score = coverage score: 10 means existing tools fully cover this need (little reason to build your own); 1 means nothing good exists (strong reason to build).
 key_differentiators_needed = specific things missing from existing alternatives that would justify building your own.
-Include 3-6 real alternatives with actual URLs. Be specific about their limitations.`
+Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find alternatives. Include 3-6 real alternatives with actual URLs. Be specific about their limitations.`
     : `Analyze the market for this product idea: "${idea}"
 
 Return JSON with this exact structure (no other text):
@@ -95,7 +95,7 @@ Return JSON with this exact structure (no other text):
   "key_differentiators_needed": ["differentiator1","differentiator2","differentiator3"]
 }
 
-Include 4-6 real competitors with actual URLs. Be specific and data-driven.`,
+Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find competitors. Include 4-6 real competitors with actual URLs. Be specific and data-driven.`,
 
   technical: (idea) => `Analyze the technical complexity of building: "${idea}"
 
@@ -176,11 +176,11 @@ Return JSON with this exact structure (no other text):
       : 'existing tools in this space';
 
     if (mode === 'personal') {
-      return `Search Reddit, Hacker News, Product Hunt comments, and app store reviews for real user feedback about: ${toolList} — existing alternatives to "${idea}".
+      return `Search Twitter/X, Threads, Bluesky, Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, App Store reviews, Play Store reviews, G2 reviews, Capterra reviews, Stack Overflow, Discord servers, Slack communities, YouTube comments, Indie Hackers, Quora, subreddit wikis, GitHub Issues on competing projects, Trustpilot, LinkedIn posts, and Google Trends for real user feedback about: ${toolList} — existing alternatives to "${idea}".
 
 Focus on what frustrates people about these tools: missing features, limitations, things that are broken or clunky. Also capture what they love and what they wish existed. This helps someone decide if building their own version is worth the effort.
 
-IMPORTANT: Only include quotes that are specifically about product experiences with real tools, NOT generic topic discussions.
+IMPORTANT: Only include quotes that are specifically about product experiences with real tools, NOT generic topic discussions. Pull from diverse sources — don't rely on just one or two platforms.
 
 Return JSON with this exact structure (no other text):
 {
@@ -189,27 +189,27 @@ Return JSON with this exact structure (no other text):
       "quote": "Direct or close paraphrase of a real user comment about a specific existing tool",
       "sentiment": "pain_point|loved_feature|wish",
       "theme": "Short theme label (3-5 words)",
-      "source": "e.g. r/entrepreneur, Hacker News, App Store",
+      "source": "e.g. r/entrepreneur, Hacker News, App Store, G2, Twitter/X",
       "source_url": "Direct URL to the post or thread if available, otherwise null",
       "competitor_reference": "Name of the specific tool being discussed, or null"
     }
   ]
 }
 
-Include 6-9 insights. Weight toward pain_point and wish (at least 3 pain_point, 2 wish, 1-2 loved_feature). Quotes must be about real tools, not general topics.`;
+Include exactly 9 insights: 3 pain_point, 3 loved_feature, 3 wish. Quotes must be about real tools, not general topics. Use a variety of different sources.`;
     }
 
     const competitorList = competitorNames.length > 0
       ? `Focus specifically on these known competitors: ${toolList}. Search for real user comments, reviews, and discussions about these specific products.`
       : `Search for real user opinions about existing apps and products that are direct competitors to the idea.`;
 
-    return `Search Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, and app store reviews for real user opinions about this product space: "${idea}"
+    return `Search Twitter/X, Threads, Bluesky, Reddit (r/entrepreneur, r/startups, r/SaaS, and topic-specific subreddits), Hacker News, Product Hunt comments, App Store reviews, Play Store reviews, G2 reviews, Capterra reviews, Stack Overflow, Discord servers, Slack communities, YouTube comments, Indie Hackers, Quora, subreddit wikis, GitHub Issues on competing projects, Trustpilot, LinkedIn posts, and Google Trends for real user opinions about this product space: "${idea}"
 
 ${competitorList}
 
 Find specific quotes where users discuss their experience with these competing products — what frustrates them, what they love, what they wish existed. Aim to include a variety of different competitors across your findings (ideally no single competitor mentioned more than twice).
 
-IMPORTANT: Only include quotes that are specifically about product experiences with real competing apps, NOT generic topic discussions.
+IMPORTANT: Only include quotes that are specifically about product experiences with real competing apps, NOT generic topic discussions. Pull from diverse sources — don't rely on just one or two platforms.
 
 Return JSON with this exact structure (no other text):
 {
@@ -218,14 +218,14 @@ Return JSON with this exact structure (no other text):
       "quote": "Direct or close paraphrase of a real user comment about a specific competing product",
       "sentiment": "pain_point|loved_feature|wish",
       "theme": "Short theme label (3-5 words)",
-      "source": "e.g. r/entrepreneur, Hacker News, App Store",
+      "source": "e.g. r/entrepreneur, Hacker News, App Store, G2, Twitter/X",
       "source_url": "Direct URL to the post or thread if available, otherwise null",
       "competitor_reference": "Name of the specific competitor app being discussed, or null if this is a general observation about the space"
     }
   ]
 }
 
-Include 6-9 insights spread across all three sentiment types (at least 2 pain_point, 2 loved_feature, 2 wish). Quotes must be about real competing products, not general topics.`;
+Include exactly 9 insights: 3 pain_point, 3 loved_feature, 3 wish. Quotes must be about real competing products, not general topics. Use a variety of different sources.`;
   },
 
   launchIntel: (idea, mode = 'market') => mode === 'personal'
