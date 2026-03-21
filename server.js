@@ -38,7 +38,8 @@ if (exa) {
 }
 
 async function exaSearch(idea, competitorNames = []) {
-  if (!exa) return null;
+  if (!exa) { console.log('[Exa] Skipped — no API key configured'); return null; }
+  console.log(`[Exa] Starting search for: "${idea.slice(0, 60)}..." with ${competitorNames.length} competitors`);
   try {
     const competitors = competitorNames.slice(0, 3).join(' OR ');
     const queries = [
@@ -65,9 +66,11 @@ async function exaSearch(idea, competitorNames = []) {
       } catch { return []; }
     }));
 
-    return results.flat();
+    const flat = results.flat();
+    console.log(`[Exa] Found ${flat.length} results across ${queries.length} queries`);
+    return flat;
   } catch (err) {
-    console.warn('Exa search failed, falling back to Perplexity only:', err.message);
+    console.error('[Exa] Search failed:', err.message);
     return null;
   }
 }
