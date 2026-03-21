@@ -747,24 +747,7 @@
       flex-direction: column;
       justify-content: center;
     }
-    .tile-info-icon {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.15);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-      color: rgba(255,255,255,0.25);
-      font-weight: 700;
-      flex-shrink: 0;
-      transition: border-color 0.2s ease, color 0.2s ease;
-    }
-    .stat-tile:hover .tile-info-icon {
-      border-color: rgba(0,229,255,0.4);
-      color: rgba(0,229,255,0.5);
-    }
+    .tile-info-icon { display: none; }
     .tile-insight {
       font-size: 11px;
       line-height: 1.5;
@@ -2106,9 +2089,13 @@
 
   // ── RENDERERS ─────────────────────────────────
 
-  function toggleTileInsight(tile) {
-    const insight = tile.querySelector('.tile-insight');
-    if (insight) insight.classList.toggle('open');
+  function toggleTileInsight() {
+    const allInsights = document.querySelectorAll('.tile-insight');
+    const anyOpen = [...allInsights].some(el => el.classList.contains('open'));
+    allInsights.forEach(el => {
+      if (anyOpen) el.classList.remove('open');
+      else el.classList.add('open');
+    });
   }
 
   function populateTileInsights(opp, market, tech) {
@@ -2818,7 +2805,7 @@ ${promptClosing}`.trim();
 
   // ── TILE INSIGHT CLICK HANDLERS ──────────────
   document.querySelectorAll('.stat-tile').forEach(tile => {
-    tile.addEventListener('click', () => toggleTileInsight(tile));
+    tile.addEventListener('click', () => toggleTileInsight());
   });
 
   // ── INIT ──────────────────────────────────────
