@@ -2042,8 +2042,10 @@
   }
 
   function _tryRenderPrompt() {
-    if (_cachedIdea && _cachedOpp && _cachedTech && _cachedDeploy) {
-      renderPrompt(_cachedIdea, _cachedOpp, _cachedTech, _cachedDeploy);
+    // Render prompt as soon as we have idea + opp + tech (deploy is optional)
+    if (_cachedIdea && _cachedOpp && _cachedTech) {
+      const deploy = _cachedDeploy || { primary_recommendation: 'web_app', deployment_options: [] };
+      renderPrompt(_cachedIdea, _cachedOpp, _cachedTech, deploy);
     }
   }
 
@@ -2603,11 +2605,13 @@ ${promptClosing}`.trim();
         buffer = parts.pop();
         for (const part of parts) {
           const lines = part.split('\n');
-          let event = '', data = '';
+          let event = '';
+          const dataLines = [];
           for (const line of lines) {
             if (line.startsWith('event: ')) event = line.slice(7);
-            if (line.startsWith('data: '))  data  = line.slice(6);
+            if (line.startsWith('data: '))  dataLines.push(line.slice(6));
           }
+          const data = dataLines.join('');
           if (!event || !data) continue;
           try { handleEvent(event, JSON.parse(data), idea); } catch (e) { console.error(`[SSE] Error in ${event}:`, e); }
         }
@@ -2671,6 +2675,8 @@ ${promptClosing}`.trim();
         setResultsTitle(idea);
         document.getElementById('share-link-btn').style.display = '';
         if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
+        // Final safety net — render prompt with whatever data we have
+        _tryRenderPrompt();
         break;
       case 'error':
         _stopFakeProgress();
