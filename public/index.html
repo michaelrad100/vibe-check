@@ -2308,7 +2308,7 @@ ${promptClosing}`.trim();
     switch (event) {
       case 'status':
         document.getElementById('status-text').textContent = data.message || '';
-        const PHASE_PROGRESS = { market: 17, technical: 34, opportunity: 51, deployment: 68, sentiment: 85, launch_intel: 100 };
+        const PHASE_PROGRESS = { market: 8, market_done: 16, technical: 24, technical_done: 32, opportunity: 40, opportunity_done: 48, deployment: 56, deployment_done: 64, sentiment_exa: 70, sentiment: 78, sentiment_done: 86, launch_intel: 93, launch_done: 100 };
         document.getElementById('status-progress').style.width = (PHASE_PROGRESS[data.phase] || 0) + '%';
         break;
       case 'market':

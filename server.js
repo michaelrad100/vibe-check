@@ -419,27 +419,33 @@ app.post('/api/analyze', async (req, res) => {
   const send = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 
   try {
-    send('status', { phase: 'market', message: 'Researching market landscape...' });
+    send('status', { phase: 'market', message: 'Scanning competitors and market landscape...' });
     const marketData = parseJSON(await callPerplexity(PROMPTS.market(idea, mode)));
-    send('market', marketData);
     const competitorNames = (marketData.competitors || []).map(c => c.name).filter(Boolean);
+    send('status', { phase: 'market_done', message: `Found ${competitorNames.length} competitors — analyzing saturation...` });
+    send('market', marketData);
 
-    send('status', { phase: 'technical', message: 'Analyzing technical complexity...' });
+    send('status', { phase: 'technical', message: 'Evaluating tech stack and build complexity...' });
     const techData = parseJSON(await callPerplexity(PROMPTS.technical(idea)));
+    send('status', { phase: 'technical_done', message: 'Estimating time-to-market and required APIs...' });
     send('technical', techData);
 
-    send('status', { phase: 'opportunity', message: 'Scoring the opportunity...' });
+    send('status', { phase: 'opportunity', message: 'Scoring opportunity and market trends...' });
     const oppData = parseJSON(await callPerplexity(PROMPTS.opportunity(idea, mode)));
+    send('status', { phase: 'opportunity_done', message: 'Identifying target audiences and monetization paths...' });
     send('opportunity', oppData);
 
-    send('status', { phase: 'deployment', message: 'Finding best deployment options...' });
+    send('status', { phase: 'deployment', message: 'Comparing deployment platforms...' });
     const deployData = parseJSON(await callPerplexity(PROMPTS.deployment(idea)));
+    send('status', { phase: 'deployment_done', message: 'Ranking hosting options by fit...' });
     send('deployment', deployData);
 
-    send('status', { phase: 'sentiment', message: 'Searching Reddit, Twitter/X, app reviews, and forums...' });
+    send('status', { phase: 'sentiment_exa', message: 'Searching Reddit, Twitter/X, and app store reviews...' });
     // Exa pre-search for richer community data
     const exaResults = await exaSearch(idea, competitorNames);
+    send('status', { phase: 'sentiment', message: 'Reading real user reviews and forum discussions...' });
     const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea, competitorNames, mode, exaResults)));
+    send('status', { phase: 'sentiment_done', message: 'Extracting pain points, loved features, and wishes...' });
     // Quality filter: remove vague/short community insights
     if (sentimentData.community_insights && Array.isArray(sentimentData.community_insights)) {
       sentimentData.community_insights = sentimentData.community_insights.filter(insight => {
@@ -450,8 +456,9 @@ app.post('/api/analyze', async (req, res) => {
     }
     send('sentiment', sentimentData);
 
-    send('status', { phase: 'launch_intel', message: 'Building your launch playbook...' });
+    send('status', { phase: 'launch_intel', message: 'Crafting your launch strategy...' });
     const launchData = parseJSON(await callPerplexity(PROMPTS.launchIntel(idea, mode)));
+    send('status', { phase: 'launch_done', message: 'Finalizing your report...' });
     send('launch_intel', launchData);
 
     // Store full result for shareable links
