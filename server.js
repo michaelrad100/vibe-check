@@ -52,15 +52,14 @@ async function exaSearch(idea, competitorNames = []) {
         const opts = {
           numResults: 5,
           type: 'auto',
-          text: true,
-          useAutoprompt: true,
+          highlights: { maxCharacters: 4000 },
         };
         if (q.category) opts.category = q.category;
         const r = await exa.searchAndContents(q.query, opts);
         return (r.results || []).map(item => ({
           title: item.title,
           url: item.url,
-          snippet: (item.text || '').slice(0, 500),
+          snippet: (item.highlights || []).join(' ').slice(0, 500) || '',
           source: item.url,
         }));
       } catch { return []; }
