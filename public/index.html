@@ -237,60 +237,65 @@
     }
     .shuffle-btn:hover { opacity: 1; color: var(--accent-cyan); }
 
-    /* Empty idea modal */
+    /* Empty idea toast */
     .idea-modal-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.25);
       z-index: 1000;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      animation: modalFadeIn 0.2s ease;
+      padding-top: 20vh;
+      animation: modalFadeIn 0.25s ease;
     }
     .idea-modal-overlay.show { display: flex; }
     .idea-modal {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      padding: 28px 32px;
-      max-width: 380px;
+      background: rgba(20,20,22,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 16px 24px;
+      max-width: 340px;
       text-align: center;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
     .idea-modal p {
-      color: var(--text-main);
-      font-size: 15px;
-      line-height: 1.5;
-      margin-bottom: 20px;
-    }
-    .idea-modal button {
-      background: var(--accent-cyan);
-      color: #000;
-      border: none;
-      padding: 8px 32px;
-      font-family: var(--font-display);
+      color: var(--text-muted);
       font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      cursor: pointer;
-      font-weight: 700;
+      line-height: 1.6;
+      margin: 0;
     }
-    .idea-modal button:hover { opacity: 0.9; }
-    @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .idea-modal-close {
+      position: absolute;
+      top: 8px; right: 10px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.2);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+      transition: color 0.2s ease;
+    }
+    .idea-modal-close:hover { color: rgba(255,255,255,0.5); }
+    @keyframes modalFadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
 
     /* Shuffle nudge arrow */
     .shuffle-nudge {
       display: none;
       position: absolute;
-      bottom: 12px;
-      right: 38px;
-      color: var(--accent-cyan);
-      animation: shuffleNudgeBounce 1s ease infinite;
+      bottom: 10px;
+      right: 36px;
+      color: rgba(0,229,255,0.35);
+      animation: shuffleNudgeBounce 1.2s ease infinite;
       pointer-events: none;
-      font-size: 18px;
-      line-height: 1;
+      font-size: 14px;
+      line-height: 14px;
     }
     .shuffle-nudge.show { display: block; }
-    @keyframes shuffleNudgeBounce { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
+    @keyframes shuffleNudgeBounce { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
 
     .textarea-hint {
       font-size: 12px;
@@ -2905,8 +2910,8 @@ ${promptClosing}`.trim();
 
 <div class="idea-modal-overlay" id="idea-modal" onclick="dismissIdeaModal()">
   <div class="idea-modal" onclick="event.stopPropagation()">
+    <button class="idea-modal-close" onclick="dismissIdeaModal()">&#x2715;</button>
     <p>Describe your idea above, or try a random one with the shuffle button.</p>
-    <button onclick="dismissIdeaModal()">OK</button>
   </div>
 </div>
 
