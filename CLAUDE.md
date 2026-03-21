@@ -144,7 +144,7 @@ npm run dev          # node --watch server.js
 - If no changes ship for multiple days, the next push gets the next version number (e.g. v1.9 → v1.10)
 - **Always update release notes on every push** — bump the version badge and add/update the changelog entry in `index.html`
 - The version badge and changelog popover in `index.html` must always stay in sync with CLAUDE.md
-- Current version: **v1.9** (Mar 19, 2026)
+- Current version: **v1.9** (Mar 21, 2026)
 
 ---
 

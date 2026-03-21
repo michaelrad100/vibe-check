@@ -532,6 +532,10 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      transition: border-color 0.2s ease;
+    }
+    .section-card:hover {
+      border-color: rgba(0,229,255,0.25);
     }
     .section-header {
       font-family: var(--font-display);
@@ -1143,8 +1147,14 @@
       transition: border-color 0.2s ease;
     }
     .prompt-block { position: relative; }
-    .prompt-block:hover { border-color: var(--accent-cyan); }
+    .prompt-block:hover { border-color: rgba(0,229,255,0.4); }
     .prompt-block.copied { border-color: var(--accent-cyan); }
+    .prompt-pre {
+      margin: 0;
+      white-space: pre-wrap;
+      font: inherit;
+      color: inherit;
+    }
     .prompt-copied-toast {
       position: absolute;
       top: 50%; left: 50%;
@@ -1533,7 +1543,7 @@
           </div>
           <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">Click the prompt below to copy it, then paste into Claude Code, Cursor, or any AI coding assistant to start building.</p>
           <div class="prompt-block" id="prompt-block" onclick="copyPrompt()">
-            <div class="skeleton skel-block" style="height:160px"></div>
+            <pre class="prompt-pre" id="prompt-text"><span class="skeleton skel-block" style="height:160px;display:block"></span></pre>
             <div class="prompt-copied-toast" id="prompt-toast">Prompt Copied</div>
           </div>
         </div>
@@ -1551,7 +1561,7 @@
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
     <div class="changelog-entry">
-      <div class="changelog-version">v1.9 <span class="changelog-date">— Mar 19, 2026</span></div>
+      <div class="changelog-version">v1.9 <span class="changelog-date">— Mar 21, 2026</span></div>
       <ul class="changelog-list">
         <li>New tagline: "Is your idea worth building?"</li>
         <li>Rotating placeholder ideas — 25 unique examples on each page load</li>
@@ -1562,7 +1572,9 @@
         <li>Tab key fills textarea with the sample idea for quick testing</li>
         <li>"Start Analysis" button with wide letter-spacing</li>
         <li>Floating share button — faded until hover, always visible on results</li>
-        <li>Click-to-copy prompt block replaces Copy Prompt button</li>
+        <li>Click-to-copy prompt with centered "Prompt Copied" toast</li>
+        <li>Section cards highlight with subtle blue border on hover</li>
+        <li>Supabase persistent storage for shareable results</li>
       </ul>
     </div>
     <div class="changelog-entry">
@@ -2047,8 +2059,8 @@ ${stackLine}
 
 ${promptClosing}`.trim();
 
-    const block = document.getElementById('prompt-block');
-    if (block) block.textContent = _promptText;
+    const pre = document.getElementById('prompt-text');
+    if (pre) pre.textContent = _promptText;
   }
 
   function copyPrompt() {
