@@ -493,7 +493,16 @@
 
     /* Results header / status */
     .results-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-deep);
+      padding: 16px 0;
       margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     .results-idea-title {
       font-family: var(--font-display);
@@ -502,8 +511,43 @@
       text-transform: uppercase;
       letter-spacing: -0.5px;
       color: var(--text-main);
-      margin-bottom: 4px;
+      margin-bottom: 0;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
+    .share-link-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      opacity: 0.4;
+      transition: opacity 0.2s ease, color 0.2s ease;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .share-link-btn:hover { opacity: 1; color: var(--accent-cyan); }
+    .share-link-btn .share-toast {
+      position: absolute;
+      top: -28px; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,229,255,0.12);
+      color: var(--accent-cyan);
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .share-link-btn .share-toast.show { opacity: 1; }
     .results-idea-sub {
       font-size: 13px;
       color: var(--text-muted);
@@ -647,7 +691,7 @@
       top: -2px; left: -2px; right: -2px; bottom: -2px;
       border-radius: 50%;
       background: conic-gradient(
-        from -90deg,
+        from 0deg,
         var(--accent-cyan) calc(var(--ring-pct, 0) * 3.6deg),
         transparent calc(var(--ring-pct, 0) * 3.6deg)
       );
@@ -1214,28 +1258,6 @@
     .prompt-copied-toast.show { opacity: 1; }
 
     /* Floating share button */
-    .share-fab {
-      display: none;
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 10px 28px;
-      background: var(--bg-card);
-      border: 1px solid rgba(0,229,255,0.3);
-      color: var(--accent-cyan);
-      font-family: var(--font-body);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      z-index: 400;
-      opacity: 0.35;
-      transition: opacity 0.25s ease;
-    }
-    .share-fab:hover { opacity: 1; background: rgba(0,229,255,0.06); }
-    .share-fab.visible { display: block; }
 
     /* Copy toast */
     .copy-feedback {
@@ -1430,6 +1452,10 @@
 
       <div class="results-header">
         <div class="results-idea-title" id="results-title">Analyzing your idea...</div>
+        <button class="share-link-btn" id="share-link-btn" onclick="shareResult()" title="Copy share link" style="display:none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <span class="share-toast" id="share-toast">Link copied</span>
+        </button>
       </div>
 
       <div class="status-bar" id="status-bar">
@@ -1594,7 +1620,6 @@
   </div>
 </section>
 
-<button class="share-fab" id="share-fab" onclick="shareResult()">Share Result</button>
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
@@ -1622,6 +1647,11 @@
         <li>Grade ring fills proportionally to the score</li>
         <li>Community Pulse quality filter: only specific, actionable insights shown</li>
         <li>App Store / Play Store reviews prioritized in community search</li>
+        <li>Grade ring starts at 12 o'clock, fills clockwise proportionally</li>
+        <li>Sticky title header with inline share link icon</li>
+        <li>100 unique sample ideas with no-repeat shuffle</li>
+        <li>13-step granular progress updates during analysis</li>
+        <li>Competitor app store ratings shown when available</li>
       </ul>
     </div>
     <div class="changelog-entry">
@@ -2255,7 +2285,7 @@ ${promptClosing}`.trim();
     document.getElementById('results').style.display = 'block';
     document.getElementById('results-title').textContent = 'Analyzing your idea...';
     document.getElementById('status-bar').style.display = 'flex';
-    document.getElementById('share-fab').classList.remove('visible');
+    document.getElementById('share-link-btn').style.display = 'none';
     document.getElementById('analyze-btn').disabled = true;
 
     _cachedMode = _selectedMode;
@@ -2344,7 +2374,7 @@ ${promptClosing}`.trim();
         document.getElementById('status-bar').style.display = 'none';
         document.getElementById('sec-score').classList.add('loaded');
         document.getElementById('results-title').textContent = idea;
-        document.getElementById('share-fab').classList.add('visible');
+        document.getElementById('share-link-btn').style.display = '';
         if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
         break;
       case 'error':
@@ -2420,7 +2450,7 @@ ${promptClosing}`.trim();
   // ── SHARE / LOAD ──────────────────────────────
   function shareResult() {
     navigator.clipboard.writeText(window.location.href).then(() => {
-      const el = document.getElementById('copy-feedback');
+      const el = document.getElementById('share-toast');
       el.classList.add('show');
       setTimeout(() => el.classList.remove('show'), 2500);
     });
@@ -2449,7 +2479,7 @@ ${promptClosing}`.trim();
       if (d.launch_intel) renderLaunchIntel(d.launch_intel);
       renderPrompt(d.idea, d.opportunity, d.technical, d.deployment);
       document.getElementById('status-bar').style.display = 'none';
-      document.getElementById('share-fab').classList.add('visible');
+      document.getElementById('share-link-btn').style.display = '';
       document.getElementById('sec-score').classList.add('loaded');
       currentResultId = id;
       setupNavObserver();
