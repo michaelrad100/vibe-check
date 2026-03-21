@@ -1575,6 +1575,7 @@
         <li>Community insights expanded to 15 results: 5 pain points, 5 loved features, 5 wishes</li>
         <li>Source diversity enforced: minimum 6 different sources, max 2 per source</li>
         <li>Exa integration: pre-searches Reddit, Twitter/X, and review sites for richer community data</li>
+        <li>Dynamic progress headlines: score card shows what's happening at each analysis step</li>
         <li>Muted color palette: soft teal + warm sand for semantic indicators only</li>
         <li>Cyan-only UI: grades, stats, deploy pills, and highlights all use blue</li>
         <li>Top-pick deploy option highlighted with cyan gradient</li>
@@ -2165,6 +2166,10 @@ ${promptClosing}`.trim();
     switch (event) {
       case 'status':
         document.getElementById('status-text').textContent = data.message || '';
+        // Also update the big headline in the score card while analyzing
+        if (data.headline) {
+          document.getElementById('score-headline').textContent = data.headline;
+        }
         break;
       case 'market':
         renderMarket(data);
