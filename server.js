@@ -81,7 +81,14 @@ Return JSON with this exact structure (no other text):
 
 saturation_score = coverage score: 10 means existing tools fully cover this need (little reason to build your own); 1 means nothing good exists (strong reason to build).
 key_differentiators_needed = specific things missing from existing alternatives that would justify building your own.
-Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find alternatives. Include 3-6 real alternatives with actual URLs. Be specific about their limitations.`
+Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find alternatives. Include 3-6 real alternatives with actual URLs. Be specific about their limitations.
+
+CRITICAL — Competitor relevance rules:
+- Every competitor MUST solve the same core problem for the same type of user. Match on use case and target audience, not just shared keywords.
+- If the idea is consumer-facing, do NOT include enterprise/B2B platforms (and vice versa).
+- If the idea targets individual users, do NOT include tools designed for businesses, developers, or teams — unless those tools also have a clear consumer offering.
+- A billing platform is NOT a competitor to a personal finance app just because both involve "subscriptions." Think about what the user would actually download or sign up for as an alternative.
+- When in doubt, ask: "Would the person who described this idea realistically consider this product as an alternative?" If no, exclude it.`
     : `Analyze the market for this product idea: "${idea}"
 
 Return JSON with this exact structure (no other text):
@@ -95,7 +102,14 @@ Return JSON with this exact structure (no other text):
   "key_differentiators_needed": ["differentiator1","differentiator2","differentiator3"]
 }
 
-Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find competitors. Include 4-6 real competitors with actual URLs. Be specific and data-driven.`,
+Search across G2, Capterra, AlternativeTo, Crunchbase, GitHub, Chrome Web Store, Google Play Store, Stackshare, and Google Search results to find competitors. Include 4-6 real competitors with actual URLs. Be specific and data-driven.
+
+CRITICAL — Competitor relevance rules:
+- Every competitor MUST solve the same core problem for the same type of user. Match on use case and target audience, not just shared keywords.
+- If the idea is consumer-facing, do NOT include enterprise/B2B platforms (and vice versa).
+- If the idea targets individual users, do NOT include tools designed for businesses, developers, or teams — unless those tools also have a clear consumer offering.
+- A billing platform is NOT a competitor to a personal finance app just because both involve "subscriptions." Think about what the user would actually download or sign up for as an alternative.
+- When in doubt, ask: "Would someone building this product realistically lose customers to this competitor?" If no, exclude it.`,
 
   technical: (idea) => `Analyze the technical complexity of building: "${idea}"
 
