@@ -65,7 +65,7 @@ async function exaSearch(idea, competitorNames = []) {
       }
     }
 
-    const results = await Promise.all(queries.map(async (q) => {
+    const results = await Promise.all(queries.map(async (q, i) => {
       try {
         const opts = {
           numResults: 3,
@@ -75,13 +75,18 @@ async function exaSearch(idea, competitorNames = []) {
         if (q.category) opts.category = q.category;
         if (q.includeDomains) opts.includeDomains = q.includeDomains;
         const r = await exa.searchAndContents(q.query, opts);
+        const count = (r.results || []).length;
+        console.log(`[Exa] Query ${i+1}/${queries.length}: ${count} results — ${q.category || 'web'}${q.includeDomains ? ' (' + q.includeDomains.join(',') + ')' : ''} — "${q.query.slice(0, 60)}"`);
         return (r.results || []).map(item => ({
           title: item.title,
           url: item.url,
           snippet: (item.highlights || []).join(' ').slice(0, 500) || '',
           source: item.url,
         }));
-      } catch { return []; }
+      } catch (err) {
+        console.error(`[Exa] Query ${i+1} FAILED (${q.category || 'web'}): ${err.message}`);
+        return [];
+      }
     }));
 
     const flat = results.flat();
