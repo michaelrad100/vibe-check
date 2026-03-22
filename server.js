@@ -51,8 +51,8 @@ async function exaSearch(idea, competitorNames = []) {
       // Reddit — complaints and reviews across competitors
       { query: `${competitorStr} complaints frustrations problems`, category: 'reddit' },
       { query: `${idea} recommendations alternatives`, category: 'reddit' },
-      // Twitter/X — real user opinions
-      { query: `${competitorStr} review experience`, category: 'tweet' },
+      // Social — Twitter/X, Threads, Bluesky, forums
+      { query: `${competitorStr} review experience opinion`, category: null, includeDomains: ['twitter.com', 'x.com', 'threads.net', 'bsky.app', 'news.ycombinator.com'] },
       // General web — G2, Trustpilot, blog reviews
       { query: `${competitorStr} G2 review OR Trustpilot review OR Capterra review`, category: null },
     ];
