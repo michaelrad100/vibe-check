@@ -581,6 +581,11 @@
       color: var(--text-main);
       margin-bottom: 0;
       cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    .results-idea-title.copied {
+      color: var(--accent-cyan);
+    }
       flex: 1;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -2841,21 +2846,21 @@ ${promptClosing}`.trim();
     const url = currentResultId
       ? window.location.origin + window.location.pathname + '?r=' + currentResultId
       : window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-      const el = document.getElementById('share-toast');
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 2500);
-    }).catch(() => {
-      // Fallback for browsers that block clipboard API
+    function onCopied() {
+      const toast = document.getElementById('share-toast');
+      const title = document.getElementById('results-title');
+      toast.classList.add('show');
+      title.classList.add('copied');
+      setTimeout(() => { toast.classList.remove('show'); title.classList.remove('copied'); }, 2500);
+    }
+    navigator.clipboard.writeText(url).then(onCopied).catch(() => {
       const tmp = document.createElement('textarea');
       tmp.value = url;
       document.body.appendChild(tmp);
       tmp.select();
       document.execCommand('copy');
       document.body.removeChild(tmp);
-      const el = document.getElementById('share-toast');
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 2500);
+      onCopied();
     });
   }
 
