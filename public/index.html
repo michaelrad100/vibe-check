@@ -2838,7 +2838,21 @@ ${promptClosing}`.trim();
   }
 
   function shareResult() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+    const url = currentResultId
+      ? window.location.origin + window.location.pathname + '?r=' + currentResultId
+      : window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      const el = document.getElementById('share-toast');
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
+    }).catch(() => {
+      // Fallback for browsers that block clipboard API
+      const tmp = document.createElement('textarea');
+      tmp.value = url;
+      document.body.appendChild(tmp);
+      tmp.select();
+      document.execCommand('copy');
+      document.body.removeChild(tmp);
       const el = document.getElementById('share-toast');
       el.classList.add('show');
       setTimeout(() => el.classList.remove('show'), 2500);
@@ -2911,13 +2925,8 @@ ${promptClosing}`.trim();
     const title = document.getElementById('results-title');
     title.addEventListener('click', () => {
       title.classList.toggle('expanded');
-      // Also copy permalink
-      if (window.location.href.includes('?r=')) {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-          const el = document.getElementById('share-toast');
-          if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
-        });
-      }
+      // Also copy permalink if a result is loaded
+      if (currentResultId) shareResult();
     });
     // Collapse on scroll
     window.addEventListener('scroll', () => {
