@@ -1471,6 +1471,8 @@
         border-bottom: 1px solid var(--border);
         transition: none;
         background: var(--bg-surface);
+        display: flex;
+        align-items: stretch;
       }
       .sidebar:hover { width: 100%; }
 
@@ -1478,8 +1480,10 @@
         border-bottom: none; border-right: 1px solid var(--border);
         margin-bottom: 0; padding: 10px 14px;
         white-space: nowrap; flex-shrink: 0;
+        z-index: 2;
+        background: var(--bg-surface);
       }
-      .brand-link .brand-full { opacity: 0; pointer-events: none; }
+      .brand-link .brand-full { opacity: 0; pointer-events: none; width: 0; }
       .brand-link .brand-mono { opacity: 1; }
       .sidebar:hover .brand-link .brand-mono { opacity: 1; }
       .sidebar:hover .brand-link .brand-full { opacity: 0; }
@@ -1489,12 +1493,12 @@
         flex-direction: row; gap: 0;
         flex: 1; min-width: 0;
         overflow-x: auto; -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; padding: 0 8px;
+        scrollbar-width: none; padding: 0;
       }
       .nav-menu::-webkit-scrollbar { display: none; }
-      .nav-item { padding: 10px 14px; white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; font-size: 13px; }
+      .nav-item { padding: 10px 16px; white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; font-size: 12px; letter-spacing: 0.3px; }
       .nav-item.active { border-left: none; border-bottom-color: var(--accent-cyan); background: none; }
-      /* Show nav labels on mobile — override desktop hidden state */
+      /* Show nav labels on mobile */
       .nav-label { opacity: 1; pointer-events: auto; }
 
       /* ── Main content ── */
@@ -1613,10 +1617,10 @@
       <ul class="nav-menu" id="results-nav">
         <li class="nav-item active" onclick="jumpTo('sec-score')"><span class="nav-label">Overview</span></li>
         <li class="nav-item" onclick="jumpTo('sec-competitors')"><span class="nav-label">Competitors</span></li>
+        <li class="nav-item" onclick="jumpTo('sec-build')"><span class="nav-label">Build + Ship</span></li>
         <li class="nav-item" onclick="jumpTo('sec-community')"><span class="nav-label">Community</span></li>
         <li class="nav-item" onclick="jumpTo('sec-strategy')"><span class="nav-label">How to Win</span></li>
         <li class="nav-item" onclick="jumpTo('sec-launch-intel')"><span class="nav-label">Launch Intel</span></li>
-        <li class="nav-item" onclick="jumpTo('sec-build')"><span class="nav-label">Build + Ship</span></li>
         <li class="nav-item" onclick="jumpTo('sec-prompt')"><span class="nav-label">Build Your Prompt</span></li>
       </ul>
     </nav>
@@ -2166,7 +2170,7 @@
 
   function setupNavObserver() {
     if (navObserver) navObserver.disconnect();
-    const sections = ['sec-score','sec-competitors','sec-community','sec-strategy','sec-launch-intel','sec-build','sec-prompt'];
+    const sections = ['sec-score','sec-competitors','sec-build','sec-community','sec-strategy','sec-launch-intel','sec-prompt'];
     const navItems = document.querySelectorAll('.nav-item');
     navObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -2176,7 +2180,12 @@
             item.classList.toggle('active', i === idx);
             // Auto-scroll active nav item into view on mobile
             if (i === idx && window.innerWidth <= 768) {
-              item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+              const menu = document.getElementById('results-nav');
+              if (menu) {
+                const itemLeft = item.offsetLeft - menu.offsetLeft;
+                const scrollPos = itemLeft - menu.clientWidth / 2 + item.clientWidth / 2;
+                menu.scrollTo({ left: scrollPos, behavior: 'smooth' });
+              }
             }
           });
         }
