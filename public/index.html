@@ -2839,7 +2839,9 @@ ${promptClosing}`.trim();
 
   // ── SHARE / LOAD ──────────────────────────────
   function setResultsTitle(text) {
-    document.getElementById('results-title').textContent = text;
+    const el = document.getElementById('results-title');
+    el.textContent = text;
+    el.classList.remove('expanded', 'copied');
   }
 
   function shareResult() {
@@ -2929,9 +2931,10 @@ ${promptClosing}`.trim();
   (function() {
     const title = document.getElementById('results-title');
     title.addEventListener('click', () => {
+      const wasCollapsed = !title.classList.contains('expanded');
       title.classList.toggle('expanded');
-      // Also copy permalink if a result is loaded
-      if (currentResultId) shareResult();
+      // Copy permalink only when expanding (not when collapsing)
+      if (wasCollapsed && currentResultId) shareResult();
     });
     // Collapse on scroll
     window.addEventListener('scroll', () => {
