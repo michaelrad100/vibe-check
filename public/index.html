@@ -1519,6 +1519,9 @@
       .card-launch-intel { padding: 20px; }
       .card-prompt   { padding: 20px; }
 
+      /* ── Scroll margin for sticky nav ── */
+      .section-card { scroll-margin-top: 52px; }
+
       /* ── Score card mobile ── */
       .score-top { flex-direction: column; gap: 20px; }
       .score-visual { align-items: center; }
@@ -2163,13 +2166,19 @@
 
   function setupNavObserver() {
     if (navObserver) navObserver.disconnect();
-    const sections = ['sec-score','sec-competitors','sec-community','sec-strategy','sec-launch-intel','sec-build','sec-ship','sec-prompt'];
+    const sections = ['sec-score','sec-competitors','sec-community','sec-strategy','sec-launch-intel','sec-build','sec-prompt'];
     const navItems = document.querySelectorAll('.nav-item');
     navObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const idx = sections.indexOf(entry.target.id);
-          navItems.forEach((item, i) => item.classList.toggle('active', i === idx));
+          navItems.forEach((item, i) => {
+            item.classList.toggle('active', i === idx);
+            // Auto-scroll active nav item into view on mobile
+            if (i === idx && window.innerWidth <= 768) {
+              item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+          });
         }
       });
     }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
