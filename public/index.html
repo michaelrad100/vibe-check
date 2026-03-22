@@ -313,7 +313,8 @@
 
     textarea {
       width: 100%;
-      height: 180px;
+      min-height: 120px;
+      max-height: 300px;
       background: rgba(0,0,0,0.2);
       border: 1px solid var(--border);
       padding: 20px;
@@ -323,7 +324,14 @@
       resize: none;
       outline: none;
       transition: border-color 0.3s ease;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,229,255,0.3) transparent;
     }
+    textarea::-webkit-scrollbar { width: 6px; }
+    textarea::-webkit-scrollbar-track { background: transparent; }
+    textarea::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.3); border-radius: 3px; }
+    textarea::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,0.5); }
     textarea::placeholder { color: #444; }
     textarea:focus { border-color: var(--accent-cyan); }
 
@@ -2013,6 +2021,11 @@
 
   // Shuffle array and cycle through sequentially — no repeats until all seen
   let _ideaIndex = 0;
+  function autoGrowTextarea(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 300) + 'px';
+  }
+
   (function shuffleArray() {
     for (let i = _placeholderIdeas.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -2030,8 +2043,11 @@
         if (e.key === 'Tab' && !ta.value.trim()) {
           e.preventDefault();
           ta.value = ta.placeholder.replace(/\.\.\.$/,'');
+          autoGrowTextarea(ta);
         }
       });
+      // Auto-grow textarea as user types
+      ta.addEventListener('input', () => autoGrowTextarea(ta));
     }
   })();
 
