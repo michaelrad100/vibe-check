@@ -1465,23 +1465,19 @@
         width: 100%; height: auto;
         position: sticky; top: 0; z-index: 150;
         flex-direction: row;
-        overflow: visible;
-        scrollbar-width: none;
+        overflow: hidden;
         padding: 0;
         border-right: none;
         border-bottom: 1px solid var(--border);
         transition: none;
         background: var(--bg-surface);
       }
-      .sidebar::-webkit-scrollbar { display: none; }
       .sidebar:hover { width: 100%; }
 
       .brand-link {
         border-bottom: none; border-right: 1px solid var(--border);
         margin-bottom: 0; padding: 10px 14px;
         white-space: nowrap; flex-shrink: 0;
-        position: sticky; left: 0; z-index: 2;
-        background: var(--bg-surface);
       }
       .brand-link .brand-full { opacity: 0; pointer-events: none; }
       .brand-link .brand-mono { opacity: 1; }
@@ -1490,7 +1486,8 @@
       .sidebar:hover .brand-link { justify-content: center; padding-left: 14px; }
 
       .nav-menu {
-        flex-direction: row; gap: 0; flex-shrink: 0;
+        flex-direction: row; gap: 0;
+        flex: 1; min-width: 0;
         overflow-x: auto; -webkit-overflow-scrolling: touch;
         scrollbar-width: none; padding: 0 8px;
       }
