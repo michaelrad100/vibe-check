@@ -986,6 +986,7 @@
       border-radius: 50%;
       background: rgba(255,255,255,0.08);
       border: 1px solid var(--border);
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
     .build-dot.filled {
       background: var(--accent-cyan);
@@ -2266,6 +2267,57 @@
     }
   }
 
+  // ── ANIMATION UTILITIES ──────────────────────
+  function animateNumber(el, target, duration = 1200, prefix = '', suffix = '') {
+    const start = performance.now();
+    const isFloat = String(target).includes('.');
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+      const current = isFloat ? (target * eased).toFixed(1) : Math.round(target * eased);
+      el.textContent = prefix + current + suffix;
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function animateCSSVar(el, prop, target, duration = 1200) {
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.style.setProperty(prop, target * eased);
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function animateWidth(el, targetPct, duration = 1000, delay = 0) {
+    el.style.width = '0%';
+    el.style.transition = 'none';
+    setTimeout(() => {
+      el.style.transition = `width ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+      el.style.width = targetPct + '%';
+    }, delay + 50);
+  }
+
+  function animateDollar(el, targetStr, duration = 1200) {
+    // Parse "$39.7B" → { num: 39.7, suffix: "B", prefix: "$" }
+    const match = targetStr.match(/^\$?([\d.]+)\s*([BMKTbmkt]?)$/);
+    if (!match) { el.textContent = targetStr; return; }
+    const num = parseFloat(match[1]);
+    const unit = match[2].toUpperCase();
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const current = (num * eased).toFixed(num >= 100 ? 0 : num >= 10 ? 1 : 2);
+      el.textContent = '$' + current + unit;
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
   function renderScore(opp) {
     const g = opp.opportunity_grade || '?';
     document.getElementById('grade-value').textContent = g;
@@ -2276,12 +2328,14 @@
     const explanation = (opp.grade_explanation || opp.opportunity_summary || '').replace(/\[\d+\]/g, '');
     document.getElementById('score-summary').textContent = explanation;
 
-    // Grade ring fill
+    // Grade ring fill — animate from 0
     const gradePct = { 'A+': 100, A: 95, 'A-': 90, 'B+': 85, B: 78, 'B-': 72, 'C+': 65, C: 58, 'C-': 52, 'D+': 45, D: 38, 'D-': 32, F: 15 };
     const pct = gradePct[g] || (opp.opportunity_score ? opp.opportunity_score * 10 : 50);
-    document.querySelector('.grade-ring').style.setProperty('--ring-pct', pct);
+    const ring = document.querySelector('.grade-ring');
+    ring.style.setProperty('--ring-pct', 0);
+    setTimeout(() => animateCSSVar(ring, '--ring-pct', pct, 1400), 100);
 
-    // --- Tile 1: Market Size ---
+    // --- Tile 1: Market Size (animated) ---
     const cur = opp.market_size_current;
     const proj = opp.market_size_projected;
     const tileMkt = document.querySelector('#tile-market-size .tile-body');
@@ -2290,40 +2344,55 @@
       const curNum = parseVal(cur.value);
       const projNum = parseVal(proj.value);
       const maxNum = Math.max(curNum, projNum);
-      const curH = Math.max(20, Math.round((curNum / maxNum) * 52));
-      const projH = Math.max(20, Math.round((projNum / maxNum) * 52));
       const curPct = Math.max(15, Math.round((curNum / maxNum) * 100));
       const projPct = Math.max(15, Math.round((projNum / maxNum) * 100));
       tileMkt.innerHTML = `
         <div class="mkt-size-chart">
           <div class="mkt-row current">
             <span class="mkt-row-year">${cur.year}</span>
-            <div class="mkt-row-bar"><div class="mkt-row-fill" style="width:${curPct}%"></div></div>
-            <span class="mkt-row-value">${cur.value}</span>
+            <div class="mkt-row-bar"><div class="mkt-row-fill" style="width:0%"></div></div>
+            <span class="mkt-row-value">$0</span>
           </div>
           <div class="mkt-row projected">
             <span class="mkt-row-year">${proj.year}</span>
-            <div class="mkt-row-bar"><div class="mkt-row-fill" style="width:${projPct}%"></div></div>
-            <span class="mkt-row-value">${proj.value}</span>
+            <div class="mkt-row-bar"><div class="mkt-row-fill" style="width:0%"></div></div>
+            <span class="mkt-row-value">$0</span>
           </div>
         </div>`;
+      // Animate bars and dollar values
+      const fills = tileMkt.querySelectorAll('.mkt-row-fill');
+      const vals = tileMkt.querySelectorAll('.mkt-row-value');
+      setTimeout(() => {
+        animateWidth(fills[0], curPct, 1000, 0);
+        animateWidth(fills[1], projPct, 1000, 150);
+        animateDollar(vals[0], cur.value, 1200);
+        animateDollar(vals[1], proj.value, 1200);
+      }, 100);
     } else if (tileMkt && opp.market_size) {
       tileMkt.innerHTML = `<div style="font-size:13px;color:var(--text-muted);line-height:1.4">${(opp.market_size || '').replace(/\[\d+\]/g, '')}</div>`;
     }
 
-    // --- Tile 4: Build Time (from cached technical data) ---
+    // --- Tile 4: Build Time (animated dots) ---
     const tileBuild = document.querySelector('#tile-build-time .tile-body');
     if (_cachedTech) {
       const timeStr = _cachedTech.time_estimates?.done_a_few || _cachedTech.time_estimates?.first_project || '';
-      // Extract just the time portion (e.g. "3-4 months")
       const shortTime = timeStr.replace(/\s*(using|with|for).*$/i, '').trim();
       const diffScore = _cachedTech.difficulty_score || 5;
-      const dots = Array.from({length: 5}, (_, i) =>
-        `<div class="build-dot${i < Math.round(diffScore / 2) ? ' filled' : ''}"></div>`
+      const filledCount = Math.round(diffScore / 2);
+      // Start all dots unfilled, animate them in
+      const dots = Array.from({length: 5}, () =>
+        `<div class="build-dot"></div>`
       ).join('');
       tileBuild.innerHTML = `
         <div class="build-tile-value">${shortTime || '—'}</div>
         <div class="build-tile-difficulty">${dots}<span style="font-size:10px;color:var(--text-muted);margin-left:6px;text-transform:uppercase;letter-spacing:0.5px">${humanize(_cachedTech.difficulty || '')}</span></div>`;
+      // Stagger dot fills
+      const dotEls = tileBuild.querySelectorAll('.build-dot');
+      dotEls.forEach((dot, i) => {
+        if (i < filledCount) {
+          setTimeout(() => dot.classList.add('filled'), 200 + i * 150);
+        }
+      });
     }
 
     // Populate tile insights with contextual data
@@ -2333,7 +2402,7 @@
   function renderMarket(d) {
     const sat = d.saturation_score || 0;
 
-    // --- Tile 2: Saturation ---
+    // --- Tile 2: Saturation (animated) ---
     const tileSat = document.querySelector('#tile-saturation .tile-body');
     if (tileSat) {
       const satLabel = sat <= 3 ? 'Low' : sat <= 6 ? 'Moderate' : 'High';
@@ -2342,16 +2411,23 @@
           <div class="sat-tile-bar">
             <div class="sat-tile-fill" style="width:0%"></div>
           </div>
-          <span class="sat-tile-num">${sat}<span style="font-size:12px;color:var(--text-muted)">/10</span></span>
+          <span class="sat-tile-num">0<span style="font-size:12px;color:var(--text-muted)">/10</span></span>
         </div>
         <div class="sat-tile-label">${satLabel} saturation</div>`;
       setTimeout(() => {
         const fill = tileSat.querySelector('.sat-tile-fill');
-        if (fill) fill.style.width = (sat * 10) + '%';
+        if (fill) animateWidth(fill, sat * 10, 1000);
+        const numEl = tileSat.querySelector('.sat-tile-num');
+        if (numEl) {
+          const suffixSpan = numEl.querySelector('span');
+          animateNumber(numEl, sat, 1000);
+          // Re-append the /10 suffix after animation completes
+          setTimeout(() => { numEl.textContent = sat; numEl.appendChild(suffixSpan); }, 1050);
+        }
       }, 100);
     }
 
-    // --- Tile 3: Competition (market dominance) ---
+    // --- Tile 3: Competition (animated donut) ---
     const tileComp = document.querySelector('#tile-competition .tile-body');
     if (tileComp) {
       const concentration = d.market_concentration || 'moderate';
@@ -2362,13 +2438,20 @@
       if (share > 0 && name) {
         tileComp.innerHTML = `
           <div class="comp-tile-row">
-            <div class="comp-donut" style="--comp-share:${share}"></div>
+            <div class="comp-donut" style="--comp-share:0"></div>
             <div class="comp-tile-info">
-              <span class="comp-tile-share">${share}%</span>
+              <span class="comp-tile-share">0%</span>
               <span class="comp-tile-name">${name}</span>
               <span class="comp-tile-type">${concLabel}</span>
             </div>
           </div>`;
+        // Animate donut and percentage
+        setTimeout(() => {
+          const donut = tileComp.querySelector('.comp-donut');
+          const shareEl = tileComp.querySelector('.comp-tile-share');
+          if (donut) animateCSSVar(donut, '--comp-share', share, 1200);
+          if (shareEl) animateNumber(shareEl, share, 1200, '', '%');
+        }, 100);
       } else {
         tileComp.innerHTML = `
           <div style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text-main);text-transform:uppercase">${concLabel}</div>
