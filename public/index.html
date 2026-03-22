@@ -2895,6 +2895,13 @@ ${promptClosing}`.trim();
     const title = document.getElementById('results-title');
     title.addEventListener('click', () => {
       title.classList.toggle('expanded');
+      // Also copy permalink
+      if (window.location.href.includes('?r=')) {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          const el = document.getElementById('share-toast');
+          if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
+        });
+      }
     });
     // Collapse on scroll
     window.addEventListener('scroll', () => {
