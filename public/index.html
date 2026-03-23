@@ -189,25 +189,37 @@
       color: var(--text-muted);
       font-size: 18px;
       max-width: 540px;
-      margin: 0 auto 32px;
+      margin: 0 auto 48px;
       line-height: 1.6;
     }
+    .form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+    }
     .idea-counter {
-      text-align: center;
-      margin-bottom: 48px;
-      font-size: 13px;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.3px;
       opacity: 0;
       transition: opacity 0.6s ease;
     }
     .idea-counter.visible { opacity: 1; }
     .idea-counter .count-num {
-      color: var(--accent-cyan);
+      color: rgba(0,229,255,0.5);
       font-family: var(--font-display);
-      font-size: 15px;
+      font-size: 12px;
       font-weight: 500;
     }
+    .feed-link {
+      font-size: 11px;
+      color: rgba(255,255,255,0.25);
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: color 0.2s ease;
+    }
+    .feed-link:hover { color: var(--accent-cyan); }
 
     .form-card {
       background: var(--bg-card);
@@ -1763,7 +1775,6 @@
   <div class="landing-inner">
     <h1 class="landing-h1">Is your idea<br>worth building?</h1>
     <p class="landing-sub">Find out if someone's already built it, how hard it is to build, and what real users are saying about the competition.</p>
-    <div class="idea-counter" id="idea-counter"></div>
 
     <div class="form-card">
       <label class="field-label" for="idea-input">Your idea.</label>
@@ -1780,7 +1791,10 @@
       </div>
       <p class="textarea-hint">More detail = sharper analysis. Include who it's for, the problem it solves, and any key features you have in mind.</p>
       <button class="cta-button" id="analyze-btn" onclick="analyze()">Start Analysis</button>
-      <a href="/feed" style="display:block;text-align:center;margin-top:16px;font-size:12px;color:var(--text-muted);text-decoration:none;letter-spacing:0.5px;transition:color 0.2s ease" onmouseover="this.style.color='var(--accent-cyan)'" onmouseout="this.style.color='var(--text-muted)'">Browse recent ideas &rarr;</a>
+      <div class="form-footer">
+        <div class="idea-counter" id="idea-counter"></div>
+        <a href="/feed" class="feed-link">Browse recent ideas &rarr;</a>
+      </div>
     </div>
   </div>
 </section>
