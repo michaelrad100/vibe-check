@@ -218,7 +218,7 @@ Return JSON with this exact structure (no other text):
 
 Return JSON with this exact structure (no other text):
 {
-  "opportunity_grade": "A|B|C|D|F",
+  "opportunity_grade": "A+|A|A-|B+|B|B-|C+|C|C-|D+|D|D-|F",
   "opportunity_score": 1-10,
   "opportunity_summary": "One direct verdict sentence — should they build it or use what already exists?",
   "opportunity_type": "blue_ocean|niche_product|competitive_market|emerging_market|saturated_market",
@@ -241,7 +241,7 @@ monetization_strategies MUST be an empty array [].`
 
 Return JSON with this exact structure (no other text):
 {
-  "opportunity_grade": "A|B|C|D|F",
+  "opportunity_grade": "A+|A|A-|B+|B|B-|C+|C|C-|D+|D|D-|F",
   "opportunity_score": 1-10,
   "grade_explanation": "1-2 sentences explaining WHY this idea received this grade",
   "opportunity_type": "blue_ocean|niche_product|competitive_market|emerging_market|saturated_market",
