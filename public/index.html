@@ -1306,6 +1306,59 @@
       letter-spacing: 0.3px;
     }
 
+    /* ── Pulse view toggle ── */
+    .pulse-view-toggle {
+      display: flex;
+      gap: 2px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 4px;
+      padding: 2px;
+    }
+    .pulse-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-family: var(--font-body);
+      letter-spacing: 0.3px;
+      padding: 4px 12px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .pulse-toggle-btn:hover { color: var(--text-main); }
+    .pulse-toggle-btn.active {
+      background: rgba(0,229,255,0.1);
+      color: var(--accent-cyan);
+    }
+
+    /* ── Per-competitor pulse view ── */
+    .pulse-competitor-view {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .pulse-comp-block {
+      border: 1px solid var(--border);
+      padding: 16px;
+      background: rgba(255,255,255,0.01);
+    }
+    .pulse-comp-name {
+      font-family: var(--font-display);
+      font-size: 16px;
+      text-transform: uppercase;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .pulse-comp-insights {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
     /* ── Strategy / How to Win card ── */
     .card-strategy {
       grid-column: span 12;
@@ -1816,7 +1869,13 @@
 
         <!-- Community Pulse -->
         <div class="section-card card-community" id="sec-community">
-          <div class="section-header">Community Pulse</div>
+          <div class="section-header">
+            Community Pulse
+            <div class="pulse-view-toggle" id="pulse-view-toggle" style="display:none">
+              <button class="pulse-toggle-btn active" data-view="sentiment" onclick="togglePulseView('sentiment')">By Sentiment</button>
+              <button class="pulse-toggle-btn" data-view="competitor" onclick="togglePulseView('competitor')">By Competitor</button>
+            </div>
+          </div>
           <div class="pulse-grid" id="pulse-grid">
             <div>
               <div class="pulse-col-header pain">Pain Points</div>
@@ -1837,6 +1896,7 @@
               </div>
             </div>
           </div>
+          <div class="pulse-competitor-view" id="pulse-competitor-view" style="display:none"></div>
         </div>
 
         <!-- How to Win -->
@@ -2722,7 +2782,29 @@
     `;
   }
 
+  let _cachedSentiment = null;
+
+  function _renderPulseItem(s, cls) {
+    const sourceLink = s.source_url
+      ? `<a href="${s.source_url}" target="_blank" rel="noopener">${s.source || 'Source'}</a>`
+      : (s.source || '');
+    const compBadge = s.competitor_reference
+      ? `<span class="pulse-competitor">re: ${s.competitor_reference}</span>`
+      : `<span class="pulse-competitor" style="opacity:0.5">general space</span>`;
+    return `
+      <div class="pulse-item ${cls}">
+        <div class="pulse-quote">"${(s.quote || '').replace(/\[\d+\]/g, '')}"</div>
+        <div class="pulse-meta">
+          <span class="pulse-theme">${s.theme || ''}</span>
+          <span class="pulse-source">${sourceLink}</span>
+          ${compBadge}
+        </div>
+      </div>
+    `;
+  }
+
   function renderSentiment(d) {
+    _cachedSentiment = d;
     const insights = d.community_insights || [];
     const pain = insights.filter(i => i.sentiment === 'pain_point').slice(0, 5);
     const love = insights.filter(i => i.sentiment === 'loved_feature').slice(0, 5);
@@ -2730,29 +2812,67 @@
 
     function renderItems(items, cls) {
       if (!items.length) return '<p style="font-size:12px;color:var(--text-muted);padding:8px 0">No data found.</p>';
-      return items.map(s => {
-        const sourceLink = s.source_url
-          ? `<a href="${s.source_url}" target="_blank" rel="noopener">${s.source || 'Source'}</a>`
-          : (s.source || '');
-        const compBadge = s.competitor_reference
-          ? `<span class="pulse-competitor">re: ${s.competitor_reference}</span>`
-          : `<span class="pulse-competitor" style="opacity:0.5">general space</span>`;
-        return `
-          <div class="pulse-item ${cls}">
-            <div class="pulse-quote">"${s.quote || ''}"</div>
-            <div class="pulse-meta">
-              <span class="pulse-theme">${s.theme || ''}</span>
-              <span class="pulse-source">${sourceLink}</span>
-              ${compBadge}
-            </div>
-          </div>
-        `;
-      }).join('');
+      return items.map(s => _renderPulseItem(s, cls)).join('');
     }
 
     document.getElementById('pulse-pain').innerHTML = renderItems(pain, 'pain');
     document.getElementById('pulse-love').innerHTML = renderItems(love, 'love');
     document.getElementById('pulse-wish').innerHTML = renderItems(wish, 'wish');
+
+    // Show toggle if we have insights with competitor references
+    if (insights.some(i => i.competitor_reference)) {
+      document.getElementById('pulse-view-toggle').style.display = '';
+    }
+  }
+
+  function renderSentimentByCompetitor(insights) {
+    const compView = document.getElementById('pulse-competitor-view');
+    if (!compView) return;
+
+    // Group by competitor_reference
+    const groups = {};
+    insights.forEach(i => {
+      const comp = i.competitor_reference || 'General';
+      if (!groups[comp]) groups[comp] = [];
+      groups[comp].push(i);
+    });
+
+    // Sort by most insights first, "General" last
+    const sorted = Object.entries(groups).sort((a, b) => {
+      if (a[0] === 'General') return 1;
+      if (b[0] === 'General') return -1;
+      return b[1].length - a[1].length;
+    });
+
+    const sentimentCls = { pain_point: 'pain', loved_feature: 'love', wish: 'wish' };
+
+    compView.innerHTML = sorted.map(([comp, items]) => {
+      const itemsHtml = items.map(i => _renderPulseItem(i, sentimentCls[i.sentiment] || 'pain')).join('');
+      return `
+        <div class="pulse-comp-block">
+          <div class="pulse-comp-name">${comp}</div>
+          <div class="pulse-comp-insights">${itemsHtml}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function togglePulseView(view) {
+    const grid = document.getElementById('pulse-grid');
+    const compView = document.getElementById('pulse-competitor-view');
+    document.querySelectorAll('.pulse-toggle-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.view === view)
+    );
+    if (view === 'sentiment') {
+      grid.style.display = '';
+      compView.style.display = 'none';
+    } else {
+      grid.style.display = 'none';
+      compView.style.display = '';
+      if (!compView.hasChildNodes() || !compView.innerHTML.trim()) {
+        renderSentimentByCompetitor((_cachedSentiment?.community_insights) || []);
+      }
+    }
   }
 
   function renderStrategy(opp) {
@@ -3042,6 +3162,12 @@ ${promptClosing}`.trim();
     document.getElementById('pulse-pain').innerHTML = '<div class="skeleton skel-block" style="height:80px"></div>';
     document.getElementById('pulse-love').innerHTML = '<div class="skeleton skel-block" style="height:80px"></div>';
     document.getElementById('pulse-wish').innerHTML = '<div class="skeleton skel-block" style="height:80px"></div>';
+    document.getElementById('pulse-competitor-view').innerHTML = '';
+    document.getElementById('pulse-competitor-view').style.display = 'none';
+    document.getElementById('pulse-grid').style.display = '';
+    document.getElementById('pulse-view-toggle').style.display = 'none';
+    document.querySelectorAll('.pulse-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'sentiment'));
+    _cachedSentiment = null;
     document.getElementById('strategy-list').innerHTML = `
       <div class="skeleton skel-block" style="height:100px"></div>
       <div class="skeleton skel-block" style="height:100px"></div>
