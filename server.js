@@ -257,12 +257,16 @@ Return JSON with this exact structure (no other text):
   ],
   "improvement_suggestions": [
     {"suggestion":"","reasoning":"","priority":"high|medium|low","effort":"low|medium|high"}
-  ]
+  ],
+  "bottom_line": "2-3 sentences: the honest verdict. What should this person do? Be direct — tell them whether to proceed, pivot, or pass, and why. Reference the most important factor.",
+  "recommended_play": "One sentence: the single best move — which audience to target first with which monetization model."
 }
 
 grade_explanation: 1-2 concise sentences explaining WHY this idea received this grade. Synthesize the single most important insight — the key opportunity or challenge that defines the verdict. Always refer to the subject as an "idea" or "product", never as a "feature".
 market_size_current: the current market size as a short value string (e.g. "$1.55B") and year. Use real data.
 market_size_projected: the projected future market size and target year. Use real data.
+bottom_line: Be direct and specific. Don't hedge. Tell them what to actually do based on the analysis. Reference specific competitors, audience segments, or monetization models. This is the "so what?" of the entire report.
+recommended_play: Connect the best target_audience with the best monetization_strategy into one actionable sentence. E.g. "Target X audience with Y model to reach Z."
 Do NOT include citation numbers like [1] or [2] in any text fields.`,
 
   deployment: (idea) => `Recommend deployment platforms for: "${idea}"
@@ -602,6 +606,18 @@ app.get('/api/result/:id', async (req, res) => {
   const result = resultStore.get(req.params.id);
   if (!result) return res.status(404).json({ error: 'Result not found or expired' });
   res.json(result);
+});
+
+// ── COUNT ENDPOINT ───────────────────────────────
+app.get('/api/count', async (req, res) => {
+  if (supabase) {
+    const { count, error } = await supabase
+      .from('results')
+      .select('*', { count: 'exact', head: true });
+    if (error) return res.json({ count: resultStore.size });
+    return res.json({ count });
+  }
+  res.json({ count: resultStore.size });
 });
 
 // ── FEED ENDPOINT ────────────────────────────────

@@ -189,8 +189,24 @@
       color: var(--text-muted);
       font-size: 18px;
       max-width: 540px;
-      margin: 0 auto 64px;
+      margin: 0 auto 32px;
       line-height: 1.6;
+    }
+    .idea-counter {
+      text-align: center;
+      margin-bottom: 48px;
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    .idea-counter.visible { opacity: 1; }
+    .idea-counter .count-num {
+      color: var(--accent-cyan);
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 500;
     }
 
     .form-card {
@@ -628,6 +644,22 @@
       transition: opacity 0.3s ease;
     }
     .share-link-btn .share-toast.show { opacity: 1; }
+    .rerun-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-family: var(--font-body);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .rerun-btn:hover { color: var(--accent-cyan); border-color: var(--accent-cyan); }
     .results-idea-sub {
       font-size: 13px;
       color: var(--text-muted);
@@ -847,6 +879,40 @@
     }
     .tile-insight.open {
       display: block;
+    }
+
+    /* ── Bottom Line ── */
+    .bottom-line {
+      border-top: 1px solid var(--border);
+      margin-top: 16px;
+      padding: 16px 20px;
+    }
+    .bottom-line-label {
+      font-family: var(--font-display);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+    }
+    .bottom-line-text {
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .bottom-line-play {
+      font-size: 13px;
+      color: var(--accent-cyan);
+      line-height: 1.5;
+      font-style: italic;
+      opacity: 0.85;
+    }
+    .grade-context {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      letter-spacing: 0.3px;
     }
 
     /* Market size tile: horizontal bars */
@@ -1712,7 +1778,8 @@
 <section id="landing">
   <div class="landing-inner">
     <h1 class="landing-h1">Is your idea<br>worth building?</h1>
-    <p class="landing-sub">Stop guessing. Run your concept through our multi-vector validation engine to analyze market saturation, technical feasibility, and trend velocity.</p>
+    <p class="landing-sub">Find out if someone's already built it, how hard it is to build, and what real users are saying about the competition.</p>
+    <div class="idea-counter" id="idea-counter"></div>
 
     <div class="form-card">
       <label class="field-label" for="idea-input">Your idea.</label>
@@ -1766,6 +1833,10 @@
       <div class="results-header">
         <div class="results-idea-title" id="results-title">Analyzing your idea...</div>
         <button class="share-link-btn" id="share-link-btn" onclick="shareResult()" title="Copy share link" style="display:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="share-toast" id="share-toast">Link copied</span></button>
+        <button class="rerun-btn" id="rerun-btn" onclick="refineAndRerun()" title="Refine & Re-run" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          Refine
+        </button>
       </div>
 
       <div class="status-bar" id="status-bar">
@@ -1814,6 +1885,12 @@
               <div class="tile-body"><div class="skel-block skeleton" style="height:48px"></div></div>
               <div class="tile-insight" id="insight-build-time"></div>
             </div>
+          </div>
+          <!-- Bottom Line -->
+          <div class="bottom-line" id="bottom-line" style="display:none">
+            <div class="bottom-line-label">Bottom Line</div>
+            <p class="bottom-line-text" id="bottom-line-text"></p>
+            <p class="bottom-line-play" id="bottom-line-play"></p>
           </div>
         </div>
 
@@ -2291,6 +2368,18 @@
   }
 
   // ── NAV & ROUTING ─────────────────────────────
+  function refineAndRerun() {
+    const title = document.getElementById('results-title')?.textContent || '';
+    goHome();
+    const ta = document.getElementById('idea-input');
+    if (ta && title) {
+      ta.value = title;
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+      ta.focus();
+    }
+  }
+
   function goHome() {
     if (navObserver) navObserver.disconnect();
     currentResultId = null;
@@ -2487,11 +2576,30 @@
     const g = opp.opportunity_grade || '?';
     document.getElementById('grade-value').textContent = g;
     document.getElementById('grade-value').className = 'grade-value ' + gradeColor(g);
-    document.getElementById('score-meta').textContent = humanize(opp.opportunity_type || '');
+    // Grade context label
+    const gradeLabels = {
+      'A+': 'Exceptional opportunity', A: 'Strong opportunity', 'A-': 'Very promising',
+      'B+': 'Good potential', B: 'Solid potential, some competition', 'B-': 'Decent potential',
+      'C+': 'Worth exploring', C: 'Possible but challenging', 'C-': 'Uphill battle',
+      'D+': 'Tough market', D: 'Unlikely to succeed', 'D-': 'Very difficult',
+      F: 'Not recommended'
+    };
+    const metaEl = document.getElementById('score-meta');
+    metaEl.innerHTML = `${humanize(opp.opportunity_type || '')}${gradeLabels[g] ? `<div class="grade-context">${g} — ${gradeLabels[g]}</div>` : ''}`;
 
     // Verdict text (1-2 sentences)
     const explanation = (opp.grade_explanation || opp.opportunity_summary || '').replace(/\[\d+\]/g, '');
     document.getElementById('score-summary').textContent = explanation;
+
+    // Bottom Line
+    const bottomLineEl = document.getElementById('bottom-line');
+    const bottomText = (opp.bottom_line || '').replace(/\[\d+\]/g, '');
+    const recPlay = (opp.recommended_play || '').replace(/\[\d+\]/g, '');
+    if (bottomText && bottomLineEl) {
+      document.getElementById('bottom-line-text').textContent = bottomText;
+      if (recPlay) document.getElementById('bottom-line-play').textContent = recPlay;
+      bottomLineEl.style.display = '';
+    }
 
     // Grade ring fill — animate from 0
     const gradePct = { 'A+': 100, A: 95, 'A-': 90, 'B+': 85, B: 78, 'B-': 72, 'C+': 65, C: 58, 'C-': 52, 'D+': 45, D: 38, 'D-': 32, F: 15 };
@@ -3005,6 +3113,7 @@ ${promptClosing}`.trim();
     setResultsTitle('Analyzing your idea...');
     document.getElementById('status-bar').style.display = 'flex';
     document.getElementById('share-link-btn').style.display = 'none';
+    document.getElementById('rerun-btn').style.display = 'none';
     document.getElementById('analyze-btn').disabled = true;
 
     _cachedMode = _selectedMode;
@@ -3110,6 +3219,7 @@ ${promptClosing}`.trim();
         document.getElementById('sec-score').classList.add('loaded');
         setResultsTitle(idea);
         document.getElementById('share-link-btn').style.display = '';
+        document.getElementById('rerun-btn').style.display = '';
         if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
         // Final safety net — render prompt with whatever data we have
         _tryRenderPrompt();
@@ -3134,6 +3244,9 @@ ${promptClosing}`.trim();
     document.getElementById('score-differentiators').innerHTML = '';
     document.getElementById('grade-value').textContent = '—';
     document.getElementById('score-meta').textContent = '';
+    document.getElementById('bottom-line').style.display = 'none';
+    document.getElementById('bottom-line-text').textContent = '';
+    document.getElementById('bottom-line-play').textContent = '';
     // Reset all 4 tiles
     document.querySelectorAll('.stat-tile .tile-body').forEach(el => {
       el.innerHTML = '<div class="skel-block skeleton" style="height:48px"></div>';
@@ -3243,6 +3356,7 @@ ${promptClosing}`.trim();
       renderPrompt(d.idea, d.opportunity, d.technical, d.deployment);
       document.getElementById('status-bar').style.display = 'none';
       document.getElementById('share-link-btn').style.display = '';
+      document.getElementById('rerun-btn').style.display = '';
       document.getElementById('sec-score').classList.add('loaded');
       currentResultId = id;
       setupNavObserver();
@@ -3301,6 +3415,14 @@ ${promptClosing}`.trim();
   (function init() {
     const rid = new URLSearchParams(window.location.search).get('r');
     if (rid) loadSharedResult(rid);
+    // Fetch idea counter for landing page
+    fetch('/api/count').then(r => r.json()).then(d => {
+      const el = document.getElementById('idea-counter');
+      if (el && d.count > 0) {
+        el.innerHTML = `<span class="count-num">${d.count.toLocaleString()}</span> ideas analyzed`;
+        el.classList.add('visible');
+      }
+    }).catch(() => {});
   })();
 </script>
 
