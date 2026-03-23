@@ -1451,7 +1451,7 @@
       .score-tiles { grid-template-columns: repeat(2, 1fr); }
       .card-market { grid-template-columns: 120px 1fr; gap: 20px; }
       .pulse-grid { grid-template-columns: 1fr; }
-      .comp-grid { grid-template-columns: repeat(2, 1fr); }
+      .comp-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     }
 
     @media (max-width: 768px) {
@@ -1544,7 +1544,9 @@
       .market-data-col { gap: 16px; }
 
       /* ── Grids ── */
-      .comp-grid { grid-template-columns: 1fr; }
+      .comp-grid { grid-template-columns: 1fr !important; gap: 12px; }
+      .comp-tile { overflow: hidden; }
+      .comp-name { font-size: 18px; word-break: break-word; }
       .strategy-list { grid-template-columns: 1fr; gap: 16px; }
       .pulse-grid { grid-template-columns: 1fr; }
       .launch-grid { grid-template-columns: 1fr; gap: 20px; }
