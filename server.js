@@ -548,5 +548,86 @@ app.get('/api/result/:id', async (req, res) => {
   res.json(result);
 });
 
+// ── FEED ENDPOINT ────────────────────────────────
+const NSFW_BLOCKLIST = [
+  'porn','sex','nude','naked','xxx','hentai','erotic','fetish','onlyfans',
+  'nsfw','dick','cock','pussy','anal','blowjob','cum','orgasm','masturbat',
+  'fuck','shit','bitch','nigger','faggot','retard','cunt','whore','slut',
+  'rape','molest','pedophil','incest','bestiality','zoophil',
+  'drug deal','meth','cocaine','heroin','fentanyl',
+  'kill','murder','suicide','bomb','terror','weapon','gun store','ammo'
+];
+
+function isNSFW(text) {
+  const lower = text.toLowerCase();
+  return NSFW_BLOCKLIST.some(word => lower.includes(word));
+}
+
+function normalizeIdea(idea) {
+  return idea.toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+app.get('/api/results', async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+  const offset = parseInt(req.query.offset) || 0;
+
+  try {
+    let items = [];
+
+    if (supabase) {
+      // Fetch more than needed to account for NSFW filtering and dedup
+      const { data, error } = await supabase
+        .from('results')
+        .select('id, idea, opportunity, created_at')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      items = data || [];
+    } else {
+      // In-memory fallback
+      items = [...resultStore.values()]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .map(r => ({ id: r.id, idea: r.idea, opportunity: r.opportunity, created_at: r.createdAt }));
+    }
+
+    // Filter NSFW
+    items = items.filter(r => r.idea && !isNSFW(r.idea));
+
+    // Deduplicate — keep most recent per unique idea
+    const seen = new Map();
+    items = items.filter(r => {
+      const key = normalizeIdea(r.idea);
+      if (seen.has(key)) return false;
+      seen.set(key, true);
+      return true;
+    });
+
+    // Paginate
+    const page = items.slice(offset, offset + limit);
+
+    // Return lightweight cards
+    res.json({
+      results: page.map(r => ({
+        id: r.id,
+        idea: r.idea,
+        grade: r.opportunity?.opportunity_grade || '?',
+        type: r.opportunity?.opportunity_type || '',
+        explanation: (r.opportunity?.grade_explanation || r.opportunity?.opportunity_summary || '').replace(/\[\d+\]/g, ''),
+        created_at: r.created_at,
+      })),
+      total: items.length,
+      hasMore: offset + limit < items.length,
+    });
+  } catch (err) {
+    console.error('Feed error:', err.message);
+    res.status(500).json({ error: 'Failed to load feed' });
+  }
+});
+
+// ── SERVE FEED PAGE ──────────────────────────────
+app.get('/feed', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'feed.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Vibe Check server running on port ${PORT}`));
