@@ -644,22 +644,6 @@
       transition: opacity 0.3s ease;
     }
     .share-link-btn .share-toast.show { opacity: 1; }
-    .rerun-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-family: var(--font-body);
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-      transition: color 0.2s ease, border-color 0.2s ease;
-    }
-    .rerun-btn:hover { color: var(--accent-cyan); border-color: var(--accent-cyan); }
     .results-idea-sub {
       font-size: 13px;
       color: var(--text-muted);
@@ -1833,10 +1817,6 @@
       <div class="results-header">
         <div class="results-idea-title" id="results-title">Analyzing your idea...</div>
         <button class="share-link-btn" id="share-link-btn" onclick="shareResult()" title="Copy share link" style="display:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="share-toast" id="share-toast">Link copied</span></button>
-        <button class="rerun-btn" id="rerun-btn" onclick="refineAndRerun()" title="Refine & Re-run" style="display:none">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-          Refine
-        </button>
       </div>
 
       <div class="status-bar" id="status-bar">
@@ -2368,19 +2348,9 @@
   }
 
   // ── NAV & ROUTING ─────────────────────────────
-  function refineAndRerun() {
-    const title = document.getElementById('results-title')?.textContent || '';
-    goHome();
-    const ta = document.getElementById('idea-input');
-    if (ta && title) {
-      ta.value = title;
-      ta.style.height = 'auto';
-      ta.style.height = ta.scrollHeight + 'px';
-      ta.focus();
-    }
-  }
-
   function goHome() {
+    // Grab the current idea text before resetting
+    const currentIdea = document.getElementById('results-title')?.textContent || '';
     if (navObserver) navObserver.disconnect();
     currentResultId = null;
     history.replaceState(null, '', '/');
@@ -2394,6 +2364,13 @@
     _selectedMode = 'market';
     applyModeLabels('market');
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.value === 'market'));
+    // Pre-fill textarea with the idea from the results page
+    const ta = document.getElementById('idea-input');
+    if (ta && currentIdea && currentIdea !== 'Analyzing your idea...') {
+      ta.value = currentIdea;
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
   }
 
   function jumpTo(id) {
@@ -3113,7 +3090,7 @@ ${promptClosing}`.trim();
     setResultsTitle('Analyzing your idea...');
     document.getElementById('status-bar').style.display = 'flex';
     document.getElementById('share-link-btn').style.display = 'none';
-    document.getElementById('rerun-btn').style.display = 'none';
+
     document.getElementById('analyze-btn').disabled = true;
 
     _cachedMode = _selectedMode;
@@ -3219,7 +3196,7 @@ ${promptClosing}`.trim();
         document.getElementById('sec-score').classList.add('loaded');
         setResultsTitle(idea);
         document.getElementById('share-link-btn').style.display = '';
-        document.getElementById('rerun-btn').style.display = '';
+
         if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
         // Final safety net — render prompt with whatever data we have
         _tryRenderPrompt();
@@ -3419,8 +3396,25 @@ ${promptClosing}`.trim();
     fetch('/api/count').then(r => r.json()).then(d => {
       const el = document.getElementById('idea-counter');
       if (el && d.count > 0) {
-        el.innerHTML = `<span class="count-num">${d.count.toLocaleString()}</span> ideas analyzed`;
+        const numSpan = document.createElement('span');
+        numSpan.className = 'count-num';
+        numSpan.textContent = '0';
+        el.innerHTML = '';
+        el.appendChild(numSpan);
+        el.appendChild(document.createTextNode(' ideas analyzed'));
         el.classList.add('visible');
+        // Animate from 0 to final count
+        const target = d.count;
+        const duration = 1200;
+        const start = performance.now();
+        function tick(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+          numSpan.textContent = Math.round(target * eased).toLocaleString();
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
       }
     }).catch(() => {});
   })();
