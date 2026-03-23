@@ -2585,7 +2585,7 @@
       F: 'Not recommended'
     };
     const metaEl = document.getElementById('score-meta');
-    metaEl.innerHTML = `${humanize(opp.opportunity_type || '')}${gradeLabels[g] ? `<div class="grade-context">${g} — ${gradeLabels[g]}</div>` : ''}`;
+    metaEl.textContent = gradeLabels[g] || humanize(opp.opportunity_type || '');
 
     // Verdict text (1-2 sentences)
     const explanation = (opp.grade_explanation || opp.opportunity_summary || '').replace(/\[\d+\]/g, '');
