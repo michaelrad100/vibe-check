@@ -1090,6 +1090,83 @@
     .sw-strength { background: rgba(94,234,212,0.1); color: var(--green); }
     .sw-weakness { background: rgba(196,181,160,0.1); color: var(--yellow); }
 
+    /* ── Early-stage competitors ── */
+    .early-stage-divider {
+      border-top: 1px solid var(--border);
+      margin-top: 24px;
+      padding-top: 20px;
+    }
+    .early-stage-header {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .early-stage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .early-stage-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      transition: border-color 0.2s ease;
+    }
+    .early-stage-item:hover {
+      border-color: rgba(0,229,255,0.3);
+    }
+    .es-source-badge {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .es-source-badge.github { border-color: rgba(0,229,255,0.2); color: var(--accent-cyan); }
+    .es-source-badge.producthunt { border-color: rgba(94,234,212,0.2); color: var(--green); }
+    .es-info { flex: 1; min-width: 0; }
+    .es-name {
+      font-family: var(--font-display);
+      font-size: 14px;
+      text-transform: uppercase;
+      color: var(--text-main);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    a.es-name:hover { color: var(--accent-cyan); }
+    .es-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+    .es-relevance {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 4px;
+      font-style: italic;
+    }
+    .es-status {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .es-status.active { color: var(--accent-cyan); }
+    .es-status.new { color: var(--green); }
+
     /* ── Build card ── */
     .card-build {
       grid-column: span 6;
@@ -1709,6 +1786,7 @@
             <div class="comp-tile skeleton" style="height:120px"></div>
             <div class="comp-tile skeleton" style="height:120px"></div>
           </div>
+          <div id="early-stage-area"></div>
         </div>
 
         <!-- Build It -->
@@ -2560,6 +2638,38 @@
     }).join('');
   }
 
+  function renderEarlyStage(data) {
+    const area = document.getElementById('early-stage-area');
+    if (!area) return;
+    const items = data?.early_stage_competitors || [];
+    if (!items.length) { area.innerHTML = ''; return; }
+    area.innerHTML = `
+      <div class="early-stage-divider">
+        <div class="early-stage-header">Early-Stage & Open Source</div>
+        <div class="early-stage-list">
+          ${items.map(item => {
+            const sourceClass = (item.source || '').includes('github') ? 'github' : (item.source || '').includes('producthunt') ? 'producthunt' : '';
+            const sourceLabel = { github: 'GitHub', producthunt: 'Product Hunt', indie_hackers: 'Indie Hackers' }[item.source] || item.source || 'Web';
+            const nameEl = item.url
+              ? `<a class="es-name" href="${item.url}" target="_blank" rel="noopener">${item.name || ''}</a>`
+              : `<span class="es-name">${item.name || ''}</span>`;
+            const starsEl = item.stars ? ` <span style="font-size:11px;color:var(--text-muted)">★ ${item.stars.toLocaleString()}</span>` : '';
+            return `
+              <div class="early-stage-item">
+                <span class="es-source-badge ${sourceClass}">${sourceLabel}</span>
+                <div class="es-info">
+                  ${nameEl}${starsEl}
+                  <div class="es-desc">${(item.description || '').replace(/\[\d+\]/g, '')}</div>
+                  ${item.relevance ? `<div class="es-relevance">${item.relevance.replace(/\[\d+\]/g, '')}</div>` : ''}
+                </div>
+                <span class="es-status ${item.status || ''}">${item.status || ''}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
   function renderBuild(d) {
     const diff = humanize(d.difficulty || '');
     document.getElementById('diff-badge').textContent = diff;
@@ -2866,6 +2976,9 @@ ${promptClosing}`.trim();
       case 'sentiment':
         renderSentiment(data);
         break;
+      case 'early_stage':
+        renderEarlyStage(data);
+        break;
       case 'launch_intel':
         _cachedLaunchIntel = data;
         renderLaunchIntel(data);
@@ -2916,6 +3029,7 @@ ${promptClosing}`.trim();
       <div class="comp-tile skeleton" style="height:120px"></div>
       <div class="comp-tile skeleton" style="height:120px"></div>
     `;
+    document.getElementById('early-stage-area').innerHTML = '';
     document.getElementById('build-body').innerHTML = `
       <div class="skeleton skel-block" style="height:80px"></div>
       <div class="skeleton skel-block" style="height:40px"></div>
@@ -2998,6 +3112,7 @@ ${promptClosing}`.trim();
       renderBuild(d.technical);
       renderDeploy(d.deployment);
       renderSentiment(d.sentiment);
+      if (d.early_stage) renderEarlyStage(d.early_stage);
       if (d.launch_intel) renderLaunchIntel(d.launch_intel);
       renderPrompt(d.idea, d.opportunity, d.technical, d.deployment);
       document.getElementById('status-bar').style.display = 'none';

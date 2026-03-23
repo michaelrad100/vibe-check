@@ -55,6 +55,10 @@ async function exaSearch(idea, competitorNames = []) {
       { query: `${competitorStr} review experience opinion`, category: null, includeDomains: ['twitter.com', 'x.com', 'threads.net', 'bsky.app', 'news.ycombinator.com'] },
       // General web — G2, Trustpilot, blog reviews
       { query: `${competitorStr} G2 review OR Trustpilot review OR Capterra review`, category: null },
+      // GitHub — open source projects and early-stage competitors
+      { query: `${idea}`, category: null, includeDomains: ['github.com'] },
+      // Product Hunt — recent launches
+      { query: `${idea}`, category: null, includeDomains: ['producthunt.com'] },
     ];
 
     // Add per-competitor queries if we have multiple (ensures diversity)
@@ -426,6 +430,38 @@ Return JSON with this exact structure (no other text):
 first_users: 4-6 specific named communities where target users actively hang out. Real subreddit names, Discord server names, newsletters — not vague categories. Include URLs where possible.
 fatal_flaw: Be direct. Consider: wrong pricing model, a free/open-source alternative nobody mentions, cold start problem, regulatory risk, a key assumption that's probably wrong. One specific thing, not a list.
 mvp_features: Exactly 3-5 features that define the minimum viable product. must_have items first. Everything else is scope creep.`,
+
+  earlyStage: (idea, exaContext) => `Given this product idea: "${idea}"
+
+Here are GitHub repos, Product Hunt launches, and other early-stage projects found that may be related:
+
+${exaContext}
+
+Identify up to 4 early-stage projects, open-source repos, or recent indie launches that are genuinely attempting to solve the same or a very similar problem. These should be lesser-known — NOT established companies already on G2/Capterra.
+
+Return JSON with this exact structure (no other text):
+{
+  "early_stage_competitors": [
+    {
+      "name": "Project Name",
+      "url": "https://...",
+      "source": "github|producthunt|indie_hackers|other",
+      "description": "One sentence — what it does",
+      "stars": null,
+      "status": "active|stale|new",
+      "relevance": "One sentence — why this matters to someone building this idea"
+    }
+  ]
+}
+
+RULES:
+- Only include projects genuinely solving the same problem for the same audience.
+- Skip libraries, SDKs, frameworks, or tangentially related developer tools.
+- Skip established companies — this is specifically for early-stage, indie, or open-source projects.
+- "stars" = GitHub stars if available, otherwise null.
+- "status": active = committed within last 3 months; stale = no updates in 6+ months; new = launched recently.
+- If fewer than 2 genuinely relevant projects exist, return an empty array rather than padding with irrelevant ones.
+- Do NOT include citation numbers like [1] or [2] in any text.`,
 };
 
 // ── SSE ENDPOINT ────────────────────────────────
@@ -484,6 +520,24 @@ app.post('/api/analyze', async (req, res) => {
     }
     send('sentiment', sentimentData);
 
+    // Early-stage / open-source competitor discovery
+    let earlyStageData = { early_stage_competitors: [] };
+    const ghPHResults = (exaResults || []).filter(r =>
+      r.url && (r.url.includes('github.com') || r.url.includes('producthunt.com'))
+    );
+    if (ghPHResults.length > 0) {
+      send('status', { phase: 'early_stage', message: 'Searching GitHub and Product Hunt for early-stage projects...' });
+      const exaBlock = ghPHResults.map((r, i) => `[${i+1}] ${r.title || 'Untitled'}\nURL: ${r.url}\n${r.snippet}\n`).join('\n');
+      try {
+        earlyStageData = parseJSON(await callPerplexity(PROMPTS.earlyStage(idea, exaBlock)));
+      } catch (e) {
+        console.error('Early-stage API error:', e.message);
+      }
+    }
+    if (earlyStageData.early_stage_competitors?.length > 0) {
+      send('early_stage', earlyStageData);
+    }
+
     send('status', { phase: 'launch_intel', message: 'Crafting your launch strategy...' });
     const launchData = parseJSON(await callPerplexity(PROMPTS.launchIntel(idea, mode)));
     send('status', { phase: 'launch_done', message: 'Finalizing your report...' });
@@ -501,6 +555,7 @@ app.post('/api/analyze', async (req, res) => {
       opportunity: oppData,
       deployment: deployData,
       sentiment: sentimentData,
+      early_stage: earlyStageData,
       launch_intel: launchData,
     };
 
@@ -539,6 +594,7 @@ app.get('/api/result/:id', async (req, res) => {
       opportunity: data.opportunity,
       deployment: data.deployment,
       sentiment: data.sentiment,
+      early_stage: data.early_stage,
       launch_intel: data.launch_intel,
     });
   }
