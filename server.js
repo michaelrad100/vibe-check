@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { readFileSync } from 'fs';
 import { randomUUID } from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import Exa from 'exa-js';
@@ -11,6 +12,41 @@ const __dirname  = dirname(__filename);
 
 const app = express();
 app.use(express.json());
+// Serve index.html with dynamic OG tags for shared results
+app.get('/', async (req, res, next) => {
+  const resultId = req.query.r;
+  if (!resultId) return next(); // No result ID — serve static
+  try {
+    let opp = null;
+    if (supabase) {
+      const { data } = await supabase.from('results').select('opportunity,idea').eq('id', resultId).single();
+      if (data) opp = { ...data.opportunity, idea: data.idea };
+    } else {
+      const r = resultStore.get(resultId);
+      if (r) opp = { ...r.opportunity, idea: r.idea };
+    }
+    const title = opp?.short_title || 'Vibe Check Result';
+    const grade = opp?.opportunity_grade || '';
+    const desc = opp?.grade_explanation || opp?.bottom_line || 'AI-powered product idea validation';
+    const ogImage = `${req.protocol}://${req.get('host')}/api/og/${resultId}`;
+    const html = readFileSync(join(__dirname, 'public', 'index.html'), 'utf8');
+    const injected = html.replace(
+      '</head>',
+      `<meta property="og:title" content="${grade ? grade + ' — ' : ''}${title.replace(/"/g, '&quot;')}">
+    <meta property="og:description" content="${desc.replace(/"/g, '&quot;')}">
+    <meta property="og:image" content="${ogImage}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${grade ? grade + ' — ' : ''}${title.replace(/"/g, '&quot;')}">
+    <meta name="twitter:description" content="${desc.replace(/"/g, '&quot;')}">
+    <meta name="twitter:image" content="${ogImage}">
+    </head>`
+    );
+    return res.send(injected);
+  } catch (e) {
+    return next(); // On error, serve static
+  }
+});
 app.use(express.static(join(__dirname, 'public')));
 
 // ── SUPABASE ─────────────────────────────────────
@@ -241,6 +277,7 @@ monetization_strategies MUST be an empty array [].`
 
 Return JSON with this exact structure (no other text):
 {
+  "short_title": "3-5 word summary of the idea (e.g. 'Parking Spot Marketplace', 'AI Voice Journal', 'Neighborhood Tool Library')",
   "opportunity_grade": "A+|A|A-|B+|B|B-|C+|C|C-|D+|D|D-|F",
   "opportunity_score": 1-10,
   "grade_explanation": "1-2 sentences explaining WHY this idea received this grade",
@@ -262,6 +299,7 @@ Return JSON with this exact structure (no other text):
   "recommended_play": "One sentence: the single best move — which audience to target first with which monetization model."
 }
 
+short_title: A catchy 3-5 word title summarizing the core idea. Think product name or category — not the full description. Examples: "Parking Spot Marketplace", "AI Voice Journal", "Neighborhood Tool Library", "Gamified Finance App".
 grade_explanation: 1-2 concise sentences explaining WHY this idea received this grade. Synthesize the single most important insight — the key opportunity or challenge that defines the verdict. Always refer to the subject as an "idea" or "product", never as a "feature".
 market_size_current: the current market size as a short value string (e.g. "$1.55B") and year. Use real data.
 market_size_projected: the projected future market size and target year. Use real data.
@@ -618,6 +656,39 @@ app.get('/api/count', async (req, res) => {
     return res.json({ count });
   }
   res.json({ count: resultStore.size });
+});
+
+// ── OG IMAGE ENDPOINT ──────────────────────────
+app.get('/api/og/:id', async (req, res) => {
+  let data;
+  if (supabase) {
+    const { data: d } = await supabase.from('results').select('opportunity').eq('id', req.params.id).single();
+    data = d;
+  } else {
+    const r = resultStore.get(req.params.id);
+    if (r) data = { opportunity: r.opportunity };
+  }
+  const grade = data?.opportunity?.opportunity_grade || '?';
+  const title = data?.opportunity?.short_title || 'Vibe Check';
+  const gradeLabels = {'A+':'Exceptional opportunity','A':'Strong opportunity','A-':'Promising opportunity','B+':'Good potential','B':'Solid potential','B-':'Moderate potential','C+':'Worth exploring','C':'Challenging market','C-':'Uphill battle','D+':'Tough odds','D':'Weak opportunity','D-':'Poor outlook','F':'Not recommended'};
+  const label = gradeLabels[grade] || '';
+
+  // Generate SVG OG image
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+    <rect width="1200" height="630" fill="#050505"/>
+    <rect x="0" y="0" width="1200" height="4" fill="#00e5ff"/>
+    <text x="80" y="80" font-family="sans-serif" font-size="20" font-weight="700" fill="#00e5ff" letter-spacing="3">VIBE CHECK</text>
+    <circle cx="600" cy="280" r="120" fill="none" stroke="#00e5ff" stroke-width="6" opacity="0.3"/>
+    <circle cx="600" cy="280" r="120" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="754" stroke-dashoffset="${754 - (754 * ({'A+':100,'A':95,'A-':90,'B+':85,'B':78,'B-':72,'C+':65,'C':58,'C-':52,'D+':45,'D':38,'D-':32,'F':15}[grade]||50)/100)}" transform="rotate(-90 600 280)"/>
+    <text x="600" y="300" font-family="sans-serif" font-size="80" font-weight="700" fill="#e0e0e0" text-anchor="middle">${grade}</text>
+    <text x="600" y="440" font-family="sans-serif" font-size="18" font-weight="600" fill="#00e5ff" text-anchor="middle" text-transform="uppercase" letter-spacing="2">${label.toUpperCase()}</text>
+    <text x="600" y="520" font-family="sans-serif" font-size="36" font-weight="700" fill="#e0e0e0" text-anchor="middle">${title}</text>
+    <text x="600" y="580" font-family="sans-serif" font-size="14" fill="#888888" text-anchor="middle">vibecheck.michaelrad.me</text>
+  </svg>`;
+
+  res.set('Content-Type', 'image/svg+xml');
+  res.set('Cache-Control', 'public, max-age=86400');
+  res.send(svg);
 });
 
 // ── FEED ENDPOINT ────────────────────────────────

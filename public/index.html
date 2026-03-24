@@ -3,7 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vibe Check — Is Your Idea Worth Building?</title>
+  <title>Vibe Check — Analyze Before You Build</title>
+  <meta property="og:title" content="Vibe Check — Analyze Before You Build">
+  <meta property="og:description" content="Get a real-time market analysis of your idea in less than 60 seconds.">
+  <meta property="og:image" content="/favicon.svg">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Vibe Check — Analyze Before You Build">
+  <meta name="twitter:description" content="Get a real-time market analysis of your idea in less than 60 seconds.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -211,22 +218,22 @@
       margin-top: 14px;
     }
     .idea-counter {
-      font-size: 11px;
-      color: rgba(255,255,255,0.25);
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
       letter-spacing: 0.3px;
       opacity: 0;
       transition: opacity 0.6s ease;
     }
     .idea-counter.visible { opacity: 1; }
     .idea-counter .count-num {
-      color: rgba(0,229,255,0.5);
+      color: rgba(0,229,255,0.7);
       font-family: var(--font-display);
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 500;
     }
     .feed-link {
-      font-size: 11px;
-      color: rgba(255,255,255,0.25);
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
       text-decoration: none;
       letter-spacing: 0.3px;
       transition: color 0.2s ease;
@@ -1785,7 +1792,7 @@
       <label class="field-label" for="idea-input">Your idea.</label>
 
       <div class="textarea-wrapper">
-        <textarea id="idea-input" placeholder="Enter your idea here..."></textarea>
+        <textarea id="idea-input" placeholder="Describe your idea here — the more detail, the better."></textarea>
         <span class="shuffle-nudge" id="shuffle-nudge">→</span>
         <button class="shuffle-btn" onclick="shuffleIdea()" title="Try a random idea" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg></button>
         <div class="idea-modal-overlay" id="idea-modal" onclick="dismissIdeaModal()">
@@ -3203,6 +3210,7 @@ ${promptClosing}`.trim();
         break;
       case 'opportunity':
         _cachedOpp = data;
+        if (data.short_title) setResultsTitle(idea, data.short_title);
         try { renderScore(data); } catch (e) { console.error('renderScore error:', e); }
         try { renderAudience(data); } catch (e) { console.error('renderAudience error:', e); }
         try { renderStrategy(data); } catch (e) { console.error('renderStrategy error:', e); }
@@ -3228,7 +3236,7 @@ ${promptClosing}`.trim();
         currentResultId = data.resultId;
         document.getElementById('status-bar').style.display = 'none';
         document.getElementById('sec-score').classList.add('loaded');
-        setResultsTitle(idea);
+        if (!_shortTitle || _shortTitle === 'Analyzing your idea...') setResultsTitle(idea);
         document.getElementById('share-link-btn').style.display = '';
 
         if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
@@ -3312,10 +3320,19 @@ ${promptClosing}`.trim();
   }
 
   // ── SHARE / LOAD ──────────────────────────────
-  function setResultsTitle(text) {
+  let _fullTitle = '';
+  let _shortTitle = '';
+
+  function setResultsTitle(text, short) {
     const el = document.getElementById('results-title');
-    el.textContent = text;
+    _fullTitle = text;
+    _shortTitle = short || text;
+    el.textContent = _shortTitle;
+    el.dataset.full = _fullTitle;
+    el.dataset.short = _shortTitle;
     el.classList.remove('expanded', 'copied');
+    // Update browser tab
+    document.title = _shortTitle ? 'Vibe Check — ' + _shortTitle : 'Vibe Check';
   }
 
   function shareResult() {
@@ -3353,7 +3370,7 @@ ${promptClosing}`.trim();
       _cachedTech = d.technical;
       _cachedMarket = d.market;
       applyModeLabels(_cachedMode);
-      setResultsTitle(d.idea);
+      setResultsTitle(d.idea, d.opportunity?.short_title);
       renderMarket(d.market);
       renderCompetitors(d.market);
       renderScore(d.opportunity);
@@ -3407,18 +3424,27 @@ ${promptClosing}`.trim();
   (function() {
     const title = document.getElementById('results-title');
     title.addEventListener('click', () => {
-      const wasCollapsed = !title.classList.contains('expanded');
-      title.classList.toggle('expanded');
-      // Copy permalink only when expanding (not when collapsing)
-      if (wasCollapsed && currentResultId) shareResult();
+      const isExpanded = title.classList.contains('expanded');
+      if (!isExpanded) {
+        // Expand: show full title + copy permalink
+        title.textContent = _fullTitle || title.dataset.full || title.textContent;
+        title.classList.add('expanded');
+        if (currentResultId) shareResult();
+      } else {
+        // Collapse: show short title
+        title.textContent = _shortTitle || title.dataset.short || title.textContent;
+        title.classList.remove('expanded');
+      }
     });
-    // Collapse on scroll
-    window.addEventListener('scroll', () => {
-      if (title.classList.contains('expanded')) title.classList.remove('expanded');
-    }, { passive: true });
-    // Collapse on click outside
+    function collapseTitle() {
+      if (title.classList.contains('expanded')) {
+        title.textContent = _shortTitle || title.dataset.short || title.textContent;
+        title.classList.remove('expanded');
+      }
+    }
+    window.addEventListener('scroll', collapseTitle, { passive: true });
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.results-idea-title')) title.classList.remove('expanded');
+      if (!e.target.closest('.results-idea-title')) collapseTitle();
     });
   })();
 
