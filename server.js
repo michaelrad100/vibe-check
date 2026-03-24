@@ -25,24 +25,24 @@ app.get('/', async (req, res, next) => {
       const r = resultStore.get(resultId);
       if (r) opp = { ...r.opportunity, idea: r.idea };
     }
-    const title = opp?.short_title || 'Vibe Check Result';
+    const shortTitle = opp?.short_title || 'Vibe Check Result';
     const grade = opp?.opportunity_grade || '';
-    const desc = opp?.grade_explanation || opp?.bottom_line || 'AI-powered product idea validation';
+    const ogTitle = `Vibe Check — ${shortTitle}`;
+    const desc = (opp?.bottom_line || opp?.grade_explanation || 'AI-powered product idea validation').replace(/"/g, '&quot;');
     const ogImage = `${req.protocol}://${req.get('host')}/api/og/${resultId}`;
-    const html = readFileSync(join(__dirname, 'public', 'index.html'), 'utf8');
-    const injected = html.replace(
-      '</head>',
-      `<meta property="og:title" content="${grade ? grade + ' — ' : ''}${title.replace(/"/g, '&quot;')}">
-    <meta property="og:description" content="${desc.replace(/"/g, '&quot;')}">
-    <meta property="og:image" content="${ogImage}">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${grade ? grade + ' — ' : ''}${title.replace(/"/g, '&quot;')}">
-    <meta name="twitter:description" content="${desc.replace(/"/g, '&quot;')}">
-    <meta name="twitter:image" content="${ogImage}">
-    </head>`
-    );
-    return res.send(injected);
+    let html = readFileSync(join(__dirname, 'public', 'index.html'), 'utf8');
+    // Replace existing static OG/twitter tags with dynamic ones
+    html = html.replace(/<meta property="og:title"[^>]*>/g, `<meta property="og:title" content="${ogTitle}">`);
+    html = html.replace(/<meta property="og:description"[^>]*>/g, `<meta property="og:description" content="${desc}">`);
+    html = html.replace(/<meta property="og:image"[^>]*>/g, `<meta property="og:image" content="${ogImage}">`);
+    html = html.replace(/<meta name="twitter:card"[^>]*>/g, '<meta name="twitter:card" content="summary_large_image">');
+    html = html.replace(/<meta name="twitter:title"[^>]*>/g, `<meta name="twitter:title" content="${ogTitle}">`);
+    html = html.replace(/<meta name="twitter:description"[^>]*>/g, `<meta name="twitter:description" content="${desc}">`);
+    // Add twitter:image (not in base HTML)
+    html = html.replace('</head>', `<meta name="twitter:image" content="${ogImage}">\n</head>`);
+    // Update page title too
+    html = html.replace(/<title>[^<]*<\/title>/, `<title>${ogTitle}</title>`);
+    return res.send(html);
   } catch (e) {
     return next(); // On error, serve static
   }
