@@ -166,6 +166,18 @@
       z-index: 0;
     }
 
+    .landing-vc-brand {
+      position: fixed;
+      top: 20px;
+      left: 24px;
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 1px;
+      z-index: 10;
+      cursor: pointer;
+    }
     .landing-inner {
       width: 100%;
       max-width: 800px;
@@ -222,22 +234,14 @@
     .feed-link:hover { color: var(--accent-cyan); }
 
     .form-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      padding: 40px;
+      background: transparent;
+      border: none;
+      padding: 40px 0;
       width: 100%;
       text-align: left;
       position: relative;
-      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
     }
-    .form-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 2px;
-      height: 100%;
-      background: var(--accent-cyan);
-    }
+    /* left cyan border removed — outer form card is now borderless */
 
     .field-label {
       display: block;
@@ -343,8 +347,8 @@
       width: 100%;
       min-height: 120px;
       max-height: 300px;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid var(--border);
+      background: #1a1a1e;
+      border: 1px solid #2a2a2e;
       padding: 20px;
       color: var(--text-main);
       font-family: var(--font-body);
@@ -1649,7 +1653,7 @@
     @media (max-width: 768px) {
       /* ── Landing ── */
       .landing-sub { font-size: 16px; margin-bottom: 40px; }
-      .form-card { padding: 24px 20px; }
+      .form-card { padding: 24px 0; }
 
       /* ── Results layout ── */
       #results-inner { flex-direction: column; }
@@ -1752,7 +1756,7 @@
     @media (max-width: 480px) {
       .landing-h1 { font-size: clamp(40px, 12vw, 60px); }
       .landing-sub { font-size: 15px; }
-      .form-card { padding: 20px 16px; }
+      .form-card { padding: 20px 0; }
       .mode-btn { padding: 12px 6px; font-size: 13px; }
       .cta-button { font-size: 15px; padding: 15px; }
 
@@ -1772,14 +1776,16 @@
      LANDING PAGE
 ══════════════════════════════════════════════ -->
 <section id="landing">
+  <div class="landing-vc-brand" id="landing-vc-brand">VC</div>
   <div class="landing-inner">
-    <h1 class="landing-h1">Is your idea<br>worth building?</h1>
-    <p class="landing-sub">Find out if someone's already built it, how hard it is to build, and what real users are saying about the competition.</p>
+    <h1 class="landing-h1">Analyze before<br>you build.</h1>
+    <p class="landing-sub">Get a real-time market analysis of your idea in less than 60 seconds.</p>
 
     <div class="form-card">
       <label class="field-label" for="idea-input">Your idea.</label>
+
       <div class="textarea-wrapper">
-        <textarea id="idea-input" placeholder=""></textarea>
+        <textarea id="idea-input" placeholder="Enter your idea here..."></textarea>
         <span class="shuffle-nudge" id="shuffle-nudge">→</span>
         <button class="shuffle-btn" onclick="shuffleIdea()" title="Try a random idea" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg></button>
         <div class="idea-modal-overlay" id="idea-modal" onclick="dismissIdeaModal()">
