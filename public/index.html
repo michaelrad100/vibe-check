@@ -2291,11 +2291,10 @@
     }
   })();
 
-  // Set initial placeholder on load
+  // Set up Tab key to fill with sample idea
   (function setRandomPlaceholder() {
     const ta = document.getElementById('idea-input');
     if (ta) {
-      ta.placeholder = _placeholderIdeas[_ideaIndex] + '...';
       // Tab fills the textarea with the placeholder idea
       ta.addEventListener('keydown', function(e) {
         if (e.key === 'Tab' && !ta.value.trim()) {
