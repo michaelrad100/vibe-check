@@ -27,7 +27,7 @@ app.get('/', async (req, res, next) => {
     }
     const shortTitle = opp?.short_title || 'Vibe Check Result';
     const grade = opp?.opportunity_grade || '';
-    const ogTitle = `Vibe Check — ${shortTitle}`;
+    const ogTitle = `Vibe Check for ${shortTitle}`;
     const desc = (opp?.bottom_line || opp?.grade_explanation || 'AI-powered product idea validation').replace(/"/g, '&quot;');
     const ogImage = `${req.protocol}://${req.get('host')}/api/og/${resultId}`;
     let html = readFileSync(join(__dirname, 'public', 'index.html'), 'utf8');
