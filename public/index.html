@@ -155,9 +155,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       min-height: 100vh;
-      padding: 0 20px 100px;
+      padding: 60px 20px 100px;
       position: relative;
     }
     #landing::before {
@@ -174,16 +174,16 @@
     }
 
     .landing-vc-brand {
-      position: fixed;
-      top: 20px;
-      left: 24px;
       font-family: var(--font-display);
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 700;
       color: var(--accent-cyan);
-      letter-spacing: 1px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      position: relative;
       z-index: 10;
       cursor: pointer;
+      margin-bottom: 24px;
     }
     .landing-inner {
       width: 100%;
@@ -1783,8 +1783,8 @@
      LANDING PAGE
 ══════════════════════════════════════════════ -->
 <section id="landing">
-  <div class="landing-vc-brand" id="landing-vc-brand">VC</div>
   <div class="landing-inner">
+    <div class="landing-vc-brand" id="landing-vc-brand">Vibe Check</div>
     <h1 class="landing-h1">Analyze before<br>you build.</h1>
     <p class="landing-sub">Get a real-time market analysis of your idea in less than 60 seconds.</p>
 
@@ -1802,7 +1802,6 @@
           </div>
         </div>
       </div>
-      <p class="textarea-hint">More detail = sharper analysis. Include who it's for, the problem it solves, and any key features you have in mind.</p>
       <button class="cta-button" id="analyze-btn" onclick="analyze()">Start Analysis</button>
       <div class="form-footer">
         <div class="idea-counter" id="idea-counter"></div>
