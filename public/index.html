@@ -2386,8 +2386,8 @@
 
   // ── NAV & ROUTING ─────────────────────────────
   function goHome() {
-    // Grab the current idea text before resetting
-    const currentIdea = document.getElementById('results-title')?.textContent || '';
+    // Grab the full idea text (not the short title) before resetting
+    const currentIdea = _fullTitle || document.getElementById('results-title')?.dataset?.full || '';
     if (navObserver) navObserver.disconnect();
     currentResultId = null;
     history.replaceState(null, '', '/');
