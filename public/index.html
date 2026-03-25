@@ -3185,7 +3185,7 @@ ${promptClosing}`.trim();
         document.getElementById('status-text').textContent = data.message || '';
         const PHASE_PROGRESS = { market: 10, market_done: 20, technical_done: 28, opportunity_done: 36, deployment_done: 42, sentiment_exa: 50, sentiment: 60, sentiment_done: 75, early_stage: 80, launch_done: 100 };
         const serverPct = PHASE_PROGRESS[data.phase];
-        if (serverPct != null) {
+        if (serverPct != null && serverPct > _lastRealPct) {
           _stopFakeProgress();
           const bar = document.getElementById('status-progress');
           bar.style.width = serverPct + '%';
