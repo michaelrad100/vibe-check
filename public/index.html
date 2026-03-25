@@ -2419,26 +2419,40 @@
     if (navObserver) navObserver.disconnect();
     const sections = ['sec-score','sec-competitors','sec-build','sec-community','sec-strategy','sec-launch-intel','sec-prompt'];
     const navItems = document.querySelectorAll('.nav-item');
-    navObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const idx = sections.indexOf(entry.target.id);
-          navItems.forEach((item, i) => {
-            item.classList.toggle('active', i === idx);
-            // Auto-scroll active nav item into view on mobile
-            if (i === idx && window.innerWidth <= 768) {
-              const menu = document.getElementById('results-nav');
-              if (menu) {
-                const itemLeft = item.offsetLeft - menu.offsetLeft;
-                const scrollPos = itemLeft - menu.clientWidth / 2 + item.clientWidth / 2;
-                menu.scrollTo({ left: scrollPos, behavior: 'smooth' });
-              }
-            }
-          });
+    // Use scroll-based approach for reliable mobile highlighting
+    const isMobile = window.innerWidth <= 768;
+    const navHeight = isMobile ? 48 : 0;
+
+    function updateActiveNav() {
+      let activeIdx = 0;
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i]);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= navHeight + 100) {
+            activeIdx = i;
+            break;
+          }
+        }
+      }
+      navItems.forEach((item, i) => {
+        const wasActive = item.classList.contains('active');
+        item.classList.toggle('active', i === activeIdx);
+        // Auto-scroll active nav item into view on mobile
+        if (i === activeIdx && !wasActive && isMobile) {
+          const menu = document.getElementById('results-nav');
+          if (menu) {
+            const itemLeft = item.offsetLeft - menu.offsetLeft;
+            const scrollPos = itemLeft - menu.clientWidth / 2 + item.clientWidth / 2;
+            menu.scrollTo({ left: scrollPos, behavior: 'smooth' });
+          }
         }
       });
-    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
-    sections.forEach(id => { const el = document.getElementById(id); if (el) navObserver.observe(el); });
+    }
+
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+    navObserver = { disconnect: () => window.removeEventListener('scroll', updateActiveNav) };
+    updateActiveNav();
   }
 
   // ── HELPERS ───────────────────────────────────
