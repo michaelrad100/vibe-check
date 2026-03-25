@@ -441,7 +441,6 @@
     ══════════════════════════════════════════════ */
     #results {
       display: none;
-      min-height: 100vh;
     }
 
     /* Glow overlay for results */
@@ -1238,6 +1237,33 @@
     .es-status.active { color: var(--accent-cyan); }
     .es-status.new { color: var(--green); }
 
+    /* ── Bottom share ── */
+    .bottom-share {
+      grid-column: span 12;
+      display: flex;
+      justify-content: center;
+      padding: 24px 0 48px;
+    }
+    .bottom-share-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font-display);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 12px 32px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .bottom-share-btn:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
     /* ── Build card ── */
     .card-build {
       grid-column: span 6;
@@ -1713,6 +1739,7 @@
       .card-score, .card-market, .card-audience, .card-competitors,
       .card-build, .card-ship, .card-community, .card-strategy,
       .card-launch-intel, .card-prompt { grid-column: span 1; }
+      .bottom-share { grid-column: span 1; }
 
       /* ── Card padding ── */
       .card-score    { padding: 24px; }
@@ -2016,6 +2043,14 @@
           </div>
         </div>
 
+        <!-- Share button at bottom -->
+        <div class="bottom-share" id="bottom-share" style="display:none">
+          <button class="bottom-share-btn" onclick="shareResult()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Share this analysis
+          </button>
+        </div>
+
       </div><!-- /dashboard-grid -->
     </main>
   </div>
@@ -2030,10 +2065,13 @@
     <div class="changelog-entry">
       <div class="changelog-version">v1.13 <span class="changelog-date">— Mar 25, 2026</span></div>
       <ul class="changelog-list">
-        <li>Analysis now runs ~2x faster with parallelized API calls</li>
-        <li>Smart title summarization — 3-5 word titles with click-to-expand</li>
-        <li>Rich link previews when sharing results (OG images + dynamic titles)</li>
+        <li>Analysis runs ~2x faster with parallelized API calls</li>
+        <li>Smart title summarization with click-to-expand</li>
+        <li>Rich link previews with dynamic OG images when sharing</li>
         <li>Redesigned landing page</li>
+        <li>Share button at bottom of results</li>
+        <li>Mobile: single-column layout for all sections</li>
+        <li>Fixed extra whitespace at bottom of results page</li>
       </ul>
     </div>
     <div class="changelog-entry">
@@ -3127,6 +3165,7 @@ ${promptClosing}`.trim();
     setResultsTitle('Analyzing your idea...');
     document.getElementById('status-bar').style.display = 'flex';
     document.getElementById('share-link-btn').style.display = 'none';
+    document.getElementById('bottom-share').style.display = 'none';
 
     document.getElementById('analyze-btn').disabled = true;
 
@@ -3234,6 +3273,7 @@ ${promptClosing}`.trim();
         document.getElementById('sec-score').classList.add('loaded');
         if (!_shortTitle || _shortTitle === 'Analyzing your idea...') setResultsTitle(idea);
         document.getElementById('share-link-btn').style.display = '';
+        document.getElementById('bottom-share').style.display = '';
 
         if (data.resultId) history.replaceState(null, '', `?r=${data.resultId}`);
         // Final safety net — render prompt with whatever data we have
@@ -3380,6 +3420,7 @@ ${promptClosing}`.trim();
       renderPrompt(d.idea, d.opportunity, d.technical, d.deployment);
       document.getElementById('status-bar').style.display = 'none';
       document.getElementById('share-link-btn').style.display = '';
+      document.getElementById('bottom-share').style.display = '';
       document.getElementById('rerun-btn').style.display = '';
       document.getElementById('sec-score').classList.add('loaded');
       currentResultId = id;
