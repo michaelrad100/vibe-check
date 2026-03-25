@@ -2425,13 +2425,19 @@
 
     function updateActiveNav() {
       let activeIdx = 0;
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sections[i]);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= navHeight + 100) {
-            activeIdx = i;
-            break;
+      // If near the bottom of the page, activate the last section
+      const nearBottom = (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - 100);
+      if (nearBottom) {
+        activeIdx = sections.length - 1;
+      } else {
+        for (let i = sections.length - 1; i >= 0; i--) {
+          const el = document.getElementById(sections[i]);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= navHeight + 100) {
+              activeIdx = i;
+              break;
+            }
           }
         }
       }
