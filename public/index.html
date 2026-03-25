@@ -3183,7 +3183,7 @@ ${promptClosing}`.trim();
     switch (event) {
       case 'status':
         document.getElementById('status-text').textContent = data.message || '';
-        const PHASE_PROGRESS = { market: 8, market_done: 16, technical: 24, technical_done: 32, opportunity: 40, opportunity_done: 48, deployment: 56, deployment_done: 64, sentiment_exa: 70, sentiment: 78, sentiment_done: 86, launch_intel: 93, launch_done: 100 };
+        const PHASE_PROGRESS = { market: 10, market_done: 20, technical_done: 28, opportunity_done: 36, deployment_done: 42, sentiment_exa: 50, sentiment: 60, sentiment_done: 75, early_stage: 80, launch_done: 100 };
         const serverPct = PHASE_PROGRESS[data.phase];
         if (serverPct != null) {
           _stopFakeProgress();

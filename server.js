@@ -519,71 +519,83 @@ app.post('/api/analyze', async (req, res) => {
   const send = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 
   try {
-    send('status', { phase: 'market', message: 'Scanning competitors and market landscape...' });
-    const marketData = parseJSON(await callPerplexity(PROMPTS.market(idea, mode)));
+    // ── BATCH 1: Four independent API calls in parallel ──────────
+    send('status', { phase: 'market', message: 'Scanning competitors, tech stack, opportunity, and deployment...' });
+
+    const [marketData, techData, oppData, deployData] = await Promise.all([
+      callPerplexity(PROMPTS.market(idea, mode)).then(r => {
+        const d = parseJSON(r);
+        const names = (d.competitors || []).map(c => c.name).filter(Boolean);
+        send('status', { phase: 'market_done', message: `Found ${names.length} competitors — analyzing saturation...` });
+        send('market', d);
+        return d;
+      }),
+      callPerplexity(PROMPTS.technical(idea)).then(r => {
+        const d = parseJSON(r);
+        send('status', { phase: 'technical_done', message: 'Tech stack and build complexity assessed...' });
+        send('technical', d);
+        return d;
+      }),
+      callPerplexity(PROMPTS.opportunity(idea, mode)).then(r => {
+        const d = parseJSON(r);
+        send('status', { phase: 'opportunity_done', message: 'Opportunity scored — identifying audiences...' });
+        send('opportunity', d);
+        return d;
+      }),
+      callPerplexity(PROMPTS.deployment(idea)).then(r => {
+        const d = parseJSON(r);
+        send('status', { phase: 'deployment_done', message: 'Deployment platforms ranked...' });
+        send('deployment', d);
+        return d;
+      }).catch(e => {
+        console.error('Deployment API error:', e.message);
+        const fallback = { primary_recommendation: 'web_app', deployment_options: [] };
+        send('deployment', fallback);
+        return fallback;
+      }),
+    ]);
+
     const competitorNames = (marketData.competitors || []).map(c => c.name).filter(Boolean);
-    send('status', { phase: 'market_done', message: `Found ${competitorNames.length} competitors — analyzing saturation...` });
-    send('market', marketData);
 
-    send('status', { phase: 'technical', message: 'Evaluating tech stack and build complexity...' });
-    const techData = parseJSON(await callPerplexity(PROMPTS.technical(idea)));
-    send('status', { phase: 'technical_done', message: 'Estimating time-to-market and required APIs...' });
-    send('technical', techData);
-
-    send('status', { phase: 'opportunity', message: 'Scoring opportunity and market trends...' });
-    const oppData = parseJSON(await callPerplexity(PROMPTS.opportunity(idea, mode)));
-    send('status', { phase: 'opportunity_done', message: 'Identifying target audiences and monetization paths...' });
-    send('opportunity', oppData);
-
-    send('status', { phase: 'deployment', message: 'Comparing deployment platforms...' });
-    let deployData;
-    try {
-      deployData = parseJSON(await callPerplexity(PROMPTS.deployment(idea)));
-    } catch (e) {
-      console.error('Deployment API error:', e.message);
-      deployData = { primary_recommendation: 'web_app', deployment_options: [] };
-    }
-    send('status', { phase: 'deployment_done', message: 'Ranking hosting options by fit...' });
-    send('deployment', deployData);
-
-    send('status', { phase: 'sentiment_exa', message: 'Searching Reddit, Twitter/X, and app store reviews...' });
-    // Exa pre-search for richer community data
+    // ── BATCH 2: Exa pre-search (needs competitor names from batch 1) ──
+    send('status', { phase: 'sentiment_exa', message: 'Searching Reddit, app stores, GitHub, and Product Hunt...' });
     const exaResults = await exaSearch(idea, competitorNames);
     send('status', { phase: 'sentiment', message: 'Reading real user reviews and forum discussions...' });
-    const sentimentData = parseJSON(await callPerplexity(PROMPTS.sentiment(idea, competitorNames, mode, exaResults)));
-    send('status', { phase: 'sentiment_done', message: 'Extracting pain points, loved features, and wishes...' });
-    // Quality filter: remove vague/short community insights
-    if (sentimentData.community_insights && Array.isArray(sentimentData.community_insights)) {
-      sentimentData.community_insights = sentimentData.community_insights.filter(insight => {
-        const quote = (insight.quote || '').trim();
-        if (quote.length < 30) return false;
-        return true;
-      });
-    }
-    send('sentiment', sentimentData);
 
-    // Early-stage / open-source competitor discovery
-    let earlyStageData = { early_stage_competitors: [] };
+    // ── BATCH 3: Three API calls in parallel (need Exa results) ──
     const ghPHResults = (exaResults || []).filter(r =>
       r.url && (r.url.includes('github.com') || r.url.includes('producthunt.com'))
     );
-    if (ghPHResults.length > 0) {
-      send('status', { phase: 'early_stage', message: 'Searching GitHub and Product Hunt for early-stage projects...' });
-      const exaBlock = ghPHResults.map((r, i) => `[${i+1}] ${r.title || 'Untitled'}\nURL: ${r.url}\n${r.snippet}\n`).join('\n');
-      try {
-        earlyStageData = parseJSON(await callPerplexity(PROMPTS.earlyStage(idea, exaBlock)));
-      } catch (e) {
-        console.error('Early-stage API error:', e.message);
-      }
-    }
-    if (earlyStageData.early_stage_competitors?.length > 0) {
-      send('early_stage', earlyStageData);
-    }
 
-    send('status', { phase: 'launch_intel', message: 'Crafting your launch strategy...' });
-    const launchData = parseJSON(await callPerplexity(PROMPTS.launchIntel(idea, mode)));
-    send('status', { phase: 'launch_done', message: 'Finalizing your report...' });
-    send('launch_intel', launchData);
+    const [sentimentData, earlyStageData, launchData] = await Promise.all([
+      callPerplexity(PROMPTS.sentiment(idea, competitorNames, mode, exaResults)).then(r => {
+        const d = parseJSON(r);
+        // Quality filter: remove vague/short community insights
+        if (d.community_insights && Array.isArray(d.community_insights)) {
+          d.community_insights = d.community_insights.filter(insight => {
+            const quote = (insight.quote || '').trim();
+            return quote.length >= 30;
+          });
+        }
+        send('status', { phase: 'sentiment_done', message: 'Community insights extracted...' });
+        send('sentiment', d);
+        return d;
+      }),
+      (ghPHResults.length > 0
+        ? callPerplexity(PROMPTS.earlyStage(idea, ghPHResults.map((r, i) => `[${i+1}] ${r.title || 'Untitled'}\nURL: ${r.url}\n${r.snippet}\n`).join('\n'))).then(r => {
+            const d = parseJSON(r);
+            if (d.early_stage_competitors?.length > 0) send('early_stage', d);
+            return d;
+          }).catch(e => { console.error('Early-stage API error:', e.message); return { early_stage_competitors: [] }; })
+        : Promise.resolve({ early_stage_competitors: [] })
+      ),
+      callPerplexity(PROMPTS.launchIntel(idea, mode)).then(r => {
+        const d = parseJSON(r);
+        send('status', { phase: 'launch_done', message: 'Launch strategy ready...' });
+        send('launch_intel', d);
+        return d;
+      }),
+    ]);
 
     // Store full result for shareable links
     const resultId = randomUUID();
