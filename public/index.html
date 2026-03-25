@@ -2439,7 +2439,7 @@
         const wasActive = item.classList.contains('active');
         item.classList.toggle('active', i === activeIdx);
         // Auto-scroll active nav item into view on mobile
-        if (i === activeIdx && !wasActive && isMobile) {
+        if (i === activeIdx && !wasActive && window.innerWidth <= 768) {
           const menu = document.getElementById('results-nav');
           if (menu) {
             const itemLeft = item.offsetLeft - menu.offsetLeft;
