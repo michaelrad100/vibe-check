@@ -1734,7 +1734,7 @@
       .score-top { flex-direction: column; gap: 20px; }
       .score-visual { align-items: center; }
       .score-verdict { text-align: left; }
-      .score-tiles { grid-template-columns: repeat(2, 1fr); }
+      .score-tiles { grid-template-columns: 1fr; }
       .grade-ring { width: 120px; height: 120px; }
       .grade-value { font-size: 64px; }
       #audience-body { grid-template-columns: 1fr; }
@@ -3005,9 +3005,11 @@
       document.getElementById('strategy-list').innerHTML = '<p style="color:var(--text-muted);font-size:13px">No strategy data available.</p>';
       return;
     }
-    // Up to 6 items in a 3-col grid
-    const cols = Math.min(suggestions.length, 3);
-    document.getElementById('strategy-list').style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    // Up to 3 columns on desktop, CSS handles mobile (1fr)
+    if (window.innerWidth > 768) {
+      const cols = Math.min(suggestions.length, 3);
+      document.getElementById('strategy-list').style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    }
     document.getElementById('strategy-list').innerHTML = suggestions.map((s, i) => `
       <div class="strategy-item">
         <div class="strat-num">0${i + 1}</div>
