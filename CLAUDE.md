@@ -16,6 +16,7 @@ vibe-check/
 ├── public/
 │   ├── index.html        # Entire frontend — landing + results in one SPA
 │   ├── feed.html         # Public feed page showing recent analyses
+│   ├── og-image.png      # Static OG image for homepage sharing (Oswald Bold VC on dark)
 │   └── favicon.svg       # VC monogram favicon (cyan on dark)
 ├── server.js             # Express backend, Perplexity + Exa API calls, SSE streaming
 ├── package.json          # Node/Express, ES modules ("type": "module")
@@ -27,11 +28,24 @@ vibe-check/
 
 ---
 
+## Tools & Services
+
+- **Perplexity API** (`sonar-pro` model) — AI market analysis, 6-7 calls per analysis
+- **Exa API** — neural/semantic search for community data enrichment (Reddit, app stores, GitHub, Product Hunt, social media, review sites)
+- **Supabase** — persistent result storage (PostgreSQL)
+- **Railway** — hosting, auto-deploys from `main` branch
+- **Google Fonts** — Oswald + Inter
+- **V0 by Vercel** — initial design inspiration/prototyping
+- **Node.js / Express** — backend runtime
+- **Server-Sent Events (SSE)** — real-time streaming
+
+---
+
 ## Tech Stack
 
 - **Runtime:** Node.js 18+ with ES modules (`import`/`export`, no `require`)
 - **Backend:** Express 4
-- **AI:** Perplexity API (`sonar-pro` model) — 6-7 sequential API calls per analysis
+- **AI:** Perplexity API (`sonar-pro` model) — 6-7 API calls per analysis, parallelized in 3 batches
 - **Search enrichment:** Exa API — neural/semantic pre-search for Reddit, social media, app stores, review sites, GitHub, Product Hunt; results fed into Perplexity sentiment + early-stage prompts
 - **Streaming:** Server-Sent Events (SSE) via `/api/analyze` POST endpoint
 - **Frontend:** Vanilla JS, no framework, no build step
@@ -45,25 +59,32 @@ vibe-check/
 
 ### Single-Page Architecture
 One `index.html` with two sections:
-- `#landing` — centered form with auto-growing textarea, shown by default
+- `#landing` — centered form with auto-growing textarea, "Analyze Before You Build." headline, "Vibe Check" brand centered above
 - `#results` — full dashboard, hidden until analysis starts
 
-JS toggles between them. No routing library. Clicking the VC logo from results pre-fills the textarea with the current idea for easy iteration.
+JS toggles between them. No routing library. Clicking the VC logo from results pre-fills the textarea with the full idea text for easy iteration.
 
 ### Analysis Flow (server.js)
-On POST `/api/analyze`, the server runs these steps and streams each result as an SSE event:
+On POST `/api/analyze`, the server runs 3 parallel batches and streams each result as an SSE event. Parallelization cuts analysis time by ~50-60%:
 
+**Batch 1 (parallel):**
 1. `market` → competitors (with app store ratings), saturation score, market summary, differentiators, market_concentration, top_player
 2. `technical` → difficulty, time estimates, tech stack, required APIs
-3. `opportunity` → letter grade (A+ through F), grade_explanation, bottom_line, recommended_play, trend, target audiences, monetization, improvement suggestions, market_size_current/projected
+3. `opportunity` → letter grade (A+ through F), grade_explanation, bottom_line, recommended_play, trend, target audiences, monetization, improvement suggestions, market_size_current/projected, short_title (3-5 word summary)
 4. `deployment` → platform recommendation, deployment options (optional — prompt renders without it)
+
+**Batch 2 (sequential, depends on Batch 1):**
 5. Exa pre-search → parallel neural searches across Reddit, twitter.com/x.com, threads.net, bsky.app, Hacker News, app stores, G2/Trustpilot, GitHub, Product Hunt, per-competitor queries
+
+**Batch 3 (parallel, depends on Batch 2):**
 6. `early_stage` (conditional) → early-stage/open-source competitors from GitHub + Product Hunt (only if Exa found results)
 7. `sentiment` → community insights (pain points, loved features, wish list) — synthesized from Exa results
 8. `launch_intel` → launch strategy recommendations
+
+**Final:**
 9. `complete` → UUID for shareable link
 
-Between steps, the server emits `status` events with granular progress messages.
+Between steps, the server emits `status` events with granular progress messages. The progress bar only moves forward — never drops back on out-of-order parallel events.
 
 ### Frontend Rendering (index.html)
 Each SSE event triggers a `render*` function:
@@ -72,17 +93,26 @@ Each SSE event triggers a `render*` function:
 - `renderCompetitors(d)` — grid of competitor tiles with linked names and app store ratings
 - `renderEarlyStage(d)` — subsection inside competitors for GitHub/Product Hunt projects
 - `renderAudience(opp)` — full-width 2-column layout: segments left, monetization right
-- `renderStrategy(opp)` — numbered How to Win items
+- `renderStrategy(opp)` — numbered How to Win items (single column on mobile)
 - `renderBuild(d)` — time estimate, tech stack badges, required APIs
 - `renderDeploy(d)` — deployment options with recommendation pills
 - `renderSentiment(d)` — 3-column community pulse (pain / love / wish)
 - `renderLaunchIntel(d)` — launch strategy cards
 - `renderPrompt(idea, opp, tech, deploy)` — assembled Claude Code prompt (renders when opp + tech are available; deploy is optional)
 
+### Title & Sharing
+- Perplexity returns a `short_title` field (3-5 word summary) with the opportunity response
+- Results header shows short title by default; click to expand full idea text + copy permalink; click or scroll to collapse
+- Browser tab updates to "Vibe Check — [Short Title]"
+- Dynamic OG meta tags for shared links: title shows "Vibe Check for [Short Title]", description shows bottom_line
+- OG image endpoint (`/api/og/:id`) generates an SVG with the grade ring
+- Static `og-image.png` used for homepage sharing
+
 ### Loading UX
 - Server sends granular `status` events during analysis
 - Client-side micro-progress: fake +0.5% every 1.5s between real server events
 - Progress bar is a 3px cyan bar at the bottom of the status bar
+- Progress bar only moves forward — never drops back on out-of-order parallel events
 - All overview visuals animate from zero: grade ring sweeps, bars grow, numbers count up, dots fill in sequentially
 
 ---
@@ -125,7 +155,7 @@ Each SSE event triggers a `render*` function:
 - 12-column CSS grid for the dashboard
 - Sidebar: collapses to 48px (shows "VC" monogram in cyan), expands to 200px on hover
 - On mobile: horizontal scrollable nav bar, sticky at top. VC stays fixed (never scrolls off), nav items scroll independently. Full labels always visible, never truncated.
-- Sticky results header with truncated title (2-line clamp, click to expand and copy permalink)
+- Sticky results header with expandable title (short title by default, click to expand full idea + copy permalink, click/scroll to collapse)
 - Share link icon as flex sibling of title, always visible
 
 ---
@@ -151,7 +181,7 @@ Bottom row: 4 stat tiles in a grid:
 - **Saturation** — horizontal meter bar + number counting from 0
 - **Competition** — donut arc showing top player market share, percentage counts up
 - **Build Time** — time estimate + difficulty dots that fill in sequentially
-Click any tile to expand ALL tile insights at once. Click again to collapse all.
+Click any tile to expand ALL tile insights at once (full text, no height clamp). Click again to collapse all.
 
 ### Grade Ring
 - CSS `conic-gradient(from 0deg, ...)` — starts at 12 o'clock, fills clockwise
@@ -167,9 +197,9 @@ Each grade shows a unique context label (no letter prefix, no redundancy with th
 - D+: Tough odds | D: Weak opportunity | D-: Poor outlook | F: Not recommended
 
 ### Title + Share Link
-- Title truncated to 2 lines with `-webkit-line-clamp`
-- Click to expand full text AND copy permalink (title flashes cyan + "Link copied" toast)
-- Scrolling auto-collapses expanded title
+- Shows short title (3-5 words from Perplexity) by default
+- Click to expand full idea text AND copy permalink (title flashes cyan + "Link copied" toast)
+- Click again or scroll to collapse back to short title
 - Share icon is a flex sibling (not inside title div) so it's always visible regardless of truncation
 
 ### Sample Ideas
@@ -180,9 +210,13 @@ Each grade shows a unique context label (no letter prefix, no redundancy with th
 ### Textarea
 - Auto-grows from 120px to 300px max as user types
 - After 300px, scrolls with themed cyan scrollbar
+- Placeholder: "Describe your idea here — the more detail, the better."
 - Empty submission shows gentle modal toast, then bouncing arrow at shuffle button
 
 ### Landing Page
+- "Vibe Check" brand centered above headline
+- "Analyze Before You Build." headline
+- No outer form box, lighter textarea
 - Live counter below CTA button: "X ideas analyzed" with animated spin-up from 0
 - Counter sits in a footer row alongside "Browse recent ideas →" link
 - Both are subtle (low opacity, small font) — social proof without being loud
@@ -226,10 +260,10 @@ npm run dev          # node --watch server.js
 ### Version Convention
 - **One version number per day maximum** — never create a new version on the same calendar day
 - All changes pushed on the same calendar day are collapsed into a single version/changelog entry
-- If no changes ship for multiple days, the next push gets the next version number (e.g. v1.11 → v1.12)
+- If no changes ship for multiple days, the next push gets the next version number (e.g. v1.12 → v1.13)
 - **Always update release notes on every push** — bump the version badge and add/update the changelog entry in `index.html`
 - The version badge and changelog popover in `index.html` must always stay in sync with CLAUDE.md
-- Current version: **v1.12** (Mar 23, 2026)
+- Current version: **v1.13** (Mar 25, 2026)
 
 ---
 
@@ -280,6 +314,7 @@ npm run dev          # node --watch server.js
 |---|---|---|
 | `/api/analyze` | POST | Main analysis — streams SSE events |
 | `/api/result/:id` | GET | Fetch a shared result by UUID |
+| `/api/og/:id` | GET | Dynamic OG image (SVG with grade ring) for shared links |
 | `/api/count` | GET | Total number of analyses (for landing page counter) |
 | `/api/results` | GET | Paginated feed of recent analyses (NSFW filtered, deduplicated) |
 

@@ -2024,84 +2024,65 @@
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
-  <span class="version-badge" onclick="toggleChangelog(event)">v1.12</span>
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.13</span>
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
     <div class="changelog-entry">
+      <div class="changelog-version">v1.13 <span class="changelog-date">— Mar 25, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Analysis now runs ~2x faster with parallelized API calls</li>
+        <li>Smart title summarization — 3-5 word titles with click-to-expand</li>
+        <li>Rich link previews when sharing results (OG images + dynamic titles)</li>
+        <li>Redesigned landing page</li>
+      </ul>
+    </div>
+    <div class="changelog-entry">
       <div class="changelog-version">v1.12 <span class="changelog-date">— Mar 23, 2026</span></div>
       <ul class="changelog-list">
-        <li>Early-stage competitor discovery: GitHub repos and Product Hunt launches surfaced inside Competitive Landscape</li>
-        <li>Bottom Line verdict: direct 2-3 sentence "so what?" with recommended play</li>
-        <li>Grades now A+ through F with +/- granularity and distinct labels</li>
-        <li>Live "ideas analyzed" counter on landing page with animated spin-up</li>
-        <li>Humanized subheadline replacing jargon</li>
-        <li>Public feed page at /feed showing recent analyses</li>
-        <li>VC button pre-fills idea for easy iteration</li>
-        <li>Mobile nav: sticky top bar with VC fixed, full labels, scroll-into-view highlighting</li>
-        <li>Empty idea state: gentle modal toast + bouncing arrow nudge</li>
-        <li>Auto-growing textarea with themed scrollbar</li>
-        <li>Build Your Prompt reliability fix — no longer depends on deployment data</li>
+        <li>Early-stage competitor discovery from GitHub and Product Hunt</li>
+        <li>Bottom Line verdict with actionable recommended play</li>
+        <li>Grades now A+ through F with distinct labels</li>
+        <li>Public feed page at /feed</li>
+        <li>Live "ideas analyzed" counter</li>
       </ul>
     </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.11 <span class="changelog-date">— Mar 21, 2026</span></div>
       <ul class="changelog-list">
-        <li>Visual scorecard: overview redesigned with 4 stat tiles</li>
-        <li>Exa integration for community data enrichment</li>
-        <li>Smarter competitor matching with app store ratings</li>
-        <li>Real-time progress bar with 13-step status updates</li>
-        <li>Sticky header with inline share link and 100 no-repeat sample ideas</li>
-        <li>Cyan-only design system with favicon</li>
+        <li>Visual scorecard with animated stat tiles (Market Size, Saturation, Competition, Build Time)</li>
+        <li>Community data enrichment via Exa (Reddit, app stores, review sites)</li>
+        <li>Real-time progress bar with granular status updates</li>
+        <li>100 no-repeat sample ideas with shuffle</li>
       </ul>
     </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.10 <span class="changelog-date">— Mar 19, 2026</span></div>
       <ul class="changelog-list">
-        <li>Themed scrollable release notes popover</li>
-        <li>Tab key fills textarea with the sample idea for quick testing</li>
-        <li>"Start Analysis" button with wide letter-spacing</li>
-        <li>Supabase persistent storage for shareable results</li>
+        <li>Shareable result links with persistent storage</li>
       </ul>
     </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.9 <span class="changelog-date">— Mar 3, 2026</span></div>
       <ul class="changelog-list">
-        <li>New tagline: "Is your idea worth building?"</li>
-        <li>Rotating placeholder ideas — 25 unique examples on each page load</li>
-        <li>Removed mode selector (Build to Market / Build for Myself)</li>
-        <li>Horizontal scrollable nav bar on mobile replaces slide-out drawer</li>
-        <li>Cleaner mobile layout with reduced padding and spacing</li>
+        <li>Mobile-first nav redesign</li>
       </ul>
     </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.8 <span class="changelog-date">— Feb 25, 2026</span></div>
       <ul class="changelog-list">
-        <li>New Launch Intel card: fatal flaw, first-user channels, MVP feature list</li>
-        <li>6th Perplexity call — mode-aware (market vs personal framing)</li>
+        <li>Launch Intel: fatal flaws, first-user channels, MVP feature list</li>
       </ul>
     </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.7 <span class="changelog-date">— Feb 24, 2026</span></div>
       <ul class="changelog-list">
-        <li>Mode toggle: Build to Market vs Build for Myself</li>
-        <li>Personal mode: gap analysis against existing alternatives</li>
-        <li>Build-or-use verdict replaces opportunity grade in personal mode</li>
-        <li>Personal mode hides monetization, relabels nav and sections</li>
-        <li>Skill level selector — Your idea. / Experience. labels</li>
+        <li>Personal mode: build-or-use verdicts for side projects</li>
       </ul>
     </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.6 <span class="changelog-date">— Feb 20, 2026</span></div>
       <ul class="changelog-list">
-        <li>New high-design landing and output pages with cyan color scheme</li>
-        <li>Merged landing and output into single app</li>
-        <li>Collapsible sidebar — VC monogram when collapsed, full nav on hover</li>
-        <li>Market Signal: vertical saturation meter, no duplicate data</li>
-        <li>Community Pulse: up to 6 insights targeting named competitors</li>
-        <li>New Build Your Prompt card with one-click copy</li>
-        <li>Competitor names hyperlinked, cleaner competitor tiles</li>
-        <li>Added Ship It, monetization strategies, How to Win from live data</li>
-        <li>Font sizes increased across output page</li>
+        <li>Full redesign: dark theme, collapsible sidebar, Community Pulse, Build Your Prompt</li>
       </ul>
     </div>
   </div>
