@@ -263,7 +263,7 @@ npm run dev          # node --watch server.js
 - If no changes ship for multiple days, the next push gets the next version number (e.g. v1.12 → v1.13)
 - **Always update release notes on every push** — bump the version badge and add/update the changelog entry in `index.html`
 - The version badge and changelog popover in `index.html` must always stay in sync with CLAUDE.md
-- Current version: **v1.13** (Mar 25, 2026)
+- Current version: **v1.14** (Mar 31, 2026)
 
 ---
 
@@ -323,7 +323,4 @@ npm run dev          # node --watch server.js
 ## Known Tech Debt / Future Roadmap
 - **Community Pulse toggle** — toggle between "By Sentiment" (current 3-column) and "By Competitor" (insights grouped per competitor)
 - **User auth** — login so users can save/revisit their analyses
-- **Pay-per-report** — Stripe integration for monetization
 - **Follow-up questions** — ask clarifying questions about specific competitors or sections
-- **Skill level selector** — currently hardcoded to `done_a_few` in the frontend `analyze()` call; the server supports `first_project | done_a_few | build_regularly`
-- **Supabase `early_stage` column** — must be added manually as `jsonb` type in the Supabase dashboard

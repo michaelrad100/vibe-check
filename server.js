@@ -160,7 +160,7 @@ async function callPerplexity(userMessage) {
     throw new Error(`Perplexity API error ${res.status}: ${body}`);
   }
   const json = await res.json();
-  return json.choices[0].message.content;
+  return { content: json.choices[0].message.content, citations: json.citations || [] };
 }
 
 // ── JSON PARSER ─────────────────────────────────
@@ -524,32 +524,36 @@ app.post('/api/analyze', async (req, res) => {
 
     const [marketData, techData, oppData, deployData] = await Promise.all([
       callPerplexity(PROMPTS.market(idea, mode)).then(r => {
-        const d = parseJSON(r);
+        const d = parseJSON(r.content);
+        d._citations = r.citations;
         const names = (d.competitors || []).map(c => c.name).filter(Boolean);
         send('status', { phase: 'market_done', message: `Found ${names.length} competitors — analyzing saturation...` });
         send('market', d);
         return d;
       }),
       callPerplexity(PROMPTS.technical(idea)).then(r => {
-        const d = parseJSON(r);
+        const d = parseJSON(r.content);
+        d._citations = r.citations;
         send('status', { phase: 'technical_done', message: 'Tech stack and build complexity assessed...' });
         send('technical', d);
         return d;
       }),
       callPerplexity(PROMPTS.opportunity(idea, mode)).then(r => {
-        const d = parseJSON(r);
+        const d = parseJSON(r.content);
+        d._citations = r.citations;
         send('status', { phase: 'opportunity_done', message: 'Opportunity scored — identifying audiences...' });
         send('opportunity', d);
         return d;
       }),
       callPerplexity(PROMPTS.deployment(idea)).then(r => {
-        const d = parseJSON(r);
+        const d = parseJSON(r.content);
+        d._citations = r.citations;
         send('status', { phase: 'deployment_done', message: 'Deployment platforms ranked...' });
         send('deployment', d);
         return d;
       }).catch(e => {
         console.error('Deployment API error:', e.message);
-        const fallback = { primary_recommendation: 'web_app', deployment_options: [] };
+        const fallback = { primary_recommendation: 'web_app', deployment_options: [], _citations: [] };
         send('deployment', fallback);
         return fallback;
       }),
@@ -569,7 +573,8 @@ app.post('/api/analyze', async (req, res) => {
 
     const [sentimentData, earlyStageData, launchData] = await Promise.all([
       callPerplexity(PROMPTS.sentiment(idea, competitorNames, mode, exaResults)).then(r => {
-        const d = parseJSON(r);
+        const d = parseJSON(r.content);
+        d._citations = r.citations;
         // Quality filter: remove vague/short community insights
         if (d.community_insights && Array.isArray(d.community_insights)) {
           d.community_insights = d.community_insights.filter(insight => {
@@ -583,14 +588,16 @@ app.post('/api/analyze', async (req, res) => {
       }),
       (ghPHResults.length > 0
         ? callPerplexity(PROMPTS.earlyStage(idea, ghPHResults.map((r, i) => `[${i+1}] ${r.title || 'Untitled'}\nURL: ${r.url}\n${r.snippet}\n`).join('\n'))).then(r => {
-            const d = parseJSON(r);
+            const d = parseJSON(r.content);
+            d._citations = r.citations;
             if (d.early_stage_competitors?.length > 0) send('early_stage', d);
             return d;
-          }).catch(e => { console.error('Early-stage API error:', e.message); return { early_stage_competitors: [] }; })
-        : Promise.resolve({ early_stage_competitors: [] })
+          }).catch(e => { console.error('Early-stage API error:', e.message); return { early_stage_competitors: [], _citations: [] }; })
+        : Promise.resolve({ early_stage_competitors: [], _citations: [] })
       ),
       callPerplexity(PROMPTS.launchIntel(idea, mode)).then(r => {
-        const d = parseJSON(r);
+        const d = parseJSON(r.content);
+        d._citations = r.citations;
         send('status', { phase: 'launch_done', message: 'Launch strategy ready...' });
         send('launch_intel', d);
         return d;

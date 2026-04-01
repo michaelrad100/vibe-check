@@ -723,6 +723,56 @@
     .section-card:hover {
       border-color: rgba(0,229,255,0.4);
     }
+    /* ── Sources footer ── */
+    .sources-footer {
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+      padding: 0;
+      font-family: var(--font-body);
+    }
+    .sources-footer summary {
+      cursor: pointer;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 10px 16px;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .sources-footer summary::-webkit-details-marker { display: none; }
+    .sources-footer summary::before {
+      content: '\25B8';
+      font-size: 10px;
+      transition: transform 0.2s;
+    }
+    .sources-footer[open] summary::before {
+      transform: rotate(90deg);
+    }
+    .sources-footer summary:hover { color: var(--accent-cyan); }
+    .sources-list {
+      padding: 0 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sources-list a {
+      font-size: 12px;
+      color: var(--accent-cyan);
+      text-decoration: none;
+      opacity: 0.8;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+    }
+    .sources-list a:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
     .section-header {
       font-family: var(--font-display);
       text-transform: uppercase;
@@ -2059,9 +2109,18 @@
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
-  <span class="version-badge" onclick="toggleChangelog(event)">v1.13</span>
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.14</span>
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.14 <span class="changelog-date">— Mar 31, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Sources footer on every section — click to expand Perplexity citations</li>
+        <li>Sidebar nav now highlights the correct section as you scroll</li>
+        <li>100 refreshed sample ideas skewing toward B2B and creator tools</li>
+        <li>Roadmap cleanup</li>
+      </ul>
+    </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.13 <span class="changelog-date">— Mar 25, 2026</span></div>
       <ul class="changelog-list">
@@ -2191,107 +2250,107 @@
   let _cachedLaunchIntel = null;
 
   const _placeholderIdeas = [
-    'A mobile app that lets friends split restaurant bills by scanning the receipt with their camera',
-    'An AI tutor that adapts to each student\'s learning style and explains concepts using analogies from their hobbies',
-    'A browser extension that summarizes Terms of Service agreements and flags unusual clauses before you click "agree"',
-    'A neighborhood tool-lending library app where people can borrow power tools, ladders, and camping gear from nearby neighbors',
-    'A platform that matches freelance developers with non-profits who need pro-bono tech help',
-    'A meal planning app that generates weekly grocery lists based on what\'s on sale at your local stores',
-    'A service that turns your old voicemails and audio messages from loved ones into a preserved, searchable memory book',
-    'An app that monitors your houseplants with photos and reminds you when to water, repot, or move them for better light',
-    'A marketplace for retired professionals to offer 1-hour mentorship sessions to early-career workers',
-    'A Chrome extension that detects dark patterns on e-commerce sites and warns you before you accidentally subscribe',
-    'A platform where amateur musicians can find nearby jam session partners filtered by genre, skill level, and instrument',
-    'An AI-powered wardrobe app that suggests outfits from your closet based on the weather and your calendar',
-    'A micro-journaling app that asks you one meaningful question each day and shows you your answers from past years',
-    'A community-driven app that maps and reviews public restrooms, rating cleanliness, accessibility, and baby-changing facilities',
-    'A tool that watches your subscription services and alerts you when you haven\'t used one in 30+ days',
-    'An app that connects dog owners in the same apartment building to coordinate group walks and pet-sitting swaps',
-    'A platform for local restaurants to sell tomorrow\'s surplus ingredients at a discount to home cooks',
-    'A personal finance app specifically for gig workers that tracks income across platforms and estimates quarterly taxes',
-    'An AR app that lets you point your phone at any building and see its history, architect, and fun facts',
-    'A service that pairs solo travelers going to the same destination so they can split Airbnb costs and explore together',
-    'A browser tool that finds the original source of viral claims and rates their accuracy before you share them',
-    'An app that gamifies neighborhood cleanup — scan litter you pick up, earn points, compete on local leaderboards',
-    'A platform where home cooks can sell small-batch specialty items like hot sauce, jam, or granola to their neighbors',
-    'A collaborative playlist app for road trips that lets every passenger in the car queue songs from their own phone',
-    'A tool that analyzes your resume against a job posting and rewrites bullet points to match the role\'s language',
-    'A sleep coaching app that tracks your habits and gives personalized wind-down routines based on what actually works for you',
-    'A browser extension that auto-generates alt text for every image on a webpage to improve accessibility',
-    'An app that lets you photograph your fridge contents and suggests recipes you can make right now with what you have',
-    'A platform where landlords and tenants can resolve disputes through guided mediation before going to court',
-    'A tool that scans your email inbox and unsubscribes you from newsletters you haven\'t opened in 6 months',
-    'An app that matches people with compatible work-from-home schedules to share coworking spaces in each other\'s homes',
-    'A service that connects elderly people who need help with errands to nearby college students looking for flexible side income',
-    'A browser extension that shows you the carbon footprint of products as you shop online',
-    'An app that helps parents coordinate school pickup carpools with other families on the same route',
-    'A tool that turns meeting recordings into structured action items and automatically assigns them to attendees',
-    'A marketplace where people can rent out their parking spots by the hour when they\'re not using them',
-    'An app that tracks your mood alongside what you ate, how you slept, and your screen time to find hidden patterns',
-    'A platform where language learners can practice by having real conversations with native speakers over voice chat',
-    'A tool that monitors local government meeting agendas and alerts you when issues affecting your neighborhood come up',
-    'An app that lets you scan any piece of furniture and find similar items across dozens of stores sorted by price',
-    'A service that helps people write and send handwritten-style letters to friends and family who don\'t use technology',
-    'A platform that connects home cooks with dietary restrictions to share recipes and meal prep tips',
-    'An app that creates a digital time capsule — you add photos, notes, and videos that unlock on a future date you set',
-    'A browser extension that replaces social media feeds with a daily curated digest so you spend less time scrolling',
-    'A tool that helps small business owners generate and file their own trademark applications without a lawyer',
-    'An app that connects neighbors to share wifi costs by splitting a single high-speed plan across multiple households',
-    'A platform where amateur athletes can find pickup games for any sport happening nearby in real time',
-    'A tool that monitors price drops on items you\'ve already purchased and automatically requests refunds or price adjustments',
-    'An app that helps you practice difficult conversations — salary negotiations, breakups, confrontations — with AI roleplay',
-    'A service that photographs all your belongings room by room and creates an insurance-ready home inventory',
-    'A platform where people can swap kids\' clothes, toys, and gear with other families as their children outgrow them',
-    'An app that turns your phone into a portable document scanner with automatic OCR and cloud filing',
-    'A tool that analyzes your Spotify or Apple Music history and recommends live concerts near you that match your taste',
-    'A platform that connects people who are moving out of an apartment with people who want to take over their lease',
-    'An app that lets you set location-based reminders — reminds you to buy milk when you\'re near the grocery store',
-    'A browser extension that highlights biased language in news articles and shows you the same story from opposing viewpoints',
-    'A tool that helps freelancers automatically generate invoices from time-tracked tasks and send payment reminders',
-    'An app that matches you with a gym buddy at your fitness level who has a compatible schedule',
-    'A platform where people can hire verified taskers to wait in line for them at the DMV, restaurants, or events',
-    'A service that helps seniors digitize old photo albums, VHS tapes, and film reels into shareable cloud libraries',
-    'An app that uses your phone\'s camera to measure rooms and generate floor plans for furniture shopping',
-    'A tool that tracks every warranty you own and alerts you before they expire so you never miss a free repair',
-    'A platform that connects pet owners with nearby vets for quick video consultations instead of in-person visits',
-    'An app that schedules your social media posts at optimal times by analyzing when your followers are most active',
-    'A browser extension that auto-fills scholarship applications for college students using their saved profile data',
-    'A tool that helps you find the cheapest combination of streaming services to watch all the shows on your watchlist',
-    'An app that lets neighbors coordinate snow removal, lawn mowing, and leaf raking as a shared seasonal service',
-    'A platform where aspiring authors can get chapter-by-chapter feedback from beta readers matched to their genre',
-    'A service that curates a personalized daily news briefing in under 5 minutes based on topics you actually care about',
-    'An app that helps you split recurring household expenses with roommates and sends automatic payment reminders',
-    'A tool that scans nutrition labels with your phone camera and flags ingredients you\'re allergic or sensitive to',
-    'A platform where travelers can hire local residents for private walking tours of hidden neighborhood gems',
-    'An app that gamifies personal finance — set savings goals, earn badges, and compete with friends on money challenges',
-    'A tool that reads your calendar and automatically blocks focus time, suggests meeting-free days, and protects your deep work hours',
-    'A marketplace where people can sell or donate leftover moving supplies — boxes, bubble wrap, tape — to nearby movers',
-    'An app that helps you find quiet cafes and libraries nearby based on real-time noise level reports from other users',
-    'A platform that matches volunteer tutors with students in underfunded schools for after-school homework help',
-    'A tool that compares your utility bills against neighbors and suggests ways to reduce energy waste in your home',
-    'An app that lets you record a voice memo and automatically transcribes, tags, and organizes it by project',
-    'A platform where amateur photographers can license their photos to small businesses that can\'t afford stock photo subscriptions',
-    'A service that sends a weekly mystery ingredient box and pairs it with a video cooking lesson from a local chef',
-    'An app that tracks your car maintenance schedule and finds the cheapest nearby mechanic for each service',
-    'A tool that helps immigrant families navigate bureaucratic paperwork by walking them through forms step by step in their language',
-    'A platform that connects music teachers with students for affordable virtual lessons across any instrument',
-    'An app that monitors your posture through your laptop camera and nudges you to sit up straight during work hours',
-    'A tool that scans your closet and tells you which items you haven\'t worn in 6 months so you can donate or sell them',
-    'A platform where local farms can sell imperfect produce directly to consumers at a steep discount',
-    'An app that creates shared family calendars with smart conflict detection and suggests alternative times when events overlap',
-    'A service that pairs first-generation college students with mentors who went through the same application process',
-    'A tool that lets you set a monthly spending cap on each subscription category and warns you before you exceed it',
-    'An app that helps you find and book same-day appointments for haircuts, massages, or dental cleanings from no-show cancellations',
-    'A platform that connects amateur inventors with industrial designers who can turn napkin sketches into 3D-printable prototypes',
-    'A tool that automatically detects and removes duplicate files across your computer, phone, and cloud storage',
-    'An app that tracks the real-time wait times at nearby urgent care clinics so you can pick the fastest one',
-    'A platform where retirees can teach hands-on skills like woodworking, sewing, or car repair through local in-person workshops',
-    'A service that matches people who need furniture assembled with handy neighbors willing to help for a small fee',
-    'An app that generates bedtime stories for kids based on their interests, with their name as the main character',
-    'A tool that monitors flight prices for your saved routes and auto-books when the price drops below your target',
-    'A platform that helps small towns crowdfund local infrastructure improvements like park benches, bike lanes, or murals',
-    'An app that turns your daily step count and exercise data into charitable donations — sponsors pay per milestone you hit',
-    'A tool that helps couples fairly divide household chores based on each person\'s schedule, preferences, and workload',
+    'An AI coding assistant specifically for data scientists that understands pandas, numpy, and matplotlib and can debug data pipelines',
+    'A B2B SaaS tool that automatically generates SOC 2 compliance documentation from your existing codebase and infrastructure configs',
+    'An app that lets restaurant owners build a loyalty program in 10 minutes — no dev required, just a QR code at the table',
+    'A platform where independent therapists can launch group therapy sessions for niche communities like burnout, grief, or ADHD',
+    'A tool that monitors your competitors\' pricing pages and notifies you the moment they change their plans or add features',
+    'An AI legal assistant for small landlords that drafts lease agreements, eviction notices, and move-out inspections in plain English',
+    'A browser extension that tracks every job application you submit, auto-fills follow-up templates, and reminds you when to check in',
+    'A marketplace for pre-vetted fractional CFOs that small startups can hire for 5 hours a week at a flat monthly rate',
+    'An app that turns podcast episodes into interactive flashcard decks so you actually retain what you listen to',
+    'A tool that analyzes your SaaS product\'s usage data and automatically writes a weekly churn risk report with suggested interventions',
+    'A platform where homeowners can auction renovation jobs to local contractors and see bids in real time',
+    'An AI ghostwriter for LinkedIn that learns your voice from past posts and drafts a week of content with one prompt',
+    'A service that aggregates all your business expenses across cards and banks and auto-categorizes them for your accountant',
+    'An app for apartment hunters that shows real reviews of specific units — not just buildings — from people who lived there',
+    'A tool that turns your internal Notion or Confluence docs into a customer-facing help center automatically kept in sync',
+    'A platform connecting rural hospitals with urban specialists for async second opinions on complex cases',
+    'An AI product manager tool that takes raw user interview transcripts and extracts prioritized feature themes and pain points',
+    'A subscription box for craft brewers — monthly delivery of rare hop varieties, specialty malts, and experimental adjuncts',
+    'A tool that monitors your AWS, GCP, or Azure bill in real time and alerts you when a service exceeds its budget',
+    'An app where parents of kids with rare diseases can find and connect with others who share the same diagnosis',
+    'A platform for restaurant groups to manage server tip pooling, distribute earnings, and auto-generate end-of-night reports',
+    'An AI interior design tool that generates furniture layout suggestions from a photo of your empty room',
+    'A tool that watches your GitHub issues and PRs and writes a concise weekly engineering digest for non-technical stakeholders',
+    'A marketplace where independent game developers sell assets — sprites, music, shaders — with one-click licensing',
+    'An app that generates a complete onboarding plan for a new hire\'s first 90 days based on their role and team',
+    'A SaaS tool that helps e-commerce brands calculate and display real-time carbon offsets at checkout',
+    'A platform where fitness coaches can sell structured 12-week programs with built-in client progress tracking',
+    'An AI tool that reads your terms of service and privacy policy and rewrites them in plain language your users will actually read',
+    'A mobile app for construction site managers to log daily reports, punch lists, and subcontractor sign-offs without paper',
+    'A tool that integrates with Shopify and automatically A/B tests your product descriptions for conversion',
+    'A platform where nurses can pick up per-diem shifts at nearby hospitals without going through a staffing agency',
+    'An AI assistant for real estate agents that drafts listing descriptions, social posts, and email campaigns from property photos',
+    'A subscription service that curates and ships three hard-to-find hot sauces each month with tasting notes from the makers',
+    'A tool that scans your codebase and auto-generates a changelog from your git commits in the style of your choice',
+    'An app that lets freelance writers pitch editors at hundreds of publications from one dashboard and track responses',
+    'A platform for independent pharmacists to buy slow-moving inventory from each other at a discount before it expires',
+    'A tool that monitors Hacker News, Reddit, and Twitter for mentions of your product and routes them to the right team member',
+    'An AI pitch deck reviewer that gives slide-by-slide feedback based on what top VCs say they look for',
+    'A platform where food truck owners can list their weekly schedule and customers can subscribe to location alerts',
+    'A tool that automatically migrates your Jira projects to Linear, preserving issues, labels, and history',
+    'An app that turns voice memos from sales calls into structured CRM notes synced to HubSpot or Salesforce',
+    'A marketplace for vintage and antique dealers to list pieces with AI-assisted authentication and pricing suggestions',
+    'A tool that tracks your SaaS product\'s NPS over time and segments scores by plan, cohort, and feature usage',
+    'A platform where yoga and pilates instructors can sell live-streamed classes to a global audience without using YouTube',
+    'An AI assistant that reads your inbox and drafts unsubscribe requests, cancellation emails, and return requests on your behalf',
+    'A tool for podcasters that auto-edits silence, filler words, and cross-talk from multi-track recordings',
+    'A service that sends physical thank-you cards to your best customers automatically when they hit spending milestones',
+    'An app that lets you build and publish a mobile app for your local sports league — schedules, scores, rosters — in minutes',
+    'A platform where UX researchers can recruit participants from niche B2B verticals like logistics managers or OR nurses',
+    'A tool that watches your product\'s App Store reviews and auto-responds with personalized replies using your brand voice',
+    'An AI sous chef app for meal preppers — input how many servings and macros, get a full shopping list and step-by-step batch cook plan',
+    'A platform where college athletes can connect with NIL sponsors and manage their contracts in one place',
+    'A tool that auto-generates API documentation from your codebase and keeps it synced as the code evolves',
+    'An app that turns your Kindle highlights and book notes into spaced repetition review cards',
+    'A SaaS product that helps digital agencies white-label client dashboards showing traffic, leads, and ad spend in one view',
+    'A platform where musicians can sell stem files directly to other artists for sampling, remixing, and collaboration',
+    'An AI tool that generates realistic synthetic data for testing apps without exposing real user PII',
+    'A tool that helps indie SaaS founders write cold email sequences targeting specific ICP job titles on LinkedIn',
+    'An app for wedding vendors — photographers, florists, caterers — to coordinate timelines and communicate on one shared platform',
+    'A platform where certified electricians and plumbers can list 15-minute virtual consultations for homeowner troubleshooting',
+    'A tool that monitors your Stripe MRR, churn, and expansion revenue in real time with Slack digest alerts',
+    'An app that lets you design and order custom embroidered patches, pins, and stickers starting from a single unit',
+    'A SaaS product that ingests your support tickets and generates a monthly product feedback report for your engineering team',
+    'A platform where independent bookstores can offer subscription boxes curated to each member\'s reading history',
+    'A tool that turns figma designs into production-ready React components with your existing design tokens applied',
+    'An app for managing shared ownership of vacation properties — booking, expenses, maintenance, and house rules in one place',
+    'A tool that reads your job description and generates a structured interview scorecard with behavioral questions per competency',
+    'A platform where lab scientists can rent access to idle equipment at nearby universities and research facilities',
+    'An AI writing coach that gives line-level feedback on business writing — emails, proposals, reports — in the style of your choice',
+    'A tool that automatically formats and submits grant applications to multiple foundations from a single application draft',
+    'An app where parents can discover and book locally-run kids\' birthday party venues, entertainers, and catering in one flow',
+    'A platform that connects B2B startups with fractional sales reps who work on commission for the first 90 days',
+    'A tool that analyzes your product\'s onboarding funnel and highlights exactly which step causes the most drop-off',
+    'An AI assistant for insurance agents that summarizes policy documents and answers client questions in plain English',
+    'A marketplace where industrial photographers can license drone footage to construction companies and developers',
+    'A tool that watches your competitors\' job boards and alerts you when they start hiring in a new product area',
+    'An app that turns your weekly workout data into a shareable progress infographic for social media',
+    'A platform for self-published authors to coordinate blog tours, ARC reviews, and launch week promotions',
+    'A tool that auto-generates user persona documents from your analytics, survey, and support data',
+    'An app that connects remote workers with local co-working space owners who have unused desks to rent by the day',
+    'A SaaS platform that helps multi-location retail chains manage local social media accounts from a single dashboard',
+    'A tool that monitors your dependencies for CVEs and auto-opens PRs with patched versions',
+    'An app that lets tattoo artists build a digital portfolio and take bookings with a built-in deposit and consent form flow',
+    'A platform where independent sound engineers can offer mixing and mastering services to musicians on a per-track basis',
+    'A tool that generates a full technical architecture diagram from your infrastructure-as-code files',
+    'An AI model fine-tuned on medical literature that helps patients understand their lab results before their next appointment',
+    'A platform where certified sommelier-level wine experts do 30-minute live video tastings for private groups and corporate events',
+    'A tool that automatically writes release notes from your merged PRs and publishes them to your changelog on deploy',
+    'An app that helps physical therapy patients do their home exercise program with real-time form feedback from their phone camera',
+    'A SaaS tool that ingests your sales call recordings and scores reps on talk ratio, objection handling, and next steps',
+    'A platform for local barbershops to manage appointments, loyalty stamps, and client style history from one app',
+    'A tool that reads court dockets in your county and sends daily digests of new civil filings relevant to your industry',
+    'An app that lets couples collaboratively plan their honeymoon — wishlist, budget splits, itinerary, and packing lists shared',
+    'A platform where HR teams at startups can outsource their employee handbook to a team of compliance experts and AI',
+    'A tool that integrates with your data warehouse and auto-generates plain-English summaries of metric changes each morning',
+    'An app for dog trainers to deliver structured programs to clients — video lessons, daily check-ins, and progress tracking',
+    'A marketplace where small coffee roasters can offer single-origin subscriptions to enthusiasts who want to try new farms monthly',
+    'A tool that monitors your brand\'s presence across Reddit, TikTok, and YouTube and surfaces emerging sentiment trends weekly',
+    'A platform where independent architects can list and sell reusable floor plan templates to homeowners planning renovations',
+    'An AI-powered email triage tool that learns your priorities and moves low-urgency messages out of your primary inbox',
+    'A tool that generates a complete pitch deck from a one-paragraph idea description, formatted for investor presentations',
   ];
 
   // Shuffle array and cycle through sequentially — no repeats until all seen
@@ -2440,7 +2499,8 @@
     const navItems = document.querySelectorAll('.nav-item');
     // Use scroll-based approach for reliable mobile highlighting
     const isMobile = window.innerWidth <= 768;
-    const navHeight = isMobile ? 48 : 0;
+    const header = document.querySelector('.results-header');
+    const navHeight = isMobile ? 48 : (header ? header.offsetHeight : 0);
 
     function updateActiveNav() {
       let activeIdx = 0;
@@ -2481,6 +2541,39 @@
   }
 
   // ── HELPERS ───────────────────────────────────
+  function mergeCitations(...arrays) {
+    const seen = new Set();
+    const result = [];
+    for (const arr of arrays) {
+      if (!arr) continue;
+      for (const url of arr) {
+        if (!seen.has(url)) { seen.add(url); result.push(url); }
+      }
+    }
+    return result;
+  }
+
+  function renderSourcesFooter(sectionId, citations) {
+    if (!citations || !citations.length) return;
+    const card = document.getElementById(sectionId);
+    if (!card) return;
+    const existing = card.querySelector('.sources-footer');
+    if (existing) existing.remove();
+    const details = document.createElement('details');
+    details.className = 'sources-footer';
+    details.innerHTML = `
+      <summary>Sources (${citations.length})</summary>
+      <div class="sources-list">
+        ${citations.map(url => {
+          let display;
+          try { display = new URL(url).hostname.replace('www.', ''); }
+          catch { display = url; }
+          return `<a href="${url}" target="_blank" rel="noopener">${display} — ${url}</a>`;
+        }).join('')}
+      </div>`;
+    card.appendChild(details);
+  }
+
   function humanize(str) {
     return (str || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
@@ -3237,10 +3330,13 @@ ${promptClosing}`.trim();
         _cachedMarket = data;
         renderMarket(data);
         renderCompetitors(data);
+        renderSourcesFooter('sec-score', data._citations);
+        renderSourcesFooter('sec-competitors', data._citations);
         break;
       case 'technical':
         _cachedTech = data;
         renderBuild(data);
+        renderSourcesFooter('sec-build', data._citations);
         _tryRenderPrompt();
         break;
       case 'opportunity':
@@ -3249,22 +3345,29 @@ ${promptClosing}`.trim();
         try { renderScore(data); } catch (e) { console.error('renderScore error:', e); }
         try { renderAudience(data); } catch (e) { console.error('renderAudience error:', e); }
         try { renderStrategy(data); } catch (e) { console.error('renderStrategy error:', e); }
+        renderSourcesFooter('sec-score', mergeCitations(_cachedMarket?._citations, data._citations));
+        renderSourcesFooter('sec-audience', data._citations);
+        renderSourcesFooter('sec-strategy', data._citations);
         _tryRenderPrompt();
         break;
       case 'deployment':
         _cachedDeploy = data;
         renderDeploy(data);
+        renderSourcesFooter('sec-ship', data._citations);
         _tryRenderPrompt();
         break;
       case 'sentiment':
         renderSentiment(data);
+        renderSourcesFooter('sec-community', data._citations);
         break;
       case 'early_stage':
         renderEarlyStage(data);
+        renderSourcesFooter('sec-competitors', mergeCitations(_cachedMarket?._citations, data._citations));
         break;
       case 'launch_intel':
         _cachedLaunchIntel = data;
         renderLaunchIntel(data);
+        renderSourcesFooter('sec-launch-intel', data._citations);
         break;
       case 'complete':
         _stopFakeProgress();
@@ -3418,6 +3521,15 @@ ${promptClosing}`.trim();
       if (d.early_stage) renderEarlyStage(d.early_stage);
       if (d.launch_intel) renderLaunchIntel(d.launch_intel);
       renderPrompt(d.idea, d.opportunity, d.technical, d.deployment);
+      // Sources footers
+      renderSourcesFooter('sec-score', mergeCitations(d.market?._citations, d.opportunity?._citations));
+      renderSourcesFooter('sec-competitors', mergeCitations(d.market?._citations, d.early_stage?._citations));
+      renderSourcesFooter('sec-audience', d.opportunity?._citations);
+      renderSourcesFooter('sec-strategy', d.opportunity?._citations);
+      renderSourcesFooter('sec-build', d.technical?._citations);
+      renderSourcesFooter('sec-ship', d.deployment?._citations);
+      renderSourcesFooter('sec-community', d.sentiment?._citations);
+      if (d.launch_intel) renderSourcesFooter('sec-launch-intel', d.launch_intel._citations);
       document.getElementById('status-bar').style.display = 'none';
       document.getElementById('share-link-btn').style.display = '';
       document.getElementById('bottom-share').style.display = '';
