@@ -6,6 +6,7 @@ import { readFileSync } from 'fs';
 import { randomUUID } from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import Exa from 'exa-js';
+import { isNSFW, normalizeIdea, parseJSON, NSFW_BLOCKLIST } from './lib/utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
@@ -161,15 +162,6 @@ async function callPerplexity(userMessage) {
   }
   const json = await res.json();
   return { content: json.choices[0].message.content, citations: json.citations || [] };
-}
-
-// ── JSON PARSER ─────────────────────────────────
-function parseJSON(text) {
-  let cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  try { return JSON.parse(cleaned); } catch {}
-  const match = cleaned.match(/\{[\s\S]*\}/);
-  if (match) try { return JSON.parse(match[0]); } catch {}
-  throw new Error('Could not parse JSON from Perplexity response');
 }
 
 // ── PROMPTS ─────────────────────────────────────
@@ -711,24 +703,6 @@ app.get('/api/og/:id', async (req, res) => {
 });
 
 // ── FEED ENDPOINT ────────────────────────────────
-const NSFW_BLOCKLIST = [
-  'porn','sex','nude','naked','xxx','hentai','erotic','fetish','onlyfans',
-  'nsfw','dick','cock','pussy','anal','blowjob','cum','orgasm','masturbat',
-  'fuck','shit','bitch','nigger','faggot','retard','cunt','whore','slut',
-  'rape','molest','pedophil','incest','bestiality','zoophil',
-  'drug deal','meth','cocaine','heroin','fentanyl',
-  'kill','murder','suicide','bomb','terror','weapon','gun store','ammo'
-];
-
-function isNSFW(text) {
-  const lower = text.toLowerCase();
-  return NSFW_BLOCKLIST.some(word => lower.includes(word));
-}
-
-function normalizeIdea(idea) {
-  return idea.toLowerCase().trim().replace(/\s+/g, ' ');
-}
-
 app.get('/api/results', async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit) || 20, 50);
   const offset = parseInt(req.query.offset) || 0;
@@ -792,4 +766,10 @@ app.get('/feed', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Vibe Check server running on port ${PORT}`));
+
+export { app, callPerplexity, resultStore };
+
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (isMain) {
+  app.listen(PORT, () => console.log(`Vibe Check server running on port ${PORT}`));
+}
