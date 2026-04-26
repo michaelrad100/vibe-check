@@ -240,6 +240,84 @@
     }
     .feed-link:hover { color: var(--accent-cyan); }
 
+    /* Inline recent ideas preview */
+    .recent-preview {
+      margin-top: 32px;
+      width: 100%;
+    }
+    .recent-preview-title {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .recent-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .recent-preview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 14px;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.2s ease;
+    }
+    .recent-preview-card:hover {
+      border-color: rgba(0,229,255,0.4);
+    }
+    .recent-preview-card-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .recent-preview-grade {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: var(--text-main);
+    }
+    .recent-preview-grade.rp-a { border-color: #5eead4; color: #5eead4; }
+    .recent-preview-grade.rp-b { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .recent-preview-grade.rp-c { border-color: #c4b5a0; color: #c4b5a0; }
+    .recent-preview-grade.rp-d { border-color: #c4b5a0; color: #c4b5a0; }
+    .recent-preview-grade.rp-f { border-color: #c4b5a0; color: #c4b5a0; }
+    .recent-preview-idea {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      color: var(--text-main);
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .recent-preview-time {
+      font-size: 10px;
+      color: rgba(255,255,255,0.2);
+      margin-top: auto;
+    }
+    @media (max-width: 600px) {
+      .recent-preview-grid { grid-template-columns: 1fr; }
+    }
+
     .form-card {
       background: transparent;
       border: none;
@@ -1881,7 +1959,11 @@
       <button class="cta-button" id="analyze-btn" onclick="analyze()">Start Analysis</button>
       <div class="form-footer">
         <div class="idea-counter" id="idea-counter"></div>
-        <a href="/feed" class="feed-link">Browse recent ideas &rarr;</a>
+        <a href="/feed" class="feed-link">Browse all ideas &rarr;</a>
+      </div>
+      <div class="recent-preview" id="recent-preview" style="display:none">
+        <div class="recent-preview-title">Recent Ideas</div>
+        <div class="recent-preview-grid" id="recent-preview-grid"></div>
       </div>
     </div>
   </div>
@@ -3625,6 +3707,42 @@ ${promptClosing}`.trim();
         }
         requestAnimationFrame(tick);
       }
+    }).catch(() => {});
+    // Fetch recent ideas for inline preview on landing page
+    fetch('/api/results?limit=6&offset=0').then(r => r.json()).then(d => {
+      if (!d.results || d.results.length === 0) return;
+      const container = document.getElementById('recent-preview');
+      const grid = document.getElementById('recent-preview-grid');
+      if (!container || !grid) return;
+      const gradeClass = g => {
+        const l = (g || '?')[0].toUpperCase();
+        return { A: 'rp-a', B: 'rp-b', C: 'rp-c', D: 'rp-d', F: 'rp-f' }[l] || '';
+      };
+      const timeAgo = ds => {
+        const diff = Date.now() - new Date(ds).getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'Just now';
+        if (mins < 60) return mins + 'm ago';
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return hrs + 'h ago';
+        const days = Math.floor(hrs / 24);
+        if (days < 30) return days + 'd ago';
+        return Math.floor(days / 30) + 'mo ago';
+      };
+      d.results.forEach(r => {
+        const card = document.createElement('a');
+        card.className = 'recent-preview-card';
+        card.href = '/?r=' + r.id;
+        card.innerHTML = `
+          <div class="recent-preview-card-top">
+            <div class="recent-preview-grade ${gradeClass(r.grade)}">${r.grade || '?'}</div>
+            <div class="recent-preview-idea">${r.idea}</div>
+          </div>
+          <div class="recent-preview-time">${timeAgo(r.created_at)}</div>
+        `;
+        grid.appendChild(card);
+      });
+      container.style.display = 'block';
     }).catch(() => {});
   })();
 </script>
