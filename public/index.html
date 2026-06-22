@@ -2191,9 +2191,15 @@
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
-  <span class="version-badge" onclick="toggleChangelog(event)">v1.14</span>
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.15</span>
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.15 <span class="changelog-date">— Jun 22, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Reliability: database keepalive prevents the backend from sleeping during quiet periods</li>
+      </ul>
+    </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.14 <span class="changelog-date">— Mar 31, 2026</span></div>
       <ul class="changelog-list">

@@ -60,6 +60,18 @@ if (supabase) {
   console.warn('Supabase not configured — falling back to in-memory store');
 }
 
+// Keepalive: free-tier Supabase projects pause after 7 days of inactivity.
+// A lightweight query every 3 days resets that timer so the project never pauses.
+// (This prevents pausing — it cannot resume an already-paused project.)
+if (supabase) {
+  const KEEPALIVE_INTERVAL_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
+  const keepalivePing = async () => {
+    const { error } = await supabase.from('results').select('id').limit(1);
+    console.log(error ? `Supabase keepalive failed: ${error.message}` : 'Supabase keepalive ping OK');
+  };
+  setInterval(keepalivePing, KEEPALIVE_INTERVAL_MS).unref();
+}
+
 // In-memory fallback store (used if Supabase is not configured)
 const resultStore = new Map();
 
