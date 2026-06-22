@@ -512,7 +512,7 @@ RULES:
 
 // ── SSE ENDPOINT ────────────────────────────────
 app.post('/api/analyze', async (req, res) => {
-  const { idea, skillLevel = 'first_project', mode = 'market' } = req.body;
+  const { idea, skillLevel = 'first_project', mode = 'market', isPrivate = false } = req.body;
   if (!idea?.trim()) return res.status(400).json({ error: 'idea is required' });
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -622,10 +622,16 @@ app.post('/api/analyze', async (req, res) => {
       sentiment: sentimentData,
       early_stage: earlyStageData,
       launch_intel: launchData,
+      is_private: !!isPrivate,
     };
 
     if (supabase) {
-      const { error } = await supabase.from('results').insert(resultPayload);
+      let { error } = await supabase.from('results').insert(resultPayload);
+      // Backward-compat: if the is_private column hasn't been added yet, persist without it
+      if (error && /is_private/.test(error.message)) {
+        const { is_private, ...legacyPayload } = resultPayload;
+        ({ error } = await supabase.from('results').insert(legacyPayload));
+      }
       if (error) console.error('Supabase insert error:', error.message);
     } else {
       resultStore.set(resultId, { ...resultPayload, createdAt: new Date().toISOString() });
@@ -724,19 +730,30 @@ app.get('/api/results', async (req, res) => {
 
     if (supabase) {
       // Fetch more than needed to account for NSFW filtering and dedup
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('results')
-        .select('id, idea, opportunity, created_at')
+        .select('id, idea, opportunity, created_at, is_private')
         .order('created_at', { ascending: false })
         .limit(200);
+      // Backward-compat: retry without is_private if the column hasn't been added yet
+      if (error && /is_private/.test(error.message)) {
+        ({ data, error } = await supabase
+          .from('results')
+          .select('id, idea, opportunity, created_at')
+          .order('created_at', { ascending: false })
+          .limit(200));
+      }
       if (error) throw error;
       items = data || [];
     } else {
       // In-memory fallback
       items = [...resultStore.values()]
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .map(r => ({ id: r.id, idea: r.idea, opportunity: r.opportunity, created_at: r.createdAt }));
+        .map(r => ({ id: r.id, idea: r.idea, opportunity: r.opportunity, created_at: r.createdAt, is_private: r.is_private }));
     }
+
+    // Exclude ideas the author marked private
+    items = items.filter(r => !r.is_private);
 
     // Filter NSFW
     items = items.filter(r => r.idea && !isNSFW(r.idea));
