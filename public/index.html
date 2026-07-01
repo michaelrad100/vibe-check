@@ -2246,9 +2246,15 @@
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
-  <span class="version-badge" onclick="toggleChangelog(event)">v1.15</span>
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.16</span>
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.16 <span class="changelog-date">— Jul 1, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Refreshed 30 sample ideas in the random idea generator</li>
+      </ul>
+    </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.15 <span class="changelog-date">— Jun 22, 2026</span></div>
       <ul class="changelog-list">
@@ -2406,37 +2412,6 @@
   let _cachedLaunchIntel = null;
 
   const _placeholderIdeas = [
-    'An AI coding assistant specifically for data scientists that understands pandas, numpy, and matplotlib and can debug data pipelines',
-    'A B2B SaaS tool that automatically generates SOC 2 compliance documentation from your existing codebase and infrastructure configs',
-    'An app that lets restaurant owners build a loyalty program in 10 minutes — no dev required, just a QR code at the table',
-    'A platform where independent therapists can launch group therapy sessions for niche communities like burnout, grief, or ADHD',
-    'A tool that monitors your competitors\' pricing pages and notifies you the moment they change their plans or add features',
-    'An AI legal assistant for small landlords that drafts lease agreements, eviction notices, and move-out inspections in plain English',
-    'A browser extension that tracks every job application you submit, auto-fills follow-up templates, and reminds you when to check in',
-    'A marketplace for pre-vetted fractional CFOs that small startups can hire for 5 hours a week at a flat monthly rate',
-    'An app that turns podcast episodes into interactive flashcard decks so you actually retain what you listen to',
-    'A tool that analyzes your SaaS product\'s usage data and automatically writes a weekly churn risk report with suggested interventions',
-    'A platform where homeowners can auction renovation jobs to local contractors and see bids in real time',
-    'An AI ghostwriter for LinkedIn that learns your voice from past posts and drafts a week of content with one prompt',
-    'A service that aggregates all your business expenses across cards and banks and auto-categorizes them for your accountant',
-    'An app for apartment hunters that shows real reviews of specific units — not just buildings — from people who lived there',
-    'A tool that turns your internal Notion or Confluence docs into a customer-facing help center automatically kept in sync',
-    'A platform connecting rural hospitals with urban specialists for async second opinions on complex cases',
-    'An AI product manager tool that takes raw user interview transcripts and extracts prioritized feature themes and pain points',
-    'A subscription box for craft brewers — monthly delivery of rare hop varieties, specialty malts, and experimental adjuncts',
-    'A tool that monitors your AWS, GCP, or Azure bill in real time and alerts you when a service exceeds its budget',
-    'An app where parents of kids with rare diseases can find and connect with others who share the same diagnosis',
-    'A platform for restaurant groups to manage server tip pooling, distribute earnings, and auto-generate end-of-night reports',
-    'An AI interior design tool that generates furniture layout suggestions from a photo of your empty room',
-    'A tool that watches your GitHub issues and PRs and writes a concise weekly engineering digest for non-technical stakeholders',
-    'A marketplace where independent game developers sell assets — sprites, music, shaders — with one-click licensing',
-    'An app that generates a complete onboarding plan for a new hire\'s first 90 days based on their role and team',
-    'A SaaS tool that helps e-commerce brands calculate and display real-time carbon offsets at checkout',
-    'A platform where fitness coaches can sell structured 12-week programs with built-in client progress tracking',
-    'An AI tool that reads your terms of service and privacy policy and rewrites them in plain language your users will actually read',
-    'A mobile app for construction site managers to log daily reports, punch lists, and subcontractor sign-offs without paper',
-    'A tool that integrates with Shopify and automatically A/B tests your product descriptions for conversion',
-    'A platform where nurses can pick up per-diem shifts at nearby hospitals without going through a staffing agency',
     'An AI assistant for real estate agents that drafts listing descriptions, social posts, and email campaigns from property photos',
     'A subscription service that curates and ships three hard-to-find hot sauces each month with tasting notes from the makers',
     'A tool that scans your codebase and auto-generates a changelog from your git commits in the style of your choice',
@@ -2507,6 +2482,36 @@
     'A platform where independent architects can list and sell reusable floor plan templates to homeowners planning renovations',
     'An AI-powered email triage tool that learns your priorities and moves low-urgency messages out of your primary inbox',
     'A tool that generates a complete pitch deck from a one-paragraph idea description, formatted for investor presentations',
+    'A B2B SaaS tool that scans your Terraform and Kubernetes manifests and flags misconfigurations before they cause a production outage',
+    'An AI code review assistant that learns your team\'s style guide and leaves inline PR comments matching your existing conventions',
+    'A platform where solo consultants can generate scope-of-work contracts and invoices from a single project brief',
+    'A tool that watches your Zendesk or Intercom queue and drafts first-response replies using your past resolved tickets',
+    'An app for freelance video editors to send review links with frame-accurate timestamped client feedback built in',
+    'A SaaS product that reconciles your Stripe, PayPal, and bank feeds automatically and flags discrepancies before month-end close',
+    'A platform where independent audio engineers can license royalty-free stems tailored to podcast intros and outros',
+    'A tool that reads your customer support transcripts and auto-tags recurring bugs into your Linear or Jira backlog',
+    'An AI assistant for private tutors that generates personalized lesson plans and progress reports from session notes',
+    'A marketplace where small manufacturers can find excess-capacity contract packagers willing to take on short production runs',
+    'A tool that monitors your open source dependencies\' license changes and alerts legal before a build breaks compliance',
+    'An app that helps solopreneurs track every subscription tool they pay for and flags redundant or unused software',
+    'A platform where boutique fitness studios can sell class packs and manage waitlists without needing Mindbody',
+    'A SaaS tool that ingests your customer churn survey responses and clusters them into actionable retention themes',
+    'An AI assistant that drafts investor update emails from your monthly metrics dashboard in under two minutes',
+    'A tool that scans your Figma files and auto-generates accessibility audit reports before a design ships to engineering',
+    'A platform connecting boutique wineries directly with restaurant and hotel sommeliers for direct-to-trade wholesale ordering',
+    'An app that turns a landlord\'s rent roll and lease documents into an automated late-fee and reminder workflow',
+    'A tool that watches competitor changelogs and release notes and summarizes what shipped each week for your product team',
+    'An AI-powered onboarding concierge for SaaS trials that answers setup questions live inside the product via chat',
+    'A platform where independent illustrators can license characters and art packs to indie game studios with usage tracking',
+    'A tool that generates a security posture report from your cloud IAM policies for SOC 2 and ISO 27001 audits',
+    'An app for personal trainers to auto-generate client meal plans that adjust based on weekly check-in photos and weight logs',
+    'A SaaS tool that tracks warranty claims and RMAs for small hardware startups and syncs status updates to customers',
+    'A platform where micro-influencers can package rate cards and negotiate brand deals through one shared inbox',
+    'A tool that turns customer interview call recordings into a searchable insights database tagged by feature and persona',
+    'An AI assistant that drafts SEO-optimized product descriptions for e-commerce catalogs from a spec sheet and photos',
+    'A platform connecting independent mobile notaries with title companies and real estate agents for same-day signing appointments',
+    'A tool that monitors your team\'s on-call rotation and auto-generates incident postmortem drafts from PagerDuty timelines',
+    'An app that helps new parents track feeding, sleep, and diaper logs and shares a daily summary with grandparents automatically',
   ];
 
   // Shuffle array and cycle through sequentially — no repeats until all seen
