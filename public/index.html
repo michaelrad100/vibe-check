@@ -2246,9 +2246,15 @@
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
-  <span class="version-badge" onclick="toggleChangelog(event)">v1.16</span>
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.17</span>
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.17 <span class="changelog-date">— Sep 1, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Refreshed 30 sample ideas in the random idea generator</li>
+      </ul>
+    </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.16 <span class="changelog-date">— Jul 1, 2026</span></div>
       <ul class="changelog-list">
@@ -2412,36 +2418,6 @@
   let _cachedLaunchIntel = null;
 
   const _placeholderIdeas = [
-    'An AI assistant for real estate agents that drafts listing descriptions, social posts, and email campaigns from property photos',
-    'A subscription service that curates and ships three hard-to-find hot sauces each month with tasting notes from the makers',
-    'A tool that scans your codebase and auto-generates a changelog from your git commits in the style of your choice',
-    'An app that lets freelance writers pitch editors at hundreds of publications from one dashboard and track responses',
-    'A platform for independent pharmacists to buy slow-moving inventory from each other at a discount before it expires',
-    'A tool that monitors Hacker News, Reddit, and Twitter for mentions of your product and routes them to the right team member',
-    'An AI pitch deck reviewer that gives slide-by-slide feedback based on what top VCs say they look for',
-    'A platform where food truck owners can list their weekly schedule and customers can subscribe to location alerts',
-    'A tool that automatically migrates your Jira projects to Linear, preserving issues, labels, and history',
-    'An app that turns voice memos from sales calls into structured CRM notes synced to HubSpot or Salesforce',
-    'A marketplace for vintage and antique dealers to list pieces with AI-assisted authentication and pricing suggestions',
-    'A tool that tracks your SaaS product\'s NPS over time and segments scores by plan, cohort, and feature usage',
-    'A platform where yoga and pilates instructors can sell live-streamed classes to a global audience without using YouTube',
-    'An AI assistant that reads your inbox and drafts unsubscribe requests, cancellation emails, and return requests on your behalf',
-    'A tool for podcasters that auto-edits silence, filler words, and cross-talk from multi-track recordings',
-    'A service that sends physical thank-you cards to your best customers automatically when they hit spending milestones',
-    'An app that lets you build and publish a mobile app for your local sports league — schedules, scores, rosters — in minutes',
-    'A platform where UX researchers can recruit participants from niche B2B verticals like logistics managers or OR nurses',
-    'A tool that watches your product\'s App Store reviews and auto-responds with personalized replies using your brand voice',
-    'An AI sous chef app for meal preppers — input how many servings and macros, get a full shopping list and step-by-step batch cook plan',
-    'A platform where college athletes can connect with NIL sponsors and manage their contracts in one place',
-    'A tool that auto-generates API documentation from your codebase and keeps it synced as the code evolves',
-    'An app that turns your Kindle highlights and book notes into spaced repetition review cards',
-    'A SaaS product that helps digital agencies white-label client dashboards showing traffic, leads, and ad spend in one view',
-    'A platform where musicians can sell stem files directly to other artists for sampling, remixing, and collaboration',
-    'An AI tool that generates realistic synthetic data for testing apps without exposing real user PII',
-    'A tool that helps indie SaaS founders write cold email sequences targeting specific ICP job titles on LinkedIn',
-    'An app for wedding vendors — photographers, florists, caterers — to coordinate timelines and communicate on one shared platform',
-    'A platform where certified electricians and plumbers can list 15-minute virtual consultations for homeowner troubleshooting',
-    'A tool that monitors your Stripe MRR, churn, and expansion revenue in real time with Slack digest alerts',
     'An app that lets you design and order custom embroidered patches, pins, and stickers starting from a single unit',
     'A SaaS product that ingests your support tickets and generates a monthly product feedback report for your engineering team',
     'A platform where independent bookstores can offer subscription boxes curated to each member\'s reading history',
@@ -2512,6 +2488,36 @@
     'A platform connecting independent mobile notaries with title companies and real estate agents for same-day signing appointments',
     'A tool that monitors your team\'s on-call rotation and auto-generates incident postmortem drafts from PagerDuty timelines',
     'An app that helps new parents track feeding, sleep, and diaper logs and shares a daily summary with grandparents automatically',
+    'A tool that turns real user session recordings into maintained Playwright end-to-end tests and flags flaky selectors before CI runs',
+    'An AI contract review assistant for startups that redlines inbound vendor agreements against your negotiation playbook and past deals',
+    'A tool that detects when a code change makes an internal engineering doc stale and opens a pull request with the suggested rewrite',
+    'A pricing experimentation platform for B2B SaaS that runs cohorted pricing-page tests and reports downstream revenue and churn impact',
+    'A tool that forecasts your cloud infrastructure cost from a Terraform plan before you apply it and comments the delta on the pull request',
+    'An AI assistant for bootstrapped founders that prepares quarterly board-style updates and financial summaries from QuickBooks and Stripe',
+    'A workspace where fractional CFOs manage multiple early-stage clients\' financial models, runway alerts, and cap tables side by side',
+    'A tool that monitors your marketing site for broken links, slow pages, and Core Web Vitals regressions and files tickets automatically',
+    'A service that turns Notion product specs into linked Linear epics and keeps both in sync as scope and acceptance criteria change',
+    'An AI onboarding builder for HR teams that generates role-specific 30-60-90 day plans from a job description and the team org chart',
+    'A tool that watches your Kubernetes cluster for cost anomalies and opens right-sizing pull requests with projected monthly savings',
+    'A platform for indie game studios to run playtester recruitment, build distribution, and structured feedback collection in one place',
+    'A tool that generates localized screenshots and App Store metadata for every language a mobile app supports and keeps them updated',
+    'A tool that reconciles research lab grant spending against award budgets and drafts the financial sections of funder progress reports',
+    'A tool that converts customer contracts and order forms into a live ASC 606 revenue recognition schedule your accountant can export',
+    'A platform where independent Shopify developers package and resell standardized store audits backed by an automated performance scan',
+    'A tool that analyzes pull request review latency and surfaces bottleneck reviewers, stale branches, and merge queue delays each week',
+    'A tool that turns a founder\'s Loom walkthroughs into written, screenshot-illustrated onboarding docs for new engineering hires',
+    'A tool that tracks retainer hour burn-down for agencies and alerts the account lead before a client exceeds their monthly budget',
+    'A tool that scans a React codebase for stale feature flags and opens cleanup pull requests to remove the dead code paths behind them',
+    'An AI tool that answers inbound enterprise security questionnaires using your past responses, policies, and current control evidence',
+    'A workspace where freelance developer-relations contractors manage multiple clients\' content calendars, docs pull requests, and community metrics',
+    'A tool that generates a data dictionary and lineage map from your dbt project and refreshes it automatically on every model change',
+    'An AI assistant for e-commerce brands that drafts responses to Amazon and Walmart policy violations and account health warnings',
+    'A tool that tracks your app\'s third-party API consumption and forecasts when you will hit rate limits or paid tier overages',
+    'A platform for course creators to run cohort-based programs with assignments, peer review, and completion certificates in one tool',
+    'A tool that turns your sales team\'s won and lost deal notes into a refreshed ideal customer profile every quarter',
+    'A tool that audits every piece of user-facing microcopy in your product for tone, reading level, and localization readiness',
+    'A tool that lets bootstrapped SaaS teams run a lightweight bug bounty with scoped targets, a triage workflow, and payout tracking',
+    'An app that helps people on GLP-1 medications track side effects, protein intake, and muscle retention with weekly check-in prompts',
   ];
 
   // Shuffle array and cycle through sequentially — no repeats until all seen
