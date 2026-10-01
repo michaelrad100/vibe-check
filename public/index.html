@@ -2246,9 +2246,15 @@
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
-  <span class="version-badge" onclick="toggleChangelog(event)">v1.17</span>
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.18</span>
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.18 <span class="changelog-date">— Oct 1, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Refreshed 30 sample ideas in the random idea generator</li>
+      </ul>
+    </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.17 <span class="changelog-date">— Sep 1, 2026</span></div>
       <ul class="changelog-list">
@@ -2418,36 +2424,6 @@
   let _cachedLaunchIntel = null;
 
   const _placeholderIdeas = [
-    'An app that lets you design and order custom embroidered patches, pins, and stickers starting from a single unit',
-    'A SaaS product that ingests your support tickets and generates a monthly product feedback report for your engineering team',
-    'A platform where independent bookstores can offer subscription boxes curated to each member\'s reading history',
-    'A tool that turns figma designs into production-ready React components with your existing design tokens applied',
-    'An app for managing shared ownership of vacation properties — booking, expenses, maintenance, and house rules in one place',
-    'A tool that reads your job description and generates a structured interview scorecard with behavioral questions per competency',
-    'A platform where lab scientists can rent access to idle equipment at nearby universities and research facilities',
-    'An AI writing coach that gives line-level feedback on business writing — emails, proposals, reports — in the style of your choice',
-    'A tool that automatically formats and submits grant applications to multiple foundations from a single application draft',
-    'An app where parents can discover and book locally-run kids\' birthday party venues, entertainers, and catering in one flow',
-    'A platform that connects B2B startups with fractional sales reps who work on commission for the first 90 days',
-    'A tool that analyzes your product\'s onboarding funnel and highlights exactly which step causes the most drop-off',
-    'An AI assistant for insurance agents that summarizes policy documents and answers client questions in plain English',
-    'A marketplace where industrial photographers can license drone footage to construction companies and developers',
-    'A tool that watches your competitors\' job boards and alerts you when they start hiring in a new product area',
-    'An app that turns your weekly workout data into a shareable progress infographic for social media',
-    'A platform for self-published authors to coordinate blog tours, ARC reviews, and launch week promotions',
-    'A tool that auto-generates user persona documents from your analytics, survey, and support data',
-    'An app that connects remote workers with local co-working space owners who have unused desks to rent by the day',
-    'A SaaS platform that helps multi-location retail chains manage local social media accounts from a single dashboard',
-    'A tool that monitors your dependencies for CVEs and auto-opens PRs with patched versions',
-    'An app that lets tattoo artists build a digital portfolio and take bookings with a built-in deposit and consent form flow',
-    'A platform where independent sound engineers can offer mixing and mastering services to musicians on a per-track basis',
-    'A tool that generates a full technical architecture diagram from your infrastructure-as-code files',
-    'An AI model fine-tuned on medical literature that helps patients understand their lab results before their next appointment',
-    'A platform where certified sommelier-level wine experts do 30-minute live video tastings for private groups and corporate events',
-    'A tool that automatically writes release notes from your merged PRs and publishes them to your changelog on deploy',
-    'An app that helps physical therapy patients do their home exercise program with real-time form feedback from their phone camera',
-    'A SaaS tool that ingests your sales call recordings and scores reps on talk ratio, objection handling, and next steps',
-    'A platform for local barbershops to manage appointments, loyalty stamps, and client style history from one app',
     'A tool that reads court dockets in your county and sends daily digests of new civil filings relevant to your industry',
     'An app that lets couples collaboratively plan their honeymoon — wishlist, budget splits, itinerary, and packing lists shared',
     'A platform where HR teams at startups can outsource their employee handbook to a team of compliance experts and AI',
@@ -2518,6 +2494,36 @@
     'A tool that audits every piece of user-facing microcopy in your product for tone, reading level, and localization readiness',
     'A tool that lets bootstrapped SaaS teams run a lightweight bug bounty with scoped targets, a triage workflow, and payout tracking',
     'An app that helps people on GLP-1 medications track side effects, protein intake, and muscle retention with weekly check-in prompts',
+    'A tool that replays production webhook traffic against your staging environment and reports payload differences before you deploy an integration change',
+    'An AI assistant for solo accountants that chases clients for missing tax documents and sorts uploaded files into the correct workpaper folders',
+    'A platform that lets newsletter writers sell sponsorship slots through a self-serve booking page with automated ad approval and invoicing',
+    'A tool that scans your Postgres schema migrations for locking operations and estimates downtime risk before they run in production',
+    'A B2B SaaS tool that tracks employee equipment across remote teams and automates laptop retrieval and data wiping during offboarding',
+    'An app that helps adults with ADHD break large projects into timed work sessions with body-doubling rooms and weekly accountability reviews',
+    'A tool that builds a sales tax nexus tracker for e-commerce sellers from their order history and alerts them before they cross a state threshold',
+    'A platform where independent pharmacies compare wholesaler prices in real time and split orders automatically to get the lowest cost per drug',
+    'A tool that evaluates your LLM prompts against a regression test suite on every pull request and blocks merges when answer quality drops',
+    'An AI assistant for podcast hosts that researches upcoming guests and drafts interview questions based on their past appearances and writing',
+    'A SaaS tool that turns a restaurant\'s supplier invoices into live plate-cost reports and flags menu items whose margins have slipped',
+    'A tool that generates typed SDKs and usage docs in five languages from your OpenAPI spec and publishes them on every API release',
+    'A platform for small property managers to collect maintenance requests by text message and dispatch them to vetted local contractors',
+    'A tool that monitors your SaaS product\'s failed payments and runs personalized dunning sequences tuned to each customer\'s billing history',
+    'An app that helps family caregivers coordinate medications, appointments, and shift handoffs for an aging parent across multiple siblings',
+    'A tool that audits your Google Ads and Meta ad accounts each week for wasted spend and drafts the exact changes for a marketer to approve',
+    'A workspace where independent UX researchers recruit participants, schedule sessions, pay incentives, and store consent forms in one place',
+    'A tool that detects personally identifiable information flowing into your application logs and opens pull requests to redact it at the source',
+    'An AI bookkeeping assistant for Etsy and Shopify sellers that categorizes payouts, fees, and refunds into clean books ready for tax season',
+    'A platform that helps specialty contractors like electricians and plumbers produce itemized quotes from a site photo and a voice description',
+    'A tool that turns a YouTube creator\'s long-form videos into chaptered blog posts and email newsletters written in the creator\'s own voice',
+    'A B2B SaaS tool that manages vendor security reviews for mid-size companies by collecting evidence and tracking renewals and risk scores',
+    'A tool that records how your internal tools are actually used and recommends which admin dashboards and scripts are safe to retire',
+    'An app that helps people with chronic migraines log triggers, weather, sleep, and medication to produce a report for their neurologist',
+    'A platform where early-stage founders book paid thirty-minute calls with operators who have solved the exact go-to-market problem they face',
+    'A tool that compares your feature flag configuration across environments and warns you when staging and production have silently drifted',
+    'An AI assistant for immigration lawyers that assembles visa petition packets from client documents and flags missing evidence per case type',
+    'A SaaS tool that helps wholesale brands manage retailer orders, net payment terms, and reorder reminders without a full ERP system',
+    'A tool that benchmarks a startup\'s compensation bands against live job postings and flags roles where its offers have fallen below market',
+    'An app that lets independent musicians split royalties with collaborators automatically and issue payout statements after each streaming report',
   ];
 
   // Shuffle array and cycle through sequentially — no repeats until all seen
