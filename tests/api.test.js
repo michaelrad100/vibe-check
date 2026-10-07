@@ -261,6 +261,16 @@ describe('GET /api/count', () => {
   });
 });
 
+// ─── GET /api/health ──────────────────────────────────────────────────────────
+
+describe('GET /api/health', () => {
+  it('reports ok with the in-memory store when Supabase is not configured', async () => {
+    const res = await request(app).get('/api/health');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true, db: 'memory' });
+  });
+});
+
 // ─── GET /api/results ─────────────────────────────────────────────────────────
 
 describe('GET /api/results', () => {

@@ -61,14 +61,20 @@ if (supabase) {
 }
 
 // Keepalive: free-tier Supabase projects pause after 7 days of inactivity.
-// A lightweight query every 3 days resets that timer so the project never pauses.
+// Ping on startup and every 12 hours. The interval timer resets on every deploy or
+// container restart, so a long interval (it was 3 days) can be pushed past the pause
+// window — that's how the project paused in Oct 2026. This is the first layer; the
+// daily GitHub Actions job (.github/workflows/supabase-keepalive.yml) pings
+// independently of this server and emails on failure.
 // (This prevents pausing — it cannot resume an already-paused project.)
 if (supabase) {
-  const KEEPALIVE_INTERVAL_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
+  const KEEPALIVE_INTERVAL_MS = 12 * 60 * 60 * 1000; // 12 hours
   const keepalivePing = async () => {
     const { error } = await supabase.from('results').select('id').limit(1);
-    console.log(error ? `Supabase keepalive failed: ${error.message}` : 'Supabase keepalive ping OK');
+    if (error) console.error(`Supabase keepalive failed: ${error.message}`);
+    else console.log('Supabase keepalive ping OK');
   };
+  keepalivePing();
   setInterval(keepalivePing, KEEPALIVE_INTERVAL_MS).unref();
 }
 
@@ -685,6 +691,16 @@ app.get('/api/count', async (req, res) => {
     return res.json({ count });
   }
   res.json({ count: resultStore.size });
+});
+
+// ── HEALTH ENDPOINT ──────────────────────────────
+// Checked daily by the GitHub Actions keepalive; 503 means the database is
+// paused or unreachable (results, feed, and counter are broken).
+app.get('/api/health', async (req, res) => {
+  if (!supabase) return res.json({ ok: true, db: 'memory' });
+  const { error } = await supabase.from('results').select('id').limit(1);
+  if (error) return res.status(503).json({ ok: false, db: 'unreachable' });
+  res.json({ ok: true, db: 'ok' });
 });
 
 // ── OG IMAGE ENDPOINT ──────────────────────────
