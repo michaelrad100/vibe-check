@@ -158,8 +158,41 @@ async function exaSearch(idea, competitorNames = []) {
 }
 
 // ── PERPLEXITY CALL ─────────────────────────────
+// Perplexity caps request *starts* per second by account tier (Tier 0, under $50
+// lifetime spend, is 1/sec on a rolling one-second window). The batches fire several
+// calls at once, so space the starts out; the calls still run concurrently once
+// started. A 429 that slips through is retried after its retry-after.
+const PERPLEXITY_MIN_GAP_MS = Number(process.env.PERPLEXITY_MIN_GAP_MS ?? 1100);
+const PERPLEXITY_MAX_ATTEMPTS = 4;
+let nextPerplexitySlot = 0;
+function waitForPerplexitySlot() {
+  const now = Date.now();
+  const start = Math.max(now, nextPerplexitySlot);
+  nextPerplexitySlot = start + PERPLEXITY_MIN_GAP_MS;
+  return new Promise(resolve => setTimeout(resolve, start - now));
+}
+
 async function callPerplexity(userMessage) {
-  const res = await fetch('https://api.perplexity.ai/chat/completions', {
+  for (let attempt = 1; ; attempt++) {
+    await waitForPerplexitySlot();
+    const res = await requestPerplexity(userMessage);
+    if (res.status === 429 && attempt < PERPLEXITY_MAX_ATTEMPTS) {
+      const retryAfterS = Number(res.headers?.get?.('retry-after')) || 0;
+      console.warn(`Perplexity 429, retrying (attempt ${attempt + 1}/${PERPLEXITY_MAX_ATTEMPTS})`);
+      await new Promise(resolve => setTimeout(resolve, Math.max(retryAfterS * 1000, PERPLEXITY_MIN_GAP_MS)));
+      continue;
+    }
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Perplexity API error ${res.status}: ${body}`);
+    }
+    const json = await res.json();
+    return { content: json.choices[0].message.content, citations: json.citations || [] };
+  }
+}
+
+function requestPerplexity(userMessage) {
+  return fetch('https://api.perplexity.ai/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${PERPLEXITY_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -174,12 +207,6 @@ async function callPerplexity(userMessage) {
       temperature: 0.2,
     }),
   });
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Perplexity API error ${res.status}: ${body}`);
-  }
-  const json = await res.json();
-  return { content: json.choices[0].message.content, citations: json.citations || [] };
 }
 
 // ── PROMPTS ─────────────────────────────────────

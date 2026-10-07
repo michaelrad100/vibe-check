@@ -98,6 +98,24 @@ describe('callPerplexity', () => {
     fetch.mockResolvedValue(mockErrorResponse(429, 'Rate limit exceeded'));
 
     await expect(callPerplexity('test')).rejects.toThrow('Perplexity API error 429');
+    expect(fetch).toHaveBeenCalledTimes(4);
+  });
+
+  it('retries a 429 and returns the successful response', async () => {
+    fetch
+      .mockResolvedValueOnce(mockErrorResponse(429, 'Rate limit exceeded'))
+      .mockResolvedValueOnce(mockOkResponse('{"ok":true}'));
+
+    const result = await callPerplexity('test');
+    expect(result.content).toBe('{"ok":true}');
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not retry non-429 errors', async () => {
+    fetch.mockResolvedValue(mockErrorResponse(500, 'Server error'));
+
+    await expect(callPerplexity('test')).rejects.toThrow('Perplexity API error 500');
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   it('throws on a 500 server error response', async () => {

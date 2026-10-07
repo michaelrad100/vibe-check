@@ -2246,9 +2246,16 @@
 
 <!-- Version corner (always visible) -->
 <div class="version-corner">
-  <span class="version-badge" onclick="toggleChangelog(event)">v1.18</span>
+  <span class="version-badge" onclick="toggleChangelog(event)">v1.19</span>
   <div class="changelog-popover" id="changelog-popover">
     <div class="changelog-header">Release Notes</div>
+    <div class="changelog-entry">
+      <div class="changelog-version">v1.19 <span class="changelog-date">— Oct 7, 2026</span></div>
+      <ul class="changelog-list">
+        <li>Fixed analyses failing with a Perplexity rate-limit error</li>
+        <li>Database keepalive and daily health check so saved results stay online</li>
+      </ul>
+    </div>
     <div class="changelog-entry">
       <div class="changelog-version">v1.18 <span class="changelog-date">— Oct 1, 2026</span></div>
       <ul class="changelog-list">
